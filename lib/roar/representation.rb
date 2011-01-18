@@ -3,6 +3,7 @@ module Roar
   # requires ActiveModel: #attributes, model_name ???
   # DOC: #to_xml, #as_xml, #to_hash
   module Representation
+    extend ActiveSupport::Concern
     include ActiveModel::Serialization
     include ActiveModel::Serializers::Xml
     
@@ -15,5 +16,23 @@ module Roar
       options.reverse_merge!(:skip_instruct  => true)
       to_xml(options)
     end
+    
+    module ClassMethods
+      def from_xml(*args)
+        new({}).from_xml(*args) # DISCUSS: make options in .new optional?
+      end
+      
+    end
+    
+    
+    # For item collections that shouldn't be wrapped with a container tag.
+    class UnwrappedCollection < Array
+      def to_xml(*args)
+        collect do |e|
+          e.to_xml(*args) # pass options[:builder] to Hash or whatever. don't like that.
+        end.join("\n")
+      end
+    end
+    
   end
 end
