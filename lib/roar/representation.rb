@@ -28,9 +28,10 @@ module Roar
     # For item collections that shouldn't be wrapped with a container tag.
     class UnwrappedCollection < Array
       def to_xml(*args)
-        collect do |e|
+        each do |e|
+          # DISCUSS: we should call #to_tag here.
           e.to_xml(*args) # pass options[:builder] to Hash or whatever. don't like that.
-        end.join("\n")
+        end
       end
     end
     
