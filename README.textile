@@ -17,3 +17,6 @@ Currently it relies on the following gems:
 * Restfulie 
 
 h2. Representation
+
+
+h2. Client/Server
