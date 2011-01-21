@@ -1,10 +1,19 @@
 require 'test_helper'
+require "active_support/core_ext/class/attribute"
+require "hooks/inheritable_attribute"
 
 class RepresenterTest < MiniTest::Spec
   Collection = Roar::Representation::UnwrappedCollection
   
   class TestModel
     include Roar::Representer::Xml
+    
+    extend Hooks::InheritableAttribute
+    # TODO: Move to Representer::Xml
+    inheritable_attr :xml_collections
+    self.xml_collections = {}
+    
+    
     attr_accessor :attributes
     
     def self.model_name
@@ -16,28 +25,39 @@ class RepresenterTest < MiniTest::Spec
     end
   end
   
+  describe ".collection within .xml" do
+    before do
+      @c = Class.new(TestModel)
+    end
+    
+    it "sets the class attribute" do
+      assert_equal({}, @c.xml_collections)
+      @c.xml do
+        collection :items
+      end
+      
+      assert_equal({:items => {}}, @c.xml_collections)
+    end
+    
+  end
   
   describe "A Model with mixed-in Roar::Representer::Xml" do
     before do
       @c = Class.new(TestModel)
       @l = @c.new "name" => "tucker", "items" => [{}, {}]
       
-      @l.class.instance_eval do
-        xml do
-          collection :items  # in: pushes <item> into items attribute. out: packs items into UnwrappedCollection.
-        end
-      end
+      @c.collection :items
     end
-      
-    it "#to_xml doesn't wrap collections magically" do
-      assert_equal "<test>
+    
+    describe "attributes defined as collection" do
+      it "#to_xml doesn't wrap collection attributes" do
+        assert_equal "<test>
   <name>tucker</name>
   <item>\n  </item>
   <item>\n  </item>
 </test>\n", @l.to_xml(:skip_instruct=>true)  # FIXME: make standard/#as_xml
-    end
+      end
     
-    describe "attributes defined as collection" do
       it ".from_xml pushes deserialized items to the pluralized attribute" do
         assert_equal @c.new("name" => "tucker", "items" => ["Beer", "Peanut Butter"]).attributes, @c.from_xml("<test>
   <name>tucker</name>
@@ -55,11 +75,11 @@ class RepresenterTest < MiniTest::Spec
     end
           
       it ".collection respects :class in .from_xml" do 
-        Local.xml do
-          selfcontained :item, :class => Item  # in: calls Item.from_hash(<item>...</item>), +above. out: item.to_xml
+        @c.xml do
+          collection :item, :class => Item  # in: calls Item.from_hash(<item>...</item>), +above. out: item.to_xml
         end
         
-        @l = Local.from_xml("<local>
+        @l = @c.from_xml("<local>
   <name>tucker</name>
   <item>beer</item>
   <item>chips</item>
@@ -120,4 +140,3 @@ class RepresenterTest < MiniTest::Spec
     end 
   end
 end
-    

@@ -4,11 +4,13 @@ module Roar
       extend ActiveSupport::Concern
       
       module ClassMethods
-        def xml(*)
+        def xml(*args, &block)
+          instance_exec(&block)
         end
         
-        
-        
+        def collection(name, options={})
+          xml_collections[name] = options
+        end
         
         
         def from_xml(xml)
