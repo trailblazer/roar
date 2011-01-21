@@ -5,6 +5,7 @@ require "hooks/inheritable_attribute"
 class RepresenterTest < MiniTest::Spec
   Collection = Roar::Representation::UnwrappedCollection
   
+  # fixtures:  
   class TestModel
     include Roar::Representer::Xml
     
@@ -25,13 +26,24 @@ class RepresenterTest < MiniTest::Spec
     end
   end
   
+  class Item < TestModel
+    def to_xml(options); options[:builder].tag! :item, attributes; end
+    def self.from_xml(xml); self.new Hash.from_xml(xml)["item"]; end
+    def ==(b)
+      attributes == b.attributes
+    end
+    
+  end
+
+
+  # and tests:
   describe ".collection within .xml" do
     before do
       @c = Class.new(TestModel)
+      assert_equal({}, @c.xml_collections)
     end
     
     it "sets the class attribute" do
-      assert_equal({}, @c.xml_collections)
       @c.xml do
         collection :items
       end
@@ -39,6 +51,13 @@ class RepresenterTest < MiniTest::Spec
       assert_equal({:items => {}}, @c.xml_collections)
     end
     
+    it "accepts options" do
+      @c.xml do
+        collection :items, :class => Item
+      end
+      
+      assert_equal({:items => {:class => Item}}, @c.xml_collections)
+    end
   end
   
   describe "A Model with mixed-in Roar::Representer::Xml" do
@@ -76,16 +95,16 @@ class RepresenterTest < MiniTest::Spec
           
       it ".collection respects :class in .from_xml" do 
         @c.xml do
-          collection :item, :class => Item  # in: calls Item.from_hash(<item>...</item>), +above. out: item.to_xml
+          collection :items, :class => Item  # in: calls Item.from_hash(<item>...</item>), +above. out: item.to_xml
         end
         
-        @l = @c.from_xml("<local>
+        @l = @c.from_xml("<test>
   <name>tucker</name>
   <item>beer</item>
   <item>chips</item>
-</local>")
+</test>")
 
-        assert_equal [Item.new(:beer), Item.new(:chips)], @l.items
+        assert_equal [Item.new("beer"), Item.new("chips")], @l.attributes["items"]
       end
       
   end
@@ -138,5 +157,24 @@ class RepresenterTest < MiniTest::Spec
       @l.to_xml(:builder => @xml)
       assert_equal "<method type=\"PUT\"/><method type=\"GET\"/>", @xml.target!
     end 
+  end
+  
+  class TestItemTest < MiniTest::Spec
+    before do
+      @i = Item.new("Beer") 
+    end
+    
+    it "responds to #to_xml" do
+      assert_equal "<item>Beer</item>", @i.to_xml(:builder => Builder::XmlMarkup.new)
+    end
+    
+    it "responds to #from_xml" do
+      assert_equal @i.attributes, Item.from_xml("<item>Beer</item>").attributes
+    end
+    
+    it "responds to #==" do
+      assert_equal Item.new("Beer"), @i
+      assert Item.new("Auslese") != @i
+    end
   end
 end
