@@ -20,3 +20,4 @@ h2. Representation
 
 
 h2. Client/Server
+client: accessing nested attributes in complex xml hashes sucks. order[:position][1][:article] 
