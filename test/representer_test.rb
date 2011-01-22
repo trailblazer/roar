@@ -2,8 +2,7 @@ require 'test_helper'
 require "active_support/core_ext/class/attribute"
 require "hooks/inheritable_attribute"
 
-class RepresenterTest < MiniTest::Spec
-  Collection = Roar::Representation::UnwrappedCollection
+Collection = Roar::Representation::UnwrappedCollection
   
   # fixtures:  
   class TestModel
@@ -32,11 +31,51 @@ class RepresenterTest < MiniTest::Spec
     def ==(b)
       attributes == b.attributes
     end
-    
   end
 
+class PublicXmlRepresenterAPITest < MiniTest::Spec
+  describe "The public XML Representer API" do
+    before do
+      @c = Class.new(TestModel)
+      @o = @c.new "name" => "Joe"
+    end
+    
+    it "#attributes returns generic attributes hash" do
+      assert_equal({"name" => "Joe"}, @o.attributes)
+    end
+    
+    it "#attributes_for_xml returns attributes hash ready for xml rendering" do
+      assert_equal({"name" => "Joe"}, @o.attributes_for_xml)
+    end
+    
+    it "#to_xml renders XML as string" do
+      assert_equal "<test>\n  <name>Joe</name>\n</test>\n", @o.to_xml
+    end
+    
+    it ".from_xml creates model from xml" do
+      assert_equal @o.attributes, @c.from_xml("<test>\n  <name>Joe</name>\n</test>\n").attributes
+    end
+    
+    it ".from_attributes creates model from parsed XML attributes hash" do
+      assert_equal @o.attributes, @c.from_xml_attributes("name" => "Joe").attributes
+    end
+    
+    it ".from_attributes creates model from generic attributes hash" do
+      assert_equal @o.attributes, @c.from_attributes("name" => "Joe").attributes
+    end
+    
+    #it "#to_xml respects #attributes_for_xml" do
+    #  @o.instance_eval do
+    #    def attributes_for_xml(*) # user overrides it in the "representing" class.
+    #      super.merge!({"kind" => "nice"})
+    #    end
+    #  end
+    #  assert_equal "<TestModel>\n  <name>Joe</name>\n  <kind>nice</kind>\n</TestModel>\n", @o.to_xml
+    #end
+  end
+end
 
-  # and tests:
+class CollectionInRepresenterTest < MiniTest::Spec
   describe ".collection within .xml" do
     before do
       @c = Class.new(TestModel)
