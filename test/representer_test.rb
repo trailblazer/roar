@@ -2,36 +2,18 @@ require 'test_helper'
 require "active_support/core_ext/class/attribute"
 require "hooks/inheritable_attribute"
 
-Collection = Roar::Representation::UnwrappedCollection
+Collection = Roar::Representer::Xml::UnwrappedCollection
   
-  # fixtures:  
-  class TestModel
-    include Roar::Representer::Xml
-    
-    extend Hooks::InheritableAttribute
-    # TODO: Move to Representer::Xml
-    inheritable_attr :xml_collections
-    self.xml_collections = {}
-    
-    
-    attr_accessor :attributes
-    
-    def self.model_name
-      "test"
-    end
-    
-    def initialize(attributes={})
-      @attributes = attributes
-    end
+# fixtures:  
+
+
+class Item < TestModel
+  def to_xml(options); options[:builder].tag! :item, attributes; end
+  def self.from_xml(xml); self.new Hash.from_xml(xml)["item"]; end
+  def ==(b)
+    attributes == b.attributes
   end
-  
-  class Item < TestModel
-    def to_xml(options); options[:builder].tag! :item, attributes; end
-    def self.from_xml(xml); self.new Hash.from_xml(xml)["item"]; end
-    def ==(b)
-      attributes == b.attributes
-    end
-  end
+end
 
 class PublicXmlRepresenterAPITest < MiniTest::Spec
   describe "The public XML Representer API" do

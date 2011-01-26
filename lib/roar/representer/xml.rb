@@ -1,7 +1,16 @@
+require "active_support/core_ext/hash/conversions"
+require "hooks"
+
 module Roar
   module Representer
-    module Xml
+    module Xml  # DISCUSS: this is a serialization backend for ActiveSupport xml serializer.
       extend ActiveSupport::Concern
+      
+      included do
+        extend Hooks::InheritableAttribute
+        inheritable_attr :xml_collections
+        self.xml_collections = {}
+      end
       
       module ClassMethods
         def xml(*args, &block)
@@ -30,6 +39,7 @@ module Roar
         end
         
         # Generic creator. # FIXME: move to Representer base.
+        # DISCUSS: semantically identical to #update_attributes
         def from_attributes(attributes)
           new(attributes)
         end
@@ -53,7 +63,7 @@ module Roar
         end
         
         def typecast_collection_for(collection, klass)
-          collection.collect { |e| klass.new(e) }  # FIXME: this must be from_xml!
+          collection.collect { |e| klass.from_xml_attributes(e) }  # FIXME: this must be from_xml_attributes!
         end
       end
       
@@ -79,10 +89,20 @@ module Roar
         self.class.xml_collections.each do |name, options|  # FIXME: provide iterator method with block.
           name        = name.to_s
           collection = attributes.delete(name)
-          attributes[name.singularize] = Roar::Representation::UnwrappedCollection.new(collection)
+          attributes[name.singularize] = UnwrappedCollection.new(collection)
         end
         attributes
       end
+      
+      # For item collections that shouldn't be wrapped with a container tag.
+    class UnwrappedCollection < Array
+      def to_xml(*args)
+        each do |e|
+          # DISCUSS: we should call #to_tag here.
+          e.to_xml(*args) # pass options[:builder] to Hash or whatever. don't like that.
+        end
+      end
+    end
     end
   end
 end
