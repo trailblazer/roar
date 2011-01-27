@@ -10,6 +10,8 @@ module Roar
         extend Hooks::InheritableAttribute
         inheritable_attr :xml_collections
         self.xml_collections = {}
+        inheritable_attr :xml_typed_entities
+        self.xml_typed_entities = {}
       end
       
       module ClassMethods
@@ -17,8 +19,13 @@ module Roar
           instance_exec(&block)
         end
         
-        def collection(name, options={})
+        def has_many(name, options={})
           xml_collections[name] = options
+        end
+        alias_method :collection, :has_many
+        
+        def has_one(name, options={})
+          xml_typed_entities[name] = options
         end
         
         # Deserializes the xml document and creates a new model instance with the parsed attribute hash.
@@ -33,7 +40,7 @@ module Roar
         def from_xml_attributes(attributes)
           # DISCUSS: use a hook here?
           create_collection_attributes_from_xml(attributes)
-          #typecast_attributes_from_xml(attributes)
+          create_typed_attributes_from_xml(attributes)
           
           from_attributes(attributes) # generic hash.
         end
@@ -63,7 +70,22 @@ module Roar
         end
         
         def typecast_collection_for(collection, klass)
-          collection.collect { |e| klass.from_xml_attributes(e) }  # FIXME: this must be from_xml_attributes!
+          collection.collect { |e| klass.from_xml_attributes(e) }
+        end
+        
+        def create_typed_attributes_from_xml(attributes) # TODO: abstract and use in #create_collection_attributes_from_xml
+          xml_typed_entities.each do |name, options|
+            name        = name.to_s
+            item  = attributes.delete(name.singularize)
+            #collection  = [collection] unless collection.kind_of?(Array)
+            
+            # FIXME: extract.
+            if klass = options[:class]
+              item = klass.from_xml_attributes(item) 
+            end
+            
+            attributes[name] = item
+          end
         end
       end
       

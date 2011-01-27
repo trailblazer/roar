@@ -57,7 +57,36 @@ class PublicXmlRepresenterAPITest < MiniTest::Spec
   end
 end
 
-class CollectionInRepresenterTest < MiniTest::Spec
+class HasOneAndHasManyInRepresenterTest < MiniTest::Spec
+  describe ".has_one within .xml" do
+    before do
+      @c = Class.new(TestModel)
+      assert_equal({}, @c.xml_typed_entities)
+    end
+    
+    it "sets the class attribute for deserialization" do
+      @c.xml do
+        has_one :item, :class => Item
+      end
+      
+      assert_equal({:item => {:class => Item}}, @c.xml_typed_entities)
+    end
+    
+    it "respects :class in .from_xml" do 
+      @c.xml do
+        has_one :item, :class => Item
+      end
+      
+      @l = @c.from_xml("<test>
+  <name>tucker</name>
+  <item>beer</item>
+</test>")
+
+      assert_equal Item.new("beer"), @l.attributes["item"]
+    end
+  end
+      
+  
   describe ".collection within .xml" do
     before do
       @c = Class.new(TestModel)
@@ -79,6 +108,15 @@ class CollectionInRepresenterTest < MiniTest::Spec
       
       assert_equal({:items => {:class => Item}}, @c.xml_collections)
     end
+    
+    it "is an alias to .has_many" do
+      @c.xml do
+        has_many :items
+      end
+      
+      assert_equal({:items => {}}, @c.xml_collections)
+    end
+    
   end
   
   describe "A Model with mixed-in Roar::Representer::Xml" do
