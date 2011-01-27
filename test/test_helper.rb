@@ -7,6 +7,7 @@ require 'minitest/spec'
 require 'active_model'
 require 'roar/client/proxy'
 require 'roar/representer/xml'
+require 'roar/client/model_methods'
 
 require 'stringio'  # FIXME. remove for 3.0.4.
 require 'builder'
@@ -14,14 +15,9 @@ require 'builder'
 # TODO: move to fixtures.rb
 class TestModel
   include Roar::Representer::Xml
-  
-  attr_accessor :attributes
+  include Roar::Client::ModelMethods  # gives us #attributes.
   
   def self.model_name
     "test"
-  end
-  
-  def initialize(attributes={})
-    @attributes = attributes
   end
 end
