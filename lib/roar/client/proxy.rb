@@ -3,6 +3,7 @@ require "restfulie"
 module Roar
   module Client
     module Transport
+      # TODO: generically handle return codes/let Restfulie do it.
       # get_uri
     end
     
@@ -13,7 +14,7 @@ module Roar
       module ClassMethods
         def get_uri(uri, as="application/xml")  # Transport.
           # DISCUSS: how to decide as?
-          Restfulie.at(uri).accepts(as).raw.get
+          Restfulie.at(uri).accepts(as).get
         end
         
         def get(variable_path)  # Proxy.
