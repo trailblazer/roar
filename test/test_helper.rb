@@ -5,7 +5,9 @@ require 'test/unit'
 require 'minitest/spec'
 
 require 'active_model'
+require 'roar/client/entity_proxy'
 require 'roar/client/proxy'
+require 'roar/representer'
 require 'roar/representer/xml'
 require 'roar/client/model_methods'
 
@@ -21,3 +23,6 @@ class TestModel
     "test"
   end
 end
+
+Collection = Roar::Representer::Xml::UnwrappedCollection
+EntityProxy = Roar::Client::EntityProxy
