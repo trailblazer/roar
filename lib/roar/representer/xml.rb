@@ -55,15 +55,10 @@ module Roar
       protected
         # Since Hash.from_xml doesn't always detect collections we do it here. 
         def create_collection_attributes_from_xml(attributes)
-          xml_collections.each do |name, options|
-            name        = name.to_s
+          filter_attributes_for(attributes, xml_collections) do |name, options, attrs|
             collection  = attributes.delete(name.singularize)
             collection  = [collection] unless collection.kind_of?(Array)
-            
-            # FIXME: extract.
-            if klass = options[:class]
-              collection = typecast_collection_for(collection, klass) 
-            end
+            collection  = typecast_collection_for(collection, options[:class]) if options[:class]
             
             attributes[name] = collection
           end
@@ -73,18 +68,19 @@ module Roar
           collection.collect { |e| klass.from_xml_attributes(e) }
         end
         
-        def create_typed_attributes_from_xml(attributes) # TODO: abstract and use in #create_collection_attributes_from_xml
-          xml_typed_entities.each do |name, options|
-            name        = name.to_s
-            item  = attributes.delete(name.singularize)
-            #collection  = [collection] unless collection.kind_of?(Array)
-            
-            # FIXME: extract.
-            if klass = options[:class]
-              item = klass.from_xml_attributes(item) 
-            end
-            
+        # Attributes can be typecasted with +has_one+.
+        def create_typed_attributes_from_xml(attributes)
+          filter_attributes_for(attributes, xml_typed_entities) do |name, options, attrs|
+            item  = attrs.delete(name)                        # attributes[:sum]
+            item  = options[:class].from_xml_attributes(item) # Sum.from_xml_attributes
             attributes[name] = item
+          end
+        end
+        
+        def filter_attributes_for(attributes, config)
+          config.each do |name, options|
+            name = name.to_s
+            yield name, options, attributes
           end
         end
       end

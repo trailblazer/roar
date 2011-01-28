@@ -57,6 +57,24 @@ class PublicXmlRepresenterAPITest < MiniTest::Spec
   end
 end
 
+class PrivateXmlRepresenterAPITest < MiniTest::Spec
+  describe "The private XML Representer API" do
+    before do
+      @c = Class.new(TestModel)
+      @o = @c.new "name" => "Joe", "drink" => "Beer"
+    end
+    
+    it ".adajf filters attributes and applies the passed block" do
+      attributes = {"name" => "Joe", "drink" => "Beer"}
+      @c.send :filter_attributes_for, attributes, {:drink => "Lager"} do |name, options, attrs|
+        attrs.delete(name)      # modify the attributes.
+        attrs[name.upcase] = options
+      end
+      assert_equal({"name" => "Joe", "DRINK" => "Lager"}, attributes)
+    end
+  end
+end
+
 class HasOneAndHasManyInRepresenterTest < MiniTest::Spec
   describe ".has_one within .xml" do
     before do
@@ -85,7 +103,10 @@ class HasOneAndHasManyInRepresenterTest < MiniTest::Spec
       assert_equal Item.new("beer"), @l.attributes["item"]
     end
   end
-      
+  
+  # has_proxied :item, :class => Item
+  # has_many_proxied :items
+  # # reagieren auf #finalize! - automatisch als ProxiedItem erstellen.
   
   describe ".collection within .xml" do
     before do
