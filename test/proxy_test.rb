@@ -22,4 +22,31 @@ class ProxyTest < MiniTest::Spec
       assert_equal({"id" => "4711"},  @klass.get(4711).attributes)
     end
   end
+  
+  describe "EntityProxy" do
+    before do
+      @proxy_class = EntityProxy.class_for(:class => TestModel)
+    end
+    
+    it ".class_for returns an EntityProxy subclass" do
+      @proxy = @proxy_class.new
+      assert_kind_of EntityProxy, @proxy
+    end
+    
+    it "responds to .options" do
+      assert_equal({:class => TestModel}, @proxy_class.options)
+    end
+    
+    it "doesn't override superclass options" do
+      assert_equal nil, EntityProxy.options
+    end
+    
+    it "responds to .from_attributes and responds to #attributes" do
+      assert_equal({:urn => "urn:item"}, @proxy_class.from_attributes(:urn => "urn:item").attributes)
+    end
+    
+    it "responds to .model_name with the proxied name" do
+      assert_equal "test", @proxy_class.model_name
+    end
+  end
 end

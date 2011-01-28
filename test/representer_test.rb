@@ -2,8 +2,7 @@ require 'test_helper'
 require "active_support/core_ext/class/attribute"
 require "hooks/inheritable_attribute"
 
-Collection = Roar::Representer::Xml::UnwrappedCollection
-  
+
 # fixtures:  
 
 
@@ -64,11 +63,11 @@ class PrivateXmlRepresenterAPITest < MiniTest::Spec
       @o = @c.new "name" => "Joe", "drink" => "Beer"
     end
     
-    it ".adajf filters attributes and applies the passed block" do
+    it ".filter_attributes_for applies the passed block" do
       attributes = {"name" => "Joe", "drink" => "Beer"}
-      @c.send :filter_attributes_for, attributes, {:drink => "Lager"} do |name, options, attrs|
-        attrs.delete(name)      # modify the attributes.
-        attrs[name.upcase] = options
+      @c.send :filter_attributes_for, attributes, {:drink => "Lager"} do |name, options|
+        attributes.delete(name)      # modify the attributes.
+        attributes[name.upcase] = options
       end
       assert_equal({"name" => "Joe", "DRINK" => "Lager"}, attributes)
     end
@@ -101,6 +100,51 @@ class HasOneAndHasManyInRepresenterTest < MiniTest::Spec
 </test>")
 
       assert_equal Item.new("beer"), @l.attributes["item"]
+    end
+  end
+  
+  describe ".has_proxied within .xml" do
+    before do
+      @c = Class.new(TestModel)
+      assert_equal({}, @c.xml_typed_entities)
+    end
+    
+    it "saves the wrapped configuration" do
+      @c.xml do
+        has_proxied :item, :class => TestModel
+      end
+      
+      proxy_klass = @c.xml_typed_entities[:item][:class]
+      assert_equal({:class => TestModel}, proxy_klass.options)
+    end
+    
+    it "wraps the item in an EntityProxy in .from_xml" do 
+      @c.xml do
+        has_proxied :item, :class => TestModel
+      end
+      
+      @l = @c.from_xml("<test>
+  <item><uri>http://localhost:9999/test/1</uri></item>
+</test>")
+      
+      @proxy = @l.attributes["item"]
+      
+      assert_kind_of EntityProxy, @proxy
+      assert_equal "test", @proxy.class.model_name
+      assert_equal({"uri" => "http://localhost:9999/test/1"}, @proxy.attributes)
+      # we can now call #finalize!
+    end
+    
+    it "returns the unfinalized xml in #to_xml" do 
+      @c.xml do
+        has_proxied :item, :class => TestModel
+      end
+      
+      @l = @c.from_xml("<test>
+  <item><uri>http://localhost:9999/test/1</uri></item>
+</test>")
+
+      assert_equal "<test>\n  <item>\n    <uri>http://localhost:9999/test/1</uri>\n  </item>\n</test>\n", @l.to_xml
     end
   end
   
@@ -137,7 +181,6 @@ class HasOneAndHasManyInRepresenterTest < MiniTest::Spec
       
       assert_equal({:items => {}}, @c.xml_collections)
     end
-    
   end
   
   describe "A Model with mixed-in Roar::Representer::Xml" do

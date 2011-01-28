@@ -28,6 +28,11 @@ module Roar
           xml_typed_entities[name] = options
         end
         
+        def has_proxied(name, options={})
+          has_one(name, {:class => EntityProxy.class_for(options)})
+        end
+        
+        
         # Deserializes the xml document and creates a new model instance with the parsed attribute hash.
         def from_xml(xml)
           deserialized_hash = Hash.from_xml(xml)  # yes, we use ActiveSupport for the real work.
@@ -52,10 +57,17 @@ module Roar
         end
         
         
+        def create_collection_attributes_for_xml(attributes)
+          filter_attributes_for(attributes, xml_collections) do |name, options|
+            collection = attributes.delete(name)
+            attributes[name.singularize] = UnwrappedCollection.new(collection)
+          end
+        end
+      
       protected
         # Since Hash.from_xml doesn't always detect collections we do it here. 
         def create_collection_attributes_from_xml(attributes)
-          filter_attributes_for(attributes, xml_collections) do |name, options, attrs|
+          filter_attributes_for(attributes, xml_collections) do |name, options|
             collection  = attributes.delete(name.singularize)
             collection  = [collection] unless collection.kind_of?(Array)
             collection  = typecast_collection_for(collection, options[:class]) if options[:class]
@@ -70,8 +82,8 @@ module Roar
         
         # Attributes can be typecasted with +has_one+.
         def create_typed_attributes_from_xml(attributes)
-          filter_attributes_for(attributes, xml_typed_entities) do |name, options, attrs|
-            item  = attrs.delete(name)                        # attributes[:sum]
+          filter_attributes_for(attributes, xml_typed_entities) do |name, options|
+            item  = attributes.delete(name)                        # attributes[:sum]
             item  = options[:class].from_xml_attributes(item) # Sum.from_xml_attributes
             attributes[name] = item
           end
@@ -80,10 +92,11 @@ module Roar
         def filter_attributes_for(attributes, config)
           config.each do |name, options|
             name = name.to_s
-            yield name, options, attributes
+            yield name, options
           end
         end
       end
+      
       
       
       def to_xml(options={})
@@ -100,27 +113,20 @@ module Roar
       # Backend-specific: Returns hash ready for xml rendering by <tt>Hash#to_xml</tt>
       def attributes_for_xml(*)
         serialized = attributes.dup # FIXME: we don't want to override attributes here.
-        create_collection_attributes_for_xml(serialized)
+        self.class.create_collection_attributes_for_xml(serialized)
+        serialized
       end
       
-      def create_collection_attributes_for_xml(attributes)
-        self.class.xml_collections.each do |name, options|  # FIXME: provide iterator method with block.
-          name        = name.to_s
-          collection = attributes.delete(name)
-          attributes[name.singularize] = UnwrappedCollection.new(collection)
-        end
-        attributes
-      end
       
       # For item collections that shouldn't be wrapped with a container tag.
-    class UnwrappedCollection < Array
-      def to_xml(*args)
-        each do |e|
-          # DISCUSS: we should call #to_tag here.
-          e.to_xml(*args) # pass options[:builder] to Hash or whatever. don't like that.
+      class UnwrappedCollection < Array
+        def to_xml(*args)
+          each do |e|
+            # DISCUSS: we should call #to_tag here.
+            e.to_xml(*args) # pass options[:builder] to Hash or whatever. don't like that.
+          end
         end
       end
-    end
     end
   end
 end

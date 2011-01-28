@@ -18,6 +18,11 @@ Currently it relies on the following gems:
 
 h2. Representation
 
+Representer holds the mapping instructions for conversion from and to a representation (e.g. XML). This used to be split into controller and model. Now you can unit test your representations.
+
+Representations are implemented as mixins and can be used both on client and server.
+ 
+Representer should suit your representation and not try to make your representation suit the underlying representing layer.
 
 h2. Client/Server
 client: accessing nested attributes in complex xml hashes sucks. order[:position][1][:article] 
