@@ -2,20 +2,20 @@ require "restfulie"
 
 module Roar
   module Client
+    # Implements the HTTP verbs.
     module Transport
       # TODO: generically handle return codes/let Restfulie do it.
-      # get_uri
+      def get_uri(uri, as="application/xml")
+        # DISCUSS: how to decide as?
+        Restfulie.at(uri).accepts(as).get
+      end
     end
     
     module Proxy
       extend ActiveSupport::Concern
       
-    
       module ClassMethods
-        def get_uri(uri, as="application/xml")  # Transport.
-          # DISCUSS: how to decide as?
-          Restfulie.at(uri).accepts(as).get
-        end
+        include Transport
         
         def get(variable_path)  # Proxy.
           # DISCUSS: resource_uri = host?

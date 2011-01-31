@@ -1,6 +1,21 @@
 require 'test_helper'
 
 class ProxyTest < MiniTest::Spec
+  describe "Transport" do
+    before do
+      @klass = Class.new(Object) do
+        include Roar::Client::Transport
+      end
+      @o = @klass.new
+    end
+    
+    it "#get_uri returns Restfulie response" do
+      assert_equal "<test><id>4711</id></test>",  @o.get_uri("http://localhost:9999/test/4711").body
+    end
+    
+  end
+  
+  
   describe "The public Proxy API" do
     before do
       @klass = Class.new(TestModel) do
@@ -12,10 +27,6 @@ class ProxyTest < MiniTest::Spec
         
       end
       @o = @klass.new
-    end
-    
-    it "#get_uri returns Restfulie response" do
-      assert_equal "<test><id>4711</id></test>",  @klass.get_uri("http://localhost:9999/test/4711").body
     end
     
     it "#get returns deserialized object from " do  # DISCUSS: move to Client?
@@ -47,6 +58,11 @@ class ProxyTest < MiniTest::Spec
     
     it "responds to .model_name with the proxied name" do
       assert_equal "test", @proxy_class.model_name
+    end
+    
+    # finalize!
+    it "responds to #finalize! and enriches its attributes from the proxied response" do
+      assert_equal({:uri => "http://localhost:9999/test/1", "id" => "1"}, @proxy_class.from_attributes(:uri => "http://localhost:9999/test/1").finalize!.attributes)
     end
   end
 end
