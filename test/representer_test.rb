@@ -193,14 +193,15 @@ class HasOneAndHasManyInRepresenterTest < MiniTest::Spec
     
     it "returns the unfinalized xml in #to_xml" do 
       @c.xml do
-        has_proxied :item, :class => TestModel
+        has_many_proxied :item, :class => TestModel
       end
       
       @l = @c.from_xml("<test>
   <item><uri>http://localhost:9999/test/1</uri></item>
+  <item><uri>http://localhost:9999/test/2</uri></item>
 </test>")
 
-      assert_equal "<test>\n  <item>\n    <uri>http://localhost:9999/test/1</uri>\n  </item>\n</test>\n", @l.to_xml
+      assert_equal "<test>\n  <item>\n    <uri>http://localhost:9999/test/1</uri>\n  </item>\n  <item>\n    <uri>http://localhost:9999/test/2</uri>\n  </item>\n</test>\n", @l.to_xml
     end
   end
   
