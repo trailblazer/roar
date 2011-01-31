@@ -29,9 +29,12 @@ module Roar
         end
         
         def has_proxied(name, options={})
-          has_one(name, {:class => EntityProxy.class_for(options)})
+          has_one(name, {:class => EntityProxy.class_for(options)}) 
         end
         
+        def has_many_proxied(name, options={})
+          has_many(name, {:class => EntityProxy.class_for(options)}) 
+        end
         
         # Deserializes the xml document and creates a new model instance with the parsed attribute hash.
         def from_xml(xml)
@@ -69,7 +72,7 @@ module Roar
         def create_collection_attributes_from_xml(attributes)
           filter_attributes_for(attributes, xml_collections) do |name, options|
             collection  = attributes.delete(name.singularize)
-            collection  = [collection] unless collection.kind_of?(Array)
+            collection  = [collection] unless collection.kind_of?(Array)  # FIXME: do that IN 
             collection  = typecast_collection_for(collection, options[:class]) if options[:class]
             
             attributes[name] = collection
@@ -85,6 +88,7 @@ module Roar
           filter_attributes_for(attributes, xml_typed_entities) do |name, options|
             item  = attributes.delete(name)                        # attributes[:sum]
             item  = options[:class].from_xml_attributes(item) # Sum.from_xml_attributes
+            # DISCUSS: we could also run a hook here.
             attributes[name] = item
           end
         end

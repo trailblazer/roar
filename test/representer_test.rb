@@ -148,9 +148,62 @@ class HasOneAndHasManyInRepresenterTest < MiniTest::Spec
     end
   end
   
-  # has_proxied :item, :class => Item
-  # has_many_proxied :items
-  # # reagieren auf #finalize! - automatisch als ProxiedItem erstellen.
+  # UNIT
+  describe ".has_many" do
+    before do
+      @c = Class.new(TestModel)
+      assert_equal({}, @c.xml_collections)
+    end
+    
+    it "saves the wrapped configuration" do
+      @c.xml do
+        has_many_proxied :items, :class => TestModel
+      end
+      
+      proxy_klass = @c.xml_collections[:items][:class]
+      assert_equal({:class => TestModel}, proxy_klass.options)
+    end
+  end
+  
+  # FUNCTIONAL
+  describe ".has_many_proxied within .xml" do
+    before do
+      @c = Class.new(TestModel)
+    end
+    
+    it "wraps the items in EntityProxys in .from_xml" do 
+      @c.xml do
+        has_many_proxied :items, :class => TestModel
+      end
+      
+      @l = @c.from_xml("<test>
+  <item><uri>http://localhost:9999/test/1</uri></item>
+  <item><uri>http://localhost:9999/test/2</uri></item>
+</test>")
+      
+      items = @l.attributes["items"]
+      assert_equal 2, @l.attributes["items"].size
+      
+      items.each_with_index do |item, i|
+        assert_kind_of EntityProxy, item, "#{item} not an EntityProxy"
+        assert_equal "test", item.class.model_name
+        assert_equal({"uri" => "http://localhost:9999/test/#{i+1}"}, item.attributes)
+      end
+    end
+    
+    it "returns the unfinalized xml in #to_xml" do 
+      @c.xml do
+        has_proxied :item, :class => TestModel
+      end
+      
+      @l = @c.from_xml("<test>
+  <item><uri>http://localhost:9999/test/1</uri></item>
+</test>")
+
+      assert_equal "<test>\n  <item>\n    <uri>http://localhost:9999/test/1</uri>\n  </item>\n</test>\n", @l.to_xml
+    end
+  end
+  
   
   describe ".collection within .xml" do
     before do
@@ -183,6 +236,7 @@ class HasOneAndHasManyInRepresenterTest < MiniTest::Spec
     end
   end
   
+  # DISCUSS: this is more like an integration test.
   describe "A Model with mixed-in Roar::Representer::Xml" do
     before do
       @c = Class.new(TestModel)
