@@ -15,7 +15,7 @@ class ClientModelMethodsTest < MiniTest::Spec
     end
     
     it "responds to .model_name" do
-      assert_equal "ClientModelMethodsTest::TestModel", @klass.model_name
+      assert_equal "client_model_methods_test/test_model", @klass.model_name
     end
   end
 end

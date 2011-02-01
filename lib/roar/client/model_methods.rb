@@ -5,9 +5,12 @@ module Roar
     module ModelMethods
       extend ActiveSupport::Concern
       
-      included do
-        extend ActiveModel::Naming
+      module ClassMethods
+        def model_name
+          ActiveSupport::Inflector.underscore(self) # We don't use AM::Naming for now.
+        end
       end
+      
       
       attr_accessor :attributes
       
