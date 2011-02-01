@@ -1,13 +1,13 @@
 require 'test_helper'
 
 class Article
-  include Roar::Client::ModelMethods
+  include Roar::Model
   include Roar::Representer::Xml
 end
 
 
 class Position
-  include Roar::Client::ModelMethods
+  include Roar::Model
   include Roar::Representer::Xml
   
   xml do
@@ -24,7 +24,7 @@ class Position
 end
 
 class Order
-  include Roar::Client::ModelMethods
+  include Roar::Model
   include Roar::Model::HttpVerbs
   
   # FIXME: how to know xml?

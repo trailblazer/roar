@@ -7,7 +7,7 @@ module Roar
       # TODO: generically handle return codes/let Restfulie do it.
       def get_uri(uri, as="application/xml")
         # DISCUSS: how to decide as?
-        Restfulie.at(uri).accepts(as).get
+        Restfulie.at(uri).accepts(as).get # TODO: debugging/logging here.
       end
     end
     

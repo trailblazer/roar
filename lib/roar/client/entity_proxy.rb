@@ -1,4 +1,4 @@
-require "roar/client/model_methods"
+require "roar/model"
 require "roar/representer/xml"
 require "active_support/core_ext/module/attr_internal"
 require "roar/client/proxy"
@@ -9,7 +9,7 @@ module Roar
     # Used e.g. in Representer::Xml.has_proxied.
     class EntityProxy
       # FIXME: where to move me? i do Representable and i use Transport. however, i'm only for clients.
-      include Client::ModelMethods
+      include Model
       include Representer::Xml # FIXME: why does EntityProxy know about xml? get this from Representable or so.
       extend Proxy
       
@@ -36,7 +36,7 @@ module Roar
       # Get the actual proxied resource.
       def finalize!(*)
         # TODO: move to class.
-        # DISCUSS: how to compute uri?
+        # DISCUSS: how to compute uri? what if NO uri passed? exception?
         self.proxied_resource = self.class.get_model(original_attributes["uri"], self.class.options[:class])
       end
       
