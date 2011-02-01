@@ -131,7 +131,7 @@ class HasOneAndHasManyInRepresenterTest < MiniTest::Spec
       
       assert_kind_of EntityProxy, @proxy
       assert_equal "test", @proxy.class.model_name
-      assert_equal({"uri" => "http://localhost:9999/test/1"}, @proxy.attributes)
+      assert_equal({"uri" => "http://localhost:9999/test/1"}, @proxy.send(:original_attributes))
       # we can now call #finalize!
     end
     
@@ -187,7 +187,7 @@ class HasOneAndHasManyInRepresenterTest < MiniTest::Spec
       items.each_with_index do |item, i|
         assert_kind_of EntityProxy, item, "#{item} not an EntityProxy"
         assert_equal "test", item.class.model_name
-        assert_equal({"uri" => "http://localhost:9999/test/#{i+1}"}, item.attributes)
+        assert_equal({"uri" => "http://localhost:9999/test/#{i+1}"}, item.send(:original_attributes))
       end
     end
     

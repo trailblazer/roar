@@ -46,7 +46,8 @@ module Roar
         
         # Backend-specific: Receives hash parsed from <tt>Hash.from_xml</tt> and prepares the abstract hash.
         def from_xml_attributes(attributes)
-          # DISCUSS: use a hook here?
+          # DISCUSS: use a hook here for collections and entity?
+          # DISCUSS: maybe we shouldn't distinguish between collections and entities, maybe there should be builders that know what to do. don't wanna overengineer here.
           create_collection_attributes_from_xml(attributes)
           create_typed_attributes_from_xml(attributes)
           
@@ -103,7 +104,7 @@ module Roar
       
       
       
-      def to_xml(options={})
+      def to_xml(options={})  # DISCUSS: shouldn't be overwritten.... this is backend-specific (Hash#to_xml vs. some builder whatever).
         xml_attributes = attributes_for_xml
         
         # from here is render-only:

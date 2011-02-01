@@ -9,6 +9,8 @@ h2. Introduction
 
 ROAR is an attempt to provide a useful framework for developing ROAs in Ruby. It bundles all the great tools we have and defines generic, simple interfaces to have real RESTful behaviour. Most applications simply expose CRUD operations via HTTP, whereas ROAR encourages you to use the power of different resource representations, content negotiation, HATEOAS and more.
 
+THE CENTRAL ASPECT is the resource. most trickiest: representation
+
 h2. Dependencies
 
 Currently it relies on the following gems:
@@ -26,3 +28,6 @@ Representer should suit your representation and not try to make your representat
 
 h2. Client/Server
 client: accessing nested attributes in complex xml hashes sucks. order[:position][1][:article] 
+don't confuse client/server with view/controller
+
+h2. Hypermedia and HATEOAS
