@@ -10,6 +10,7 @@ require 'roar/client/proxy'
 require 'roar/representer'
 require 'roar/representer/xml'
 require 'roar/client/model_methods'
+require 'roar/model/http_verbs'
 
 require 'stringio'  # FIXME. remove for 3.0.4.
 require 'builder'

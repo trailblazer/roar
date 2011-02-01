@@ -12,25 +12,13 @@ module Roar
     end
     
     module Proxy
-      # needs #resource_host.
-      extend ActiveSupport::Concern
+      include Transport
       
-      module ClassMethods
-        include Transport
-        
-        def get(variable_path)  # Model Proxy. #DISCUSS: move to ModelProxy or so? needed in actual models
-          # DISCUSS: resource_uri = host?
-          # DISCUSS: URN translation happens here, too?
-          url = resource_host + variable_path.to_s
-          get_model(url, self)
-        end
-        
-        def get_model(uri, klass) # DISCUSS: not directly used in models.
-          body = get_uri(uri).body
-          klass.from_xml(body)  # DISCUSS: knows about DE-serialization and representation-type!
-        end
-        
+      def get_model(uri, klass) # DISCUSS: not directly used in models. USED in EntityProxy.
+        body = get_uri(uri).body
+        klass.from_xml(body)  # DISCUSS: knows about DE-serialization and representation-type!
       end
     end
   end
+  
 end

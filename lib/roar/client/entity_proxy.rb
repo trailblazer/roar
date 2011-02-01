@@ -11,7 +11,7 @@ module Roar
       # FIXME: where to move me? i do Representable and i use Transport. however, i'm only for clients.
       include Client::ModelMethods
       include Representer::Xml # FIXME: why does EntityProxy know about xml? get this from Representable or so.
-      include Proxy
+      extend Proxy
       
       attr_internal :proxied_resource
       

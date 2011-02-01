@@ -12,26 +12,14 @@ class ProxyTest < MiniTest::Spec
     it "#get_uri returns Restfulie response" do
       assert_equal "<test><id>4711</id></test>",  @o.get_uri("http://localhost:9999/test/4711").body
     end
-    
   end
   
   
   describe "The public Proxy API" do
     before do
       @klass = Class.new(TestModel) do
-        include Roar::Client::Proxy
-        
-        def self.resource_host
-          "http://localhost:9999/test/"
-        end
-        
+        extend Roar::Client::Proxy
       end
-      @o = @klass.new
-    end
-    
-    # DISCUSS: ḿove .get to ActiveResourceLikeModelMethods ?
-    it "#get returns deserialized object from " do  # DISCUSS: move to Client?
-      assert_equal({"id" => "4711"},  @klass.get(4711).attributes)
     end
     
     it "responds to .get_model" do
