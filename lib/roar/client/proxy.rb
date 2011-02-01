@@ -18,16 +18,14 @@ module Roar
       module ClassMethods
         include Transport
         
-        def get(variable_path)  # Proxy.
+        def get(variable_path)  # Model Proxy. #DISCUSS: move to ModelProxy or so? needed in actual models
           # DISCUSS: resource_uri = host?
           # DISCUSS: URN translation happens here, too?
           url = resource_host + variable_path.to_s
-          
-          body = get_uri(url).body
-          from_xml(body)  # DISCUSS: knows about DE-serialization and representation-type!
+          get_model(url, self)
         end
         
-        def get_model(uri, klass)
+        def get_model(uri, klass) # DISCUSS: not directly used in models.
           body = get_uri(uri).body
           klass.from_xml(body)  # DISCUSS: knows about DE-serialization and representation-type!
         end
