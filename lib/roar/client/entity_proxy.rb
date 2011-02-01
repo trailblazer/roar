@@ -37,7 +37,7 @@ module Roar
       def finalize!(*)
         # TODO: move to class.
         # DISCUSS: how to compute uri?
-        self.proxied_resource = self.class.get_model(@attributes["uri"], self.class.options[:class])
+        self.proxied_resource = self.class.get_model(original_attributes["uri"], self.class.options[:class])
       end
       
       def attributes
