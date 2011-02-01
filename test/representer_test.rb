@@ -21,6 +21,7 @@ class PublicXmlRepresenterAPITest < MiniTest::Spec
       @o = @c.new "name" => "Joe"
     end
     
+    # DISCUSS: this is a requirement Representer has, not a feature!
     it "#attributes returns generic attributes hash" do
       assert_equal({"name" => "Joe"}, @o.attributes)
     end
@@ -89,6 +90,7 @@ class HasOneAndHasManyInRepresenterTest < MiniTest::Spec
       assert_equal({:item => {:class => Item}}, @c.xml_typed_entities)
     end
     
+    # FUNCTIONAL:
     it "respects :class in .from_xml" do 
       @c.xml do
         has_one :item, :class => Item
@@ -149,7 +151,7 @@ class HasOneAndHasManyInRepresenterTest < MiniTest::Spec
   end
   
   # UNIT
-  describe ".has_many" do
+  describe ".has_many_proxied" do
     before do
       @c = Class.new(TestModel)
       assert_equal({}, @c.xml_collections)
@@ -212,6 +214,7 @@ class HasOneAndHasManyInRepresenterTest < MiniTest::Spec
       assert_equal({}, @c.xml_collections)
     end
     
+    # UNIT:
     it "sets the class attribute" do
       @c.xml do
         collection :items
@@ -237,7 +240,7 @@ class HasOneAndHasManyInRepresenterTest < MiniTest::Spec
     end
   end
   
-  # DISCUSS: this is more like an integration test.
+  # FUNCTIONAL:
   describe "A Model with mixed-in Roar::Representer::Xml" do
     before do
       @c = Class.new(TestModel)
@@ -268,6 +271,10 @@ class HasOneAndHasManyInRepresenterTest < MiniTest::Spec
     <name>tucker</name>
     <item>Beer</item>
   </test>").attributes
+      end
+      
+      it ".from_xml allows empty collection" do
+        assert_equal({"name" => "tucker", "items" => []}, @c.from_xml("<test><name>tucker</name></test>").attributes)
       end
     end
           

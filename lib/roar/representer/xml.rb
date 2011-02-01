@@ -1,6 +1,8 @@
 require "active_support/core_ext/hash/conversions"
 require "hooks"
 
+# DISCUSS: is it sufficient to include only one concrete Representer module per model instance? Why would you need more than one? 
+
 module Roar
   module Representer
     module Xml  # DISCUSS: this is a serialization backend for ActiveSupport xml serializer.
@@ -45,7 +47,7 @@ module Roar
         
         # Deserializes the xml document and creates a new model instance with the parsed attribute hash.
         def from_xml(xml)
-          deserialized_hash = Hash.from_xml(xml)  # yes, we use ActiveSupport for the real work.
+          deserialized_hash = Hash.from_xml(xml)  # yes, we use ActiveSupport for the real work. #DISCUSS: move to backend-specific method .from_xml_string ?
           attributes = deserialized_hash[model_name]
           
           from_xml_attributes(attributes)
@@ -79,8 +81,8 @@ module Roar
         # Since Hash.from_xml doesn't always detect collections we do it here. 
         def create_collection_attributes_from_xml(attributes)
           filter_attributes_for(attributes, xml_collections) do |name, options|
-            collection  = attributes.delete(name.singularize)
-            collection  = [collection] unless collection.kind_of?(Array)  # FIXME: do that IN 
+            collection  = attributes.delete(name.singularize) || []
+            collection  = [collection] unless collection.kind_of?(Array) 
             collection  = typecast_collection_for(collection, options[:class]) if options[:class]
             
             attributes[name] = collection
