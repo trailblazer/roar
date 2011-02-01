@@ -12,6 +12,7 @@ module Roar
     end
     
     module Proxy
+      # needs #resource_host.
       extend ActiveSupport::Concern
       
       module ClassMethods
@@ -25,6 +26,12 @@ module Roar
           body = get_uri(url).body
           from_xml(body)  # DISCUSS: knows about DE-serialization and representation-type!
         end
+        
+        def get_model(uri, klass)
+          body = get_uri(uri).body
+          klass.from_xml(body)  # DISCUSS: knows about DE-serialization and representation-type!
+        end
+        
       end
     end
   end
