@@ -14,7 +14,9 @@ module Roar
         self.xml_typed_entities = {}
       end
       
-      module ClassMethods
+      # DISCUSS: make as many method as possible abstract so other eepresenters can use it as well.
+      # TODO: rename this module to Representer::Xml::Dsl
+      module XmlDsl
         def xml(*args, &block)
           instance_exec(&block)
         end
@@ -35,6 +37,11 @@ module Roar
         def has_many_proxied(name, options={})
           has_many(name, {:class => EntityProxy.class_for(options)}) 
         end
+      end
+      
+      
+      module ClassMethods
+        include XmlDsl
         
         # Deserializes the xml document and creates a new model instance with the parsed attribute hash.
         def from_xml(xml)
