@@ -30,7 +30,7 @@ class PublicXmlRepresenterAPITest < MiniTest::Spec
       assert_equal({"name" => "Joe"}, @o.attributes_for_xml)
     end
     
-    it "#to_xml renders XML as string" do
+    it "#to_xml renders XML as string, just like in Hash" do
       assert_equal "<test>\n  <name>Joe</name>\n</test>\n", @o.to_xml
     end
     
@@ -207,6 +207,7 @@ class HasOneAndHasManyInRepresenterTest < MiniTest::Spec
     end
   end
   
+  # DISCUSS: do we need a :wrap => :positions option?
   
   describe ".collection within .xml" do
     before do
