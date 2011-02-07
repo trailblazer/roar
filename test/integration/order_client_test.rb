@@ -29,8 +29,9 @@ class Order
   
   # FIXME: how to know xml?
 include Roar::Representer::Xml
+  #accepts "application/xml", :with => Roar::Representer::Xml  # alias to accepts_xml.
   
-  def self.resource_host; "http://localhost:9999/orders/" end
+  self.resource_base= "http://localhost:9999/orders/"
   
   xml do
     has_many :items, :class => Position

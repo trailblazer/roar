@@ -6,15 +6,16 @@ class ModelTest < MiniTest::Spec
       @klass = Class.new(TestModel) do
         include Roar::Model::HttpVerbs
         
-        def self.resource_host
-          "http://localhost:9999/test/"
-        end
-        
+        self.resource_base = "http://localhost:9999/test/"
       end
       @o = @klass.new
     end
     
-    it "#get returns deserialized object from " do
+    it "has resource_base* accessors for setting the uri base path" do
+      assert_equal "http://localhost:9999/test/", @klass.resource_base
+    end
+    
+    it ".get returns deserialized object from " do
       assert_equal({"id" => "4711"},  @klass.get(4711).attributes)
     end
   end
