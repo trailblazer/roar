@@ -23,6 +23,10 @@ class TestModel
   def self.model_name
     "test"
   end
+  
+  def ==(b)
+    attributes == b.attributes
+  end
 end
 
 Collection = Roar::Representer::Xml::UnwrappedCollection
