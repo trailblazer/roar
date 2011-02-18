@@ -38,5 +38,16 @@ class RepresenterTest < MiniTest::Spec
         assert_equal Symbol, @subklass.represented_class
       end
     end
+    
+    describe "represents" do
+      it "requires represented_class and mime-type" do
+        @c.represents String, :as => "application/xml"
+        
+        assert_equal String,            @c.represented_class
+        assert_equal "application/xml", @c.mime_type  
+      end
+      
+    end
+    
   end
 end

@@ -27,6 +27,14 @@ class TestModel
   def ==(b)
     attributes == b.attributes
   end
+  
+  def item=(item)
+    attributes["item"] = item
+  end
+  
+  def id=(id)
+    attributes["id"] = id
+  end
 end
 
 Collection = Roar::Representer::Xml::UnwrappedCollection
