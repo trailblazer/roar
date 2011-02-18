@@ -10,7 +10,7 @@ class RoxmlRepresenterFunctionalTest < MiniTest::Spec
   
   class Item < TestModel
     def value=(value)
-      @attributes[:value] = value
+      @attributes["value"] = value
     end
   end
   
@@ -57,8 +57,8 @@ class RoxmlRepresenterFunctionalTest < MiniTest::Spec
         end
         
         @o.instance_eval do
-          def item; attributes[:item]; end
-          def item=(item); attributes[:item]=item; end
+          def item; attributes["item"]; end
+          def item=(item); attributes["item"]=item; end
         end
         @r = @c.new(@o)
       end
@@ -68,13 +68,13 @@ class RoxmlRepresenterFunctionalTest < MiniTest::Spec
       end
       
       it "#to_xml delegates to ItemXmlRepresenter#to_xml" do
-        @o.item = Item.new(:value => "Bier")
+        @o.item = Item.new("value" => "Bier")
         assert_exactly_match_xml "<test><id>1</id><item><value>Bier</value></item>\n</test>", @r.to_xml.serialize
       end
       
       it ".from_xml typecasts :item" do
         m = @r.class.from_xml("<test><id>1</id><item><value>beer</value></item>\n</test>")
-        assert_equal(TestModel.new("id" => "1", "item" => Item.new(:value => "beer")), m)
+        assert_equal(TestModel.new("id" => "1", "item" => Item.new("value" => "beer")), m)
       end
       
     end

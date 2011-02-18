@@ -8,36 +8,24 @@ module Roar
       end
       
       def to_xml(*)
-        represented.attributes.each do |k,v|  # FIXME: replace with xml_attributes from roxml.
-          send("#{k}=", v)
-        end
+        attributes = represented.attributes # DISCUSS: dependency to model#attributes.
         
-        # FIXME: generic model->representer.
-        self.class.roxml_attrs.each { |attr| 
-          #puts attr.sought_type.inspect
-        
-          if attr.name == "item"
-            v = represented.send(:item)
-            
-            self.item= RoxmlRepresenterFunctionalTest::ItemApplicationXml.new(v) if v
+        self.class.roxml_attrs.each { |attr|
+          value = attributes[attr.name]
+          
+          # TODO: refactor to separate method.
+          if value and attr.sought_type.is_a?(Class) and attr.sought_type < Roar::Representer::Base # FIXME: find out if attribute needs a representer itself.
+            # wrap the attribute:
+            value = attr.sought_type.new(value) # self.item= RoxmlRepresenterFunctionalTest::ItemApplicationXml.new(v)
           end
+          
+          public_send("#{attr.name}=", value)
         }
         
         super
       end
       
-      
-      
-      
-      
       def deserialize(body)
-        representer = self.class.from_xml(body, "application/xml")
-        
-        attributes = {}
-        representer.roxml_references.collect do |a|
-          attributes[a.name] = representer.send(a.name)
-        end
-        attributes
       end
       
       class << self
