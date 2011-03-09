@@ -10,6 +10,20 @@ module Roar
       def model_name
         ActiveSupport::Inflector.underscore(self) # We don't use AM::Naming for now.
       end
+      
+      def accessors(*names)
+        names.each do |name|
+          class_eval %Q{
+            def #{name}=(v)
+              attributes["#{name}"] = v
+            end
+            
+            def #{name}
+              attributes["#{name}"]
+            end
+          }
+        end
+      end
     end
     
     

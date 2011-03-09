@@ -22,10 +22,14 @@ class ModelTest < MiniTest::Spec
   
   
   describe "The Model API" do
+    class Dog
+      include Roar::Model
+      
+      accessors :name
+    end
+      
     before do
-      @klass = class Dog
-        include Roar::Model
-      end
+      @klass = Dog
     end
     
     it "the constructor accepts attributes" do
@@ -34,6 +38,13 @@ class ModelTest < MiniTest::Spec
     
     it "responds to .model_name" do
       assert_equal "model_test/dog", @klass.model_name
+    end
+    
+    it "lets .accessors create accessors" do
+      @o = @klass.new({"name" => "Joe"})
+      assert_equal "Joe", @o.name
+      @o.name= "Noe"
+      assert_equal "Noe", @o.name
     end
   end
 end
