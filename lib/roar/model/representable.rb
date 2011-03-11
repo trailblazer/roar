@@ -18,6 +18,13 @@ module Roar
           representable[mime_type]
         end
         
+        def from(mime_type, representation)
+          representer_class_for(mime_type).deserialize(self, mime_type, representation)
+        end
+      end
+      
+      def to(mime_type)
+        self.class.representer_class_for(mime_type).new.serialize(self, mime_type)
       end
     end
   end

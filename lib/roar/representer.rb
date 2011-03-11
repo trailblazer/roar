@@ -1,4 +1,6 @@
 module Roar
+  # deserialize
+  # serialize
   module Representer
     class Base
       class_attribute :represented_class
@@ -17,6 +19,16 @@ module Roar
       def initialize(represented=nil) # FIXME!
         @represented = represented
       end
+      
+      # DISCUSS: serialize on instance?
+      def serialize(represented, mime_type)
+        
+      end
+      
+    private
+      def to_xml(*) # call #serialize instead.
+      end
+      
     end
   end
 end

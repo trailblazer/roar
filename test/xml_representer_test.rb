@@ -14,11 +14,117 @@ class Item < TestModel
   end
 end
 
+class XmlRepresenterFunctionalTest < MiniTest::Spec
+  describe "Representer::XmlRepresenter" do
+    before do
+      @o = TestModel.new "name" => "Joe"
+      @r = Class.new(Roar::Representer::XmlRepresenter).new
+    end
+    
+    it "#serialize returns a string representation" do
+      assert_equal "<test>\n  <name>Joe</name>\n</test>\n", @r.serialize("test", "name" => "Joe")
+    end
+    
+    
+    describe ".has_one" do
+      before do
+        class Beer < ::Item
+          def to(mime_type)
+            raise if mime_type != "application/xml"
+            "<beer>#{@attributes}</beer>"
+          end
+        end
+        
+        
+        @r.class.instance_eval do
+          has_one :item, :class => Beer
+        end
+      end
+      
+      # SERIALIZE:
+      it "calls #to('application/xml') on all typed entities" do 
+        assert_equal"<test>
+  <name>tucker</name>
+  <beer>Jever</beer>
+</test>
+",      @r.serialize("test", "name" => "tucker", "item" => Beer.new("Jever"))
+      end
+      
+      it "respects :class in .from_xml" do
+        
+        
+        attrs = @r.deserialize("test", "<test>
+    <name>tucker</name>
+    <item>beer</item>
+    </test>")
+        
+        assert_equal beer, attrs["item"]
+      end
+    end
+    
+    
+    describe ".has_many" do
+      before do
+        @r.class.instance_eval do
+          has_many :items
+        end
+        
+        @attributes = {"name" => "tucker", "items" => [{}, {}]}
+      end
+      
+      it "#serialize doesn't wrap collection attributes" do
+        assert_equal "<test>
+  <name>tucker</name>
+  <item>\n  </item>
+  <item>\n  </item>
+</test>\n", @r.serialize("test", @attributes)
+      end
+      
+    
+      describe ".deserialize" do
+        it "pushes deserialized items to the pluralized attribute" do
+          assert_equal({"name" => "tucker", "items" => ["Beer", "Peanut Butter"]},
+            @r.deserialize("<test>
+  <name>tucker</name>
+  <item>Beer</item>
+  <item>Peanut Butter</item>
+  </test>").attributes)
+        end
+      
+      it ".from_xml pushes one single deserialized item to the pluralized attribute" do
+        assert_equal @c.new("name" => "tucker", "items" => ["Beer"]).attributes, @c.from_xml("<test>
+    <name>tucker</name>
+    <item>Beer</item>
+  </test>").attributes
+      end
+      
+      it ".from_xml allows empty collection" do
+        assert_equal({"name" => "tucker", "items" => []}, @c.from_xml("<test><name>tucker</name></test>").attributes)
+      end
+    end
+          
+      it ".collection respects :class in .from_xml" do 
+        @c.xml do
+          collection :items, :class => Item  # in: calls Item.from_hash(<item>...</item>), +above. out: item.to_xml
+        end
+        
+        @l = @c.from_xml("<test>
+  <name>tucker</name>
+  <item>beer</item>
+  <item>chips</item>
+</test>")
+
+        assert_equal [Item.new("beer"), Item.new("chips")], @l.attributes["items"]
+      end
+  end
+end
+
 class PublicXmlRepresenterAPITest < MiniTest::Spec
   describe "The public XML Representer API" do
     before do
       @c = Class.new(TestModel)
       @o = @c.new "name" => "Joe"
+      @r = Roar::Representer::XmlRepresenter.new
     end
     
     # DISCUSS: this is a requirement Representer has, not a feature!
@@ -30,9 +136,9 @@ class PublicXmlRepresenterAPITest < MiniTest::Spec
       assert_equal({"name" => "Joe"}, @o.attributes_for_xml)
     end
     
-    it "#to_xml renders XML as string, just like in Hash" do
-      assert_equal "<test>\n  <name>Joe</name>\n</test>\n", @o.to_xml
-    end
+    #it "#to_xml renders XML as string, just like in Hash" do
+    #  assert_equal "<test>\n  <name>Joe</name>\n</test>\n", @o.to_xml
+    #end
     
     it ".from_xml creates model from xml" do
       assert_equal @o.attributes, @c.from_xml("<test>\n  <name>Joe</name>\n</test>\n").attributes
@@ -45,6 +151,12 @@ class PublicXmlRepresenterAPITest < MiniTest::Spec
     it ".from_attributes creates model from generic attributes hash" do
       assert_equal @o.attributes, @c.from_attributes("name" => "Joe").attributes
     end
+    
+    it ".from_body is alias of .from_xml" do
+      xml = "<test>\n  <name>Joe</name>\n</test>\n"
+      assert_equal @c.from_xml(xml).attributes, @c.from_body(xml).attributes
+    end
+    
     
     #it "#to_xml respects #attributes_for_xml" do
     #  @o.instance_eval do
@@ -91,18 +203,7 @@ class HasOneAndHasManyInRepresenterTest < MiniTest::Spec
     end
     
     # FUNCTIONAL:
-    it "respects :class in .from_xml" do 
-      @c.xml do
-        has_one :item, :class => Item
-      end
-      
-      @l = @c.from_xml("<test>
-  <name>tucker</name>
-  <item>beer</item>
-</test>")
-
-      assert_equal Item.new("beer"), @l.attributes["item"]
-    end
+    
   end
   
   describe ".has_proxied within .xml" do
@@ -241,57 +342,7 @@ class HasOneAndHasManyInRepresenterTest < MiniTest::Spec
     end
   end
   
-  # FUNCTIONAL:
-  describe "A Model with mixed-in Roar::Representer::Xml" do
-    before do
-      @c = Class.new(TestModel)
-      @l = @c.new "name" => "tucker", "items" => [{}, {}]
-      
-      @c.collection :items
-    end
-    
-    describe "attributes defined as collection" do
-      it "#to_xml doesn't wrap collection attributes" do
-        assert_equal "<test>
-  <name>tucker</name>
-  <item>\n  </item>
-  <item>\n  </item>
-</test>\n", @l.to_xml(:skip_instruct=>true)  # FIXME: make standard/#as_xml
-      end
-    
-      it ".from_xml pushes deserialized items to the pluralized attribute" do
-        assert_equal @c.new("name" => "tucker", "items" => ["Beer", "Peanut Butter"]).attributes, @c.from_xml("<test>
-  <name>tucker</name>
-  <item>Beer</item>
-  <item>Peanut Butter</item>
-  </test>").attributes
-      end
-      
-      it ".from_xml pushes one single deserialized item to the pluralized attribute" do
-        assert_equal @c.new("name" => "tucker", "items" => ["Beer"]).attributes, @c.from_xml("<test>
-    <name>tucker</name>
-    <item>Beer</item>
-  </test>").attributes
-      end
-      
-      it ".from_xml allows empty collection" do
-        assert_equal({"name" => "tucker", "items" => []}, @c.from_xml("<test><name>tucker</name></test>").attributes)
-      end
-    end
-          
-      it ".collection respects :class in .from_xml" do 
-        @c.xml do
-          collection :items, :class => Item  # in: calls Item.from_hash(<item>...</item>), +above. out: item.to_xml
-        end
-        
-        @l = @c.from_xml("<test>
-  <name>tucker</name>
-  <item>beer</item>
-  <item>chips</item>
-</test>")
-
-        assert_equal [Item.new("beer"), Item.new("chips")], @l.attributes["items"]
-      end
+  
       
   end
   

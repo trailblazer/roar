@@ -24,18 +24,22 @@ class TestModel
     "test"
   end
   
+  accessors :item, :id
+  
   def ==(b)
     attributes == b.attributes
   end
-  
-  def item=(item)
-    attributes["item"] = item
-  end
-  
-  def id=(id)
-    attributes["id"] = id
-  end
 end
 
+# FIXME: 2BRM.
 Collection = Roar::Representer::Xml::UnwrappedCollection
 EntityProxy = Roar::Client::EntityProxy
+
+
+class MiniTest::Spec
+  def assert_model(expected, subject)
+    assert_instance_of subject.class, expected 
+    
+    assert_equal expected.attributes, subject.attributes
+  end
+end

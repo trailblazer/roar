@@ -5,6 +5,7 @@ require "roxml"
 
 
 require "roar/representer/roxml"
+require 'roar/model/representable'
 
 class RoxmlRepresenterFunctionalTest < MiniTest::Spec
   class ModelWithItem < TestModel # TODO: use me!
@@ -13,23 +14,36 @@ class RoxmlRepresenterFunctionalTest < MiniTest::Spec
   end
   
   
-  class Item < TestModel
-    def value=(value)
-      @attributes["value"] = value
+  class ItemApplicationXml < Roar::Representer::Roxml
+    xml_accessor :value
+  end
+  
+  class Item
+    include Roar::Model
+    accessors :value
+    
+    include Roar::Model::Representable
+    represents "application/xml", :with => ItemApplicationXml
+    
+    def self.model_name
+      "item"
     end
   end
   
-  class ItemApplicationXml < Roar::Representer::Roxml
-    self.represented_class = Item
-    
-    xml_accessor :value
-  end
+  
   
   class TestXmlRepresenter < Roar::Representer::Roxml
     xml_name :test  # FIXME: get from represented?
     has_one :id
     
     self.represented_class= TestModel
+  end
+  
+  describe "Item" do
+    it "responds to #to" do
+      assert_exactly_match_xml "<item><value>Song</value></item>", 
+        Item.new("value" => "Song").to("application/xml")
+    end
   end
   
   describe "RoxmlRepresenter" do
@@ -41,15 +55,15 @@ class RoxmlRepresenterFunctionalTest < MiniTest::Spec
     
     describe "without options" do
       it "#serialize returns the serialized model" do
-        assert_exactly_match_xml "<test><id>1</id></test>", @r.serialize(@m)
+        assert_exactly_match_xml "<test><id>1</id></test>", @r.serialize(@o, "application/xml")
       end
       
       it ".from_xml returns the deserialized model" do
-        assert_equal TestModel.new("id" => "1"), @r.class.from_xml("<test><id>1</id></test>")
+        assert_model TestModel.new("id" => "1"), TestXmlRepresenter.deserialize(TestModel, "xml", "<test><id>1</id></test>")
       end
       
       it "#to_xml returns the serialized xml" do
-        assert_exactly_match_xml "<test><id>1</id></test>", @r.serialize(@m)
+        assert_exactly_match_xml "<test><id>1</id></test>", @r.serialize(@o, "application/xml")
       end
       
     end
@@ -58,7 +72,7 @@ class RoxmlRepresenterFunctionalTest < MiniTest::Spec
     describe "with a typed attribute" do
       before do
         @c = Class.new(TestXmlRepresenter) do
-          xml_accessor :item, :as => ItemApplicationXml # note that we pass the representer here!
+          xml_accessor :item, :as => Item
         end
         
         @o.instance_eval do
@@ -68,18 +82,21 @@ class RoxmlRepresenterFunctionalTest < MiniTest::Spec
         @r = @c.new(@o)
       end
       
-      it "#to_xml skips empty :item" do
-        assert_exactly_match_xml "<test><id>1</id></test>", @r.to_xml.serialize
+      it "#serialize skips empty :item" do
+        assert_exactly_match_xml "<test><id>1</id></test>", @r.serialize(@o, "application/xml")
       end
       
       it "#to_xml delegates to ItemXmlRepresenter#to_xml" do
         @o.item = Item.new("value" => "Bier")
-        assert_exactly_match_xml "<test><id>1</id><item><value>Bier</value></item>\n</test>", @r.to_xml.serialize
+        assert_exactly_match_xml "<test><id>1</id><item><value>Bier</value></item>\n</test>", 
+          @r.serialize(@o, "application/xml")
       end
       
       it ".from_xml typecasts :item" do
-        m = @r.class.from_xml("<test><id>1</id><item><value>beer</value></item>\n</test>")
-        assert_equal(TestModel.new("id" => "1", "item" => Item.new("value" => "beer")), m)
+        @m = @r.class.deserialize(TestModel, "application/xml", "<test><id>1</id><item><value>beer</value></item>\n</test>")
+        assert_instance_of TestModel, @m
+        assert_equal "1", @m.id
+        assert_model Item.new("value" => "beer"), @m.item
       end
     end
   
