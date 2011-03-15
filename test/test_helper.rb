@@ -31,15 +31,24 @@ class TestModel
   end
 end
 
-# FIXME: 2BRM.
-Collection = Roar::Representer::Xml::UnwrappedCollection
-EntityProxy = Roar::Client::EntityProxy
-
 
 class MiniTest::Spec
   def assert_model(expected, subject)
     assert_instance_of subject.class, expected 
     
-    assert_equal expected.attributes, subject.attributes
+    expected.attributes.each_pair do |k, v|
+      if v.is_a?(Array)
+        v.each do |item|
+          subject_collection = subject.attributes[k]
+          assert_equal(item.attributes, subject_collection, "in #{expected.class}.#{k}") if subject_collection.blank?
+          assert_model item, subject_collection[v.index(item)]
+        end
+        
+      else
+        assert_equal v.to_s, subject.attributes[k].to_s, "#{v.inspect} is not #{subject.attributes[k].inspect} in #{expected.class}.#{k}"
+      end
+    end
+    
+    
   end
 end
