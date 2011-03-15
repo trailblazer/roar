@@ -19,9 +19,9 @@ module Roar
       
       def copy_attributes!(attributes)
         self.class.roxml_attrs.each do |attr|
-          value = attributes[attr.name]
+          value = attributes[attr.accessor]
           
-          public_send("#{attr.name}=", value)
+          public_send("#{attr.accessor}=", value)
         end
       end
       
