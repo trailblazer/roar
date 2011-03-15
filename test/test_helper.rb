@@ -43,7 +43,8 @@ class MiniTest::Spec
           assert_equal(item.attributes, subject_collection, "in #{expected.class}.#{k}") if subject_collection.blank?
           assert_model item, subject_collection[v.index(item)]
         end
-        
+      elsif v.respond_to?(:attributes)
+        assert_model v, subject.attributes[k]
       else
         assert_equal v.to_s, subject.attributes[k].to_s, "#{v.inspect} is not #{subject.attributes[k].inspect} in #{expected.class}.#{k}"
       end
