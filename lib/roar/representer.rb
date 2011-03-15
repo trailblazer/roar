@@ -12,6 +12,9 @@ module Roar
           self.mime_type = options[:as]
         end
         
+      private
+        def from_xml(*)
+        end
       end
       
       attr_reader :represented

@@ -6,19 +6,25 @@ module Roar
       def serialize(represented, mime_type)
         to_xml(represented).serialize
       end
-      
+    
+    private
       def to_xml(represented)
         attributes = represented.attributes # DISCUSS: dependency to model#attributes.
         
-        self.class.roxml_attrs.each { |attr|
-          value = attributes[attr.name]
-          
-          public_send("#{attr.name}=", value)
-        }
+        copy_attributes!(attributes)
         
         super(:name => represented.class.model_name)
       end
-        
+      
+      
+      def copy_attributes!(attributes)
+        self.class.roxml_attrs.each do |attr|
+          value = attributes[attr.name]
+          
+          public_send("#{attr.name}=", value)
+        end
+      end
+      
       
       class << self
         def deserialize(represented_class, mime_type, data, *args)    # FIXME: too many params.
