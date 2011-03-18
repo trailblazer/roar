@@ -32,7 +32,7 @@ class VariantFunctionalTest < MiniTest::Spec
   
   class ArticleXmlRepresenter < Roar::Representer::Roxml
     xml_accessor :id
-    xml_accessor :variant, :as => [Variant]
+    xml_accessor :variants, :as => [Variant], :tag => :variant
   end
   
   
@@ -42,7 +42,7 @@ class VariantFunctionalTest < MiniTest::Spec
     end
     
     include Roar::Model
-    accessors :id, :variant # FIXME: should be variants
+    accessors :id, :variants
     
     
     include Roar::Model::Representable
@@ -71,16 +71,16 @@ class VariantFunctionalTest < MiniTest::Spec
   # Article has Variants
   describe "ArticleXmlRepresenter" do
     before do
-      @china_s  = Variant.new("size" => "S", "price" => "9.99", "id" => "1-s", "title" => "China Shirt/S")
-      @china_m  = Variant.new("size" => "M", "price" => "9.99", "id" => "1-m", "title" => "China Shirt/M")
-      @shirt    = Article.new("id" => 1, :variant => [@china_s, @china_m])
+      @china_s  = Variant.new("size" => "S", "price" => "9.99", "id" => "1-s", "title" => "China Shirt-S")
+      @china_m  = Variant.new("size" => "M", "price" => "9.99", "id" => "1-m", "title" => "China Shirt-M")
+      @shirt    = Article.new("id" => 1, "variants" => [@china_s, @china_m])
     end
     
     it "deserializes" do
       @a = Article.from("application/xml", "<article>
         <id>1</id>
-        <variant><size>S</size><id>1-s</id><title>China Shirt</title><price>9.99</price><variant>
-        <variant><size>M</size><id>1-m</id><title>China Shirt</title><price>9.99</price><variant>
+        <variant><size>S</size><id>1-s</id><title>China Shirt-S</title><price>9.99</price></variant>
+        <variant><size>M</size><id>1-m</id><title>China Shirt-M</title><price>9.99</price></variant>
       <article>")
       puts @a.inspect
       assert_model @shirt, @a
