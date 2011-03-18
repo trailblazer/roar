@@ -28,21 +28,13 @@ module Roar
       
       class << self
         def deserialize(represented_class, mime_type, data, *args)    # FIXME: too many params.
-          xml = ROXML::XML::Node.from(data)
-          
-          config = roxml_attrs.collect { |attr| attr.to_ref(nil, self) }  # FIXME: see Definition#initialize
-          
-          represented = represented_class.new(*args)
-          
-          
-          config.each do |ref|
-            value = ref.value_in(xml)
-            
-            represented.send(ref.opts.setter, value)
-          end
-          
-          represented
+          from_xml(data, represented_class, *args)
         end
+        
+        def create_from_xml(represented_class, *args) # defined in Roxml.
+          represented_class.new(*args)
+        end
+        
         
         def has_one(attr_name, options={})
           if klass = options.delete(:class)
@@ -54,5 +46,23 @@ module Roar
       end
       
     end
+  end
+end
+
+
+# TODO: don't monkey-patch the original class.
+ROXML::XMLObjectRef.module_eval do
+private
+  def serialize(object)
+    object.to("application/xml")
+  end
+  
+  def deserialize(node_class, xml)
+    node_class.from("application/xml", xml)
+  end
+  
+  def update_xml_for_entity(xml, entity)
+    return ROXML::XML.add_child(xml, serialize(entity)) if entity.is_a?(::Roar::Model::Representable)
+    update_xml_for_string_entity(xml, entity)
   end
 end

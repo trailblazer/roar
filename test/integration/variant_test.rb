@@ -15,21 +15,42 @@ class VariantFunctionalTest < MiniTest::Spec
     xml_accessor :price
   end
   
+  
   class Variant
+    def self.model_name
+      "variant"
+    end
+    
     include Roar::Model
     accessors :size, :price, :id, :title
     
     
     include Roar::Model::Representable
     represents "application/xml", :with => VariantXmlRepresenter
-    
   end
   
-  # from(app/xml, <variant>..</variant>)
-  # to(app/xml)
+  
+  class ArticleXmlRepresenter < Roar::Representer::Roxml
+    xml_accessor :id
+    xml_accessor :variant, :as => [Variant]
+  end
   
   
+  class Article
+    def self.model_name
+      "article"
+    end
+    
+    include Roar::Model
+    accessors :id, :variant # FIXME: should be variants
+    
+    
+    include Roar::Model::Representable
+    represents "application/xml", :with => ArticleXmlRepresenter
+  end
   
+  
+  describe "All models in this use-case" do
   describe "VariantXmlRepresenter" do
     before do
       @shirt = Variant.new("size" => "S", "price" => "9.99", "id" => "1", "title" => "China Shirt")
@@ -41,9 +62,31 @@ class VariantFunctionalTest < MiniTest::Spec
     end
     
     it "be serializable" do
-      assert_exactly_match_xml "<variant><id>1</id><size>S</size><price>9.99</price><title>China Shirt</title><variant>", @shirt.to_xml
+      # assert_xml_match (no ordering)
+      assert_match_xml "<variant><size>S</size><id>1</id><title>China Shirt</title><price>9.99</price><variant>", @shirt.to("application/xml")
+    end
+  end
+  
+  
+  # Article has Variants
+  describe "ArticleXmlRepresenter" do
+    before do
+      @china_s  = Variant.new("size" => "S", "price" => "9.99", "id" => "1-s", "title" => "China Shirt/S")
+      @china_m  = Variant.new("size" => "M", "price" => "9.99", "id" => "1-m", "title" => "China Shirt/M")
+      @shirt    = Article.new("id" => 1, :variant => [@china_s, @china_m])
+    end
+    
+    it "deserializes" do
+      @a = Article.from("application/xml", "<article>
+        <id>1</id>
+        <variant><size>S</size><id>1-s</id><title>China Shirt</title><price>9.99</price><variant>
+        <variant><size>M</size><id>1-m</id><title>China Shirt</title><price>9.99</price><variant>
+      <article>")
+      puts @a.inspect
+      assert_model @shirt, @a
     end
     
   end
   
+  end
 end

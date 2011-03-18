@@ -33,14 +33,22 @@ class RoxmlRepresenterFunctionalTest < MiniTest::Spec
     end
   end
   
+  class GreedyOrder
+    include Roar::Model
+    accessors :id, :items
+    
+    def self.model_name
+      :order
+    end
+  end
+  
   
   
   class TestXmlRepresenter < Roar::Representer::Roxml
     xml_name :test  # FIXME: get from represented?
     has_one :id
-    
-    #self.represented_class= TestModel
   end
+  
   
   describe "Item" do
     it "responds to #to" do
@@ -48,6 +56,7 @@ class RoxmlRepresenterFunctionalTest < MiniTest::Spec
         Item.new("value" => "Song").to("application/xml")
     end
   end
+  
   
   describe "RoxmlRepresenter" do
     before do
@@ -97,7 +106,39 @@ class RoxmlRepresenterFunctionalTest < MiniTest::Spec
         assert_model Order.new("id" => 1, "item" => Item.new("value" => "beer")), @m
       end
     end
-  
+    
+    
+    describe "with a typed list" do
+      before do
+        @c = Class.new(TestXmlRepresenter) do
+          xml_accessor :items, :as => [Item], :tag => :item
+        end
+        
+        @o = GreedyOrder.new("id" => 1)
+        
+        @r = @c.new
+      end
+      
+      it "#serialize skips empty :item" do
+        assert_exactly_match_xml "<order><id>1</id></order>", @r.serialize(@o, "application/xml")
+      end
+      
+      it "#to_xml delegates to ItemXmlRepresenter#to_xml in list" do
+        @o.items = [Item.new("value" => "Bier")]
+        
+        assert_exactly_match_xml "<order><id>1</id><item><value>Bier</value></item>\n</order>", 
+          @r.serialize(@o, "application/xml")
+      end
+      
+      it ".from_xml typecasts list" do
+        @m = @r.class.deserialize(GreedyOrder, "application/xml", "<order><id>1</id><item><value>beer</value></item>\n</order>")
+        
+        puts @m.inspect
+        
+        assert_model GreedyOrder.new("id" => 1, "items" => [Item.new("value" => "beer")]), @m
+      end
+    end
+    
   end
 end
 
@@ -119,7 +160,7 @@ class RoxmlRepresenterUnitTest
     end
     
     it "saves the representer class" do
-      assert_equal Hash, @c.roxml_attrs.first.sought_type
+      #assert_equal Hash, @c.roxml_attrs.first.sought_type
     end
     
     it "raises an exception if no representer class is found" do
