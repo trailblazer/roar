@@ -1,3 +1,6 @@
+require 'roar/representer'
+require 'roxml'
+
 module Roar
   module Representer
     class Roxml < Base
