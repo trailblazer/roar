@@ -15,4 +15,13 @@ ActionController::TestCase.class_eval do
     
     super
   end
+  
+  def assert_response(status, headers={})  # FIXME: allow message.
+    super
+    headers.each_pair do |k,v|
+      assert_equal v, @response.headers[k]
+    end
+    
+  end
+  
 end
