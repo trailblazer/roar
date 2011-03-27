@@ -50,60 +50,49 @@ class RoxmlRepresenterFunctionalTest < MiniTest::Spec
   end
   
   
-  describe "Item" do
-    it "responds to #to" do
-      assert_exactly_match_xml "<item><value>Song</value></item>", 
-        Item.new("value" => "Song").to("application/xml")
-    end
-  end
-  
-  
   describe "RoxmlRepresenter" do
     before do
       @m = {"id" => "1"}
       @o = Order.new(@m)
-      @r = TestXmlRepresenter.new(@o)
+      @r = TestXmlRepresenter.new
     end
     
     describe "without options" do
-      it "#serialize returns the serialized model" do
-        assert_exactly_match_xml "<order><id>1</id></order>", @r.serialize(@o, "application/xml")
+      it "#serialize_model returns the serialized model" do
+        assert_exactly_match_xml "<order><id>1</id></order>", @r.serialize(@o)
       end
       
       it ".from_xml returns the deserialized model" do
-        assert_model @o, TestXmlRepresenter.deserialize(Order, "xml", "<order><id>1</id></order>")
+        @m = TestXmlRepresenter.deserialize("<order><id>1</id></order>")
+        assert_equal "1", @m.id
       end
-      
-      it "#to_xml returns the serialized xml" do
-        assert_exactly_match_xml "<order><id>1</id></order>", @r.serialize(@o, "application/xml")
-      end
-      
     end
     
     
     describe "with a typed attribute" do
       before do
         @c = Class.new(TestXmlRepresenter) do
-          xml_accessor :item, :as => Item
+          xml_accessor :item, :as => ItemApplicationXml
         end
         
         @r = @c.new(@o)
       end
       
       it "#serialize skips empty :item" do
-        assert_exactly_match_xml "<order><id>1</id></order>", @r.serialize(@o, "application/xml")
+        assert_exactly_match_xml "<order><id>1</id></order>", @r.serialize(@o)
       end
       
       it "#to_xml delegates to ItemXmlRepresenter#to_xml" do
         @o.item = Item.new("value" => "Bier")
         assert_exactly_match_xml "<order><id>1</id><item><value>Bier</value></item>\n</order>", 
-          @r.serialize(@o, "application/xml")
+          @r.serialize(@o)
       end
       
       it ".from_xml typecasts :item" do
-        @m = @r.class.deserialize(Order, "application/xml", "<order><id>1</id><item><value>beer</value></item>\n</order>")
+        @m = @r.class.deserialize("<order><id>1</id><item><value>beer</value></item>\n</order>")
         
-        assert_model Order.new("id" => 1, "item" => Item.new("value" => "beer")), @m
+        assert_equal "1",     @m.id
+        assert_equal "beer",  @m.item.value
       end
     end
     
@@ -111,31 +100,30 @@ class RoxmlRepresenterFunctionalTest < MiniTest::Spec
     describe "with a typed list" do
       before do
         @c = Class.new(TestXmlRepresenter) do
-          xml_accessor :items, :as => [Item], :tag => :item
+          xml_accessor :items, :as => [ItemApplicationXml], :tag => :item
         end
         
         @o = GreedyOrder.new("id" => 1)
-        
         @r = @c.new
       end
       
       it "#serialize skips empty :item" do
-        assert_exactly_match_xml "<order><id>1</id></order>", @r.serialize(@o, "application/xml")
+        assert_exactly_match_xml "<order><id>1</id></order>", @r.serialize(@o)
       end
       
       it "#to_xml delegates to ItemXmlRepresenter#to_xml in list" do
         @o.items = [Item.new("value" => "Bier")]
         
         assert_exactly_match_xml "<order><id>1</id><item><value>Bier</value></item>\n</order>", 
-          @r.serialize(@o, "application/xml")
+          @r.serialize(@o)
       end
       
       it ".from_xml typecasts list" do
-        @m = @r.class.deserialize(GreedyOrder, "application/xml", "<order><id>1</id><item><value>beer</value></item>\n</order>")
+        @m = @r.class.deserialize("<order><id>1</id><item><value>beer</value></item>\n</order>")
         
-        puts @m.inspect
-        
-        assert_model GreedyOrder.new("id" => 1, "items" => [Item.new("value" => "beer")]), @m
+        assert_equal "1",     @m.id
+        assert_equal 1,       @m.items.size
+        assert_equal "beer",  @m.items.first.value
       end
     end
     

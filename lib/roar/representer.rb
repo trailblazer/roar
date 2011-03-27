@@ -28,6 +28,11 @@ module Roar
         
       end
       
+      def serialize_model(model)
+        serialize(model.attributes)
+      end
+      
+      
     private
       def to_xml(*) # call #serialize instead.
       end
