@@ -8,7 +8,9 @@ ActionController::TestCase.class_eval do
   def process(action, *args)
     if args.first.is_a?(String)
        request.env['RAW_POST_DATA'] = args.shift
-       args.unshift nil
+       method = args.pop
+       args << nil
+       args << method
     end
     
     super
