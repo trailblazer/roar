@@ -30,8 +30,8 @@ module Roar
       
       
       class << self
-        def deserialize(xml, *args)
-          from_xml(xml, *args)
+        def deserialize(xml)
+          from_xml(xml)
         end
         
         def has_one(attr_name, options={})
@@ -43,6 +43,12 @@ module Roar
         end     
       end
       
+      
+      # Encapsulates a <link ...>.
+      class Hyperlink < self
+        xml_accessor :rel,  :from => "@rel"
+        xml_accessor :href, :from => "@href"
+      end
     end
   end
 end
@@ -55,10 +61,6 @@ private
     representer = opts.sought_type.new
     representer.serialize(object)
   end
-  
-  #def deserialize(xml)
-    #self.from("application/xml", xml)
-  #end
   
   def update_xml_for_entity(xml, entity)
     return ROXML::XML.add_child(xml, serialize(entity)) if entity.is_a?(::Roar::Model::Representable)

@@ -66,6 +66,11 @@ class RoxmlRepresenterFunctionalTest < MiniTest::Spec
         @m = TestXmlRepresenter.deserialize("<order><id>1</id></order>")
         assert_equal "1", @m.id
       end
+      
+      it ".from_xml still works with nil" do
+        assert TestXmlRepresenter.deserialize(nil)
+      end
+      
     end
     
     
@@ -129,6 +134,24 @@ class RoxmlRepresenterFunctionalTest < MiniTest::Spec
     
   end
 end
+
+class HyperlinkRepresenterUnitTest
+  describe "API" do
+    before do
+      @l = Roar::Representer::Roxml::Hyperlink.from_xml(%{<link rel="self" href="http://roar.apotomo.de"/>})
+    end
+    
+    it "responds to #rel" do
+      assert_equal "self", @l.rel
+    end
+    
+    it "responds to #href" do
+      assert_equal "http://roar.apotomo.de", @l.href
+    end
+  end
+end
+
+
 
 
 require "roar/model/representable"

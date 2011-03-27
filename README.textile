@@ -31,3 +31,8 @@ client: accessing nested attributes in complex xml hashes sucks. order[:position
 don't confuse client/server with view/controller
 
 h2. Hypermedia and HATEOAS
+
+
+h2. Testing
+#assert_response <code>, "Location" => "http://api.drinkandtrack.org/user/1"
+post :create, "<order/>"
