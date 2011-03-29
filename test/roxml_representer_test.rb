@@ -116,7 +116,7 @@ class RoxmlRepresenterFunctionalTest < MiniTest::Spec
         assert_exactly_match_xml "<order><id>1</id></order>", @r.serialize(@o)
       end
       
-      it "#to_xml delegates to ItemXmlRepresenter#to_xml in list" do
+      it "#serialize delegates to ItemXmlRepresenter#to_xml in list" do
         @o.items = [Item.new("value" => "Bier")]
         
         assert_exactly_match_xml "<order><id>1</id><item><value>Bier</value></item>\n</order>", 

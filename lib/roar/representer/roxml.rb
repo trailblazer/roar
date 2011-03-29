@@ -12,17 +12,15 @@ module Roar
     
     private
       def to_xml(represented)
-        attributes = represented.attributes # DISCUSS: dependency to model#attributes.
-        
-        copy_attributes!(attributes)
+        copy_attributes!(represented)
         
         super(:name => represented.class.model_name)
       end
       
       
-      def copy_attributes!(attributes)
+      def copy_attributes!(represented)
         self.class.roxml_attrs.each do |attr|
-          value = attributes[attr.accessor]
+          value = represented.send(attr.accessor)
           
           public_send("#{attr.accessor}=", value)
         end
@@ -58,7 +56,7 @@ end
 ROXML::XMLObjectRef.module_eval do
 private
   def serialize(object)
-    representer = opts.sought_type.new
+    representer = definition.sought_type.new
     representer.serialize(object)
   end
   
