@@ -59,9 +59,4 @@ private
     representer = definition.sought_type.new
     representer.serialize(object)
   end
-  
-  def update_xml_for_entity(xml, entity)
-    return ROXML::XML.add_child(xml, serialize(entity)) if entity.is_a?(::Roar::Model::Representable)
-    update_xml_for_string_entity(xml, entity)
-  end
 end
