@@ -46,7 +46,7 @@ class RoxmlRepresenterFunctionalTest < MiniTest::Spec
   
   class TestXmlRepresenter < Roar::Representer::Roxml
     xml_name :test  # FIXME: get from represented?
-    has_one :id
+    xml_accessor :id
   end
   
   
@@ -156,30 +156,5 @@ end
 
 require "roar/model/representable"
 class RoxmlRepresenterUnitTest
-  class Item
-    include Roar::Model::Representable
-    
-    represents "application/xml", :with => Hash
-  end
-  
-  describe "has_one" do
-    before do
-      @c = Class.new(Roar::Representer::Roxml) do
-        self.mime_type= "application/xml"
-        has_one :item, :class => Item
-      end
-    end
-    
-    it "saves the representer class" do
-      #assert_equal Hash, @c.roxml_attrs.first.sought_type
-    end
-    
-    it "raises an exception if no representer class is found" do
-      @c.mime_type = "text/html"
-      
-      assert_raises RuntimeError do
-        @c.has_one :id, :class => Item  # asking Item for "text/html" representer fails.
-      end
-    end
-  end
+
 end

@@ -31,14 +31,7 @@ module Roar
         def deserialize(xml)
           from_xml(xml)
         end
-        
-        def has_one(attr_name, options={})
-          if klass = options.delete(:class)
-            options[:as] = klass.representer_class_for(mime_type) or raise "No representer found for #{mime_type}"
-          end
           
-          xml_accessor attr_name, options
-        end     
       end
       
       
