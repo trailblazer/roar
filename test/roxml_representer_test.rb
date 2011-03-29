@@ -57,10 +57,21 @@ class RoxmlRepresenterFunctionalTest < MiniTest::Spec
       @r = TestXmlRepresenter.new
     end
     
+    describe "#to_xml" do
+      it "serializes the current model" do
+        assert_exactly_match_xml "<test/>", @r.to_xml.serialize
+        
+        @r.id = 2
+        assert_exactly_match_xml "<rap><id>2</id></rap>", @r.to_xml(:name => :rap).serialize
+      end
+    end
+    
+    
     describe "without options" do
       it "#serialize_model returns the serialized model" do
         assert_exactly_match_xml "<order><id>1</id></order>", @r.serialize(@o)
       end
+      
       
       it ".from_xml returns the deserialized model" do
         @m = TestXmlRepresenter.deserialize("<order><id>1</id></order>")

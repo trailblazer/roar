@@ -7,17 +7,12 @@ module Roar
       include ROXML
       
       def serialize(represented)
-        to_xml(represented).serialize
+        copy_attributes!(represented)
+        
+        to_xml(:name => represented.class.model_name).serialize
       end
     
     private
-      def to_xml(represented)
-        copy_attributes!(represented)
-        
-        super(:name => represented.class.model_name)
-      end
-      
-      
       def copy_attributes!(represented)
         self.class.roxml_attrs.each do |attr|
           value = represented.send(attr.accessor)
@@ -31,7 +26,6 @@ module Roar
         def deserialize(xml)
           from_xml(xml)
         end
-          
       end
       
       
