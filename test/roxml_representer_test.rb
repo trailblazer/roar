@@ -5,7 +5,6 @@ require "roxml"
 
 
 require "roar/representer/roxml"
-require 'roar/model/representable'
 
 class RoxmlRepresenterFunctionalTest < MiniTest::Spec
   class ItemApplicationXml < Roar::Representer::Roxml
@@ -15,9 +14,6 @@ class RoxmlRepresenterFunctionalTest < MiniTest::Spec
   class Item
     include Roar::Model
     accessors :value
-    
-    include Roar::Model::Representable
-    represents "application/xml", :with => ItemApplicationXml
     
     def self.model_name
       "item"
