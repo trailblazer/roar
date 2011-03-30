@@ -1,3 +1,5 @@
+require 'test_xml/test_unit'
+
 ActionController::TestCase.class_eval do
   # FIXME: ugly monkey-patching.
   # TODO: test:
@@ -32,7 +34,8 @@ ActionController::TestCase.class_eval do
     end
   end
   
-  def assert_body(body)
+  def assert_body(body, options={})
+    return assert_exactly_match_xml body, @response.body if options[:format]
     assert_equal body, @response.body
   end
   
