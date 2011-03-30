@@ -47,7 +47,7 @@ class RoxmlRepresenterFunctionalTest < MiniTest::Spec
     end
     
     
-    it "#from_model copies represented model attributes, nothing more" do
+    it "#for_model copies represented model attributes, nothing more" do
       @o = Order.new("id" => 1, "item" => Item.new("value" => "Beer"))
       
       @r = OrderXmlRepresenter.for_model(@o)
@@ -76,6 +76,20 @@ class RoxmlRepresenterFunctionalTest < MiniTest::Spec
       @o = Order.new(@m)
       @r = TestXmlRepresenter.new
     end
+    
+    describe "#for_attributes" do
+      it "#for_attributes copies represented attributes, nothing more" do
+        @o = Order.new("id" => 1, "item" => Item.new("value" => "Beer"))
+        
+        @r = OrderXmlRepresenter.for_attributes("id" => 1, "item" => ItemApplicationXml.new)
+        assert_kind_of OrderXmlRepresenter, @r
+        assert_equal 1, @r.id
+        
+        @i = @r.item
+        assert_kind_of ItemApplicationXml, @i
+      end
+    end
+    
     
     describe "#to_xml" do
       it "serializes the current model" do

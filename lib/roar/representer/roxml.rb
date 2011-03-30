@@ -17,38 +17,45 @@ module Roar
           base.extend ClassMethods
         end
         
-        #private
-        def copy_attributes!(represented)
-          self.class.roxml_attrs.each do |attr|
-            value = represented.send(attr.accessor)
-             
-            sub_representer_class = attr.sought_type
-            
-            # TODO: refactor with Roxml.
-            if value and sub_representer_class.is_a?(Class) and sub_representer_class <= Roxml
-              if attr.array?
-                value = value.collect do |item|
-                  sub_representer_class.for_model(item)
-                end
-              else
-                value = sub_representer_class.for_model(value)
-              end
-            end
-            
-            public_send("#{attr.accessor}=", value)
-          end
-        end
-        
         module ClassMethods
           def for_model(represented) # TODO: move me to ModelWrapper module (and code to instance method).
-            representer = new
-            representer.copy_attributes!(represented)
-            #representer.to_xml(:name => represented.class.model_name)
-            representer
+            for_attributes(compute_attributes(represented))
           end
           
           def serialize_model(represented)
             for_model(represented).serialize
+          end
+          
+        private
+          def compute_attributes(represented)
+            attributes = {}
+            self.roxml_attrs.each do |attr|
+              
+              if attr.accessor == "link"
+                puts attr.inspect
+                puts "link"
+                attributes["link"] = attr.sought_type.for_attributes(:rel => 'article', :href => represented.variant_uri)
+                next
+              end
+              
+              value = represented.send(attr.accessor)
+               
+              sub_representer_class = attr.sought_type
+              
+              # TODO: refactor with Roxml.
+              if value and sub_representer_class.is_a?(Class) and sub_representer_class <= Roxml
+                if attr.array?
+                  value = value.collect do |item|
+                    sub_representer_class.for_model(item)
+                  end
+                else
+                  value = sub_representer_class.for_model(value)
+                end
+              end
+              
+              attributes[attr.accessor] = value
+            end
+            attributes
           end
         end
       end
@@ -64,6 +71,14 @@ module Roar
       end
       
       class << self
+        def for_attributes(attributes)
+          new.tap do |representer|
+            attributes.each_pair do |attr, value|
+              representer.public_send("#{attr}=", value)
+            end
+          end
+        end
+        
         def deserialize(xml)
           from_xml(xml)
         end
