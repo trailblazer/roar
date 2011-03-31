@@ -9,6 +9,25 @@ module Roar
   #         by calling representer's accessors (eg in client?) or whatever else
   #       * representation is compiled from representer only
   module Representer
+    
+    module ActiveRecordMethods
+      def to_nested_attributes # FIXME: works on first level only, doesn't check if we really need to suffix _attributes and is horriby implemented. just for protoyping.  
+        attrs = {}
+        
+        to_attributes.each do |k,v|
+          attrs[k] = v
+          if v.is_a?(Hash) or v.is_a?(Array)
+            attrs["#{k}_attributes"] = attrs.delete(k)
+          end
+        end
+        
+        attrs
+      end
+      
+    end
+    
+    
+    
     class Roxml < Base
       include ROXML
       
@@ -81,22 +100,29 @@ module Roar
         to_xml.serialize
       end
       
+      # DISCUSS: should be abstract in Representer::Base.
+      # Convert representer's attributes to a nested attributes hash.
       def to_attributes
-        attributes = {} # TODO: use Reference#apply here.
-        self.class.roxml_attrs.each do |attr|
-          value = public_send(attr.accessor)
-               
-          value = self.class.filter_typed_attribute(attr, value) do |typed|
-            typed.to_attributes
+        {}.tap do |attributes|
+          self.class.roxml_attrs.each do |attr|
+            value = public_send(attr.accessor)
+                 
+            value = self.class.filter_typed_attribute(attr, value) do |typed| # move to Reference#apply
+              typed.to_attributes
+            end
+            
+            attributes[attr.accessor] = value
           end
-              
-          attributes[attr.accessor] = value
-        end
-        attributes
+          
+          if attributes["link"]
+            attributes["variant_uri"] = attributes.delete("link")["href"]
+          end
+        end # TODO: use Reference#apply here.
       end
       
       
       class << self
+        # Creates a representer instance and fills it with +attributes+.
         def for_attributes(attributes)
           new.tap do |representer|
             attributes.each_pair do |attr, value|

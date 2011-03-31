@@ -46,11 +46,15 @@ class RoxmlRepresenterFunctionalTest < MiniTest::Spec
       xml_accessor :item, :as => ItemApplicationXml
     end
     
+    before do
+      @c = Class.new(OrderXmlRepresenter)
+    end
+    
     
     it "#for_model copies represented model attributes, nothing more" do
       @o = Order.new("id" => 1, "item" => Item.new("value" => "Beer"))
       
-      @r = OrderXmlRepresenter.for_model(@o)
+      @r = @c.for_model(@o)
       assert_kind_of OrderXmlRepresenter, @r
       assert_equal 1, @r.id
       
@@ -59,8 +63,15 @@ class RoxmlRepresenterFunctionalTest < MiniTest::Spec
       assert_equal "Beer", @i.value
     end
     
-    
-    
+    it "Model::ActiveRecordMethods#to_nested_attributes" do
+      @o = Order.new("id" => 1, "item" => Item.new("value" => "Beer"))
+      @r = @c.for_model(@o)
+      
+      @c.class_eval do
+        include Roar::Representer::ActiveRecordMethods
+      end
+      assert_equal({"id" => 1, "item_attributes" => {"value" => "Beer"}}, @r.to_nested_attributes) # DISCUSS: overwrite #to_attributes.
+    end
     
   end
   
