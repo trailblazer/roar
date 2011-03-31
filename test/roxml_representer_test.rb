@@ -58,6 +58,10 @@ class RoxmlRepresenterFunctionalTest < MiniTest::Spec
       assert_kind_of ItemApplicationXml, @i
       assert_equal "Beer", @i.value
     end
+    
+    
+    
+    
   end
   
   
@@ -75,18 +79,26 @@ class RoxmlRepresenterFunctionalTest < MiniTest::Spec
       @m = {"id" => "1"}
       @o = Order.new(@m)
       @r = TestXmlRepresenter.new
+      @i = ItemApplicationXml.new
+      @i.value = "Beer"
     end
     
     describe "#for_attributes" do
       it "#for_attributes copies represented attributes, nothing more" do
-        @o = Order.new("id" => 1, "item" => Item.new("value" => "Beer"))
-        
-        @r = OrderXmlRepresenter.for_attributes("id" => 1, "item" => ItemApplicationXml.new)
+        @r = OrderXmlRepresenter.for_attributes("id" => 1, "item" => @i)
         assert_kind_of OrderXmlRepresenter, @r
         assert_equal 1, @r.id
         
-        @i = @r.item
-        assert_kind_of ItemApplicationXml, @i
+        assert_kind_of ItemApplicationXml, @r.item
+        assert_equal @r.item.value, "Beer"
+      end
+    end
+    
+    
+    describe "#to_attributes" do
+      it "returns a nested attributes hash" do
+        @r = OrderXmlRepresenter.for_attributes("id" => 1, "item" => @i)
+        assert_equal({"id" => 1, "item" => {"value" => "Beer"}}, @r.to_attributes)
       end
     end
     
@@ -195,12 +207,4 @@ class HyperlinkRepresenterUnitTest
       assert_equal "http://roar.apotomo.de", @l.href
     end
   end
-end
-
-
-
-
-require "roar/model/representable"
-class RoxmlRepresenterUnitTest
-
 end

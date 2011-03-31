@@ -31,6 +31,7 @@ module Roar
             attributes = {}
             self.roxml_attrs.each do |attr|
               
+              # TODO: put that into the concrete representer class/block.
               if attr.accessor == "link"
                 puts attr.inspect
                 puts "link"
@@ -40,24 +41,34 @@ module Roar
               
               value = represented.send(attr.accessor)
                
-              sub_representer_class = attr.sought_type
-              
-              # TODO: refactor with Roxml.
-              if value and sub_representer_class.is_a?(Class) and sub_representer_class <= Roxml
-                if attr.array?
-                  value = value.collect do |item|
-                    sub_representer_class.for_model(item)
-                  end
-                else
-                  value = sub_representer_class.for_model(value)
-                end
+              value = filter_typed_attribute(attr, value) do |v|
+                attr.sought_type.for_model(v)  # applied to each typed attribute (even in collections).
               end
               
               attributes[attr.accessor] = value
             end
             attributes
           end
-        end
+          
+        public
+          # TODO: move to RoxmlRep.
+          # FIXME: move to Reference#apply
+          def filter_typed_attribute(attribute, value)  # TODO: test.
+            sub_representer_class = attribute.sought_type
+            
+            return value unless value and sub_representer_class.is_a?(Class) and sub_representer_class <= Roxml # move to Reference#typed?
+            if attribute.array?
+              value = value.collect do |item|
+                yield item
+              end
+            else
+              value = yield value
+            end
+            
+            value
+          end
+        end # ClassMethods
+        
       end
       
       
@@ -69,6 +80,21 @@ module Roar
         #to_xml(:name => represented.class.model_name).serialize
         to_xml.serialize
       end
+      
+      def to_attributes
+        attributes = {} # TODO: use Reference#apply here.
+        self.class.roxml_attrs.each do |attr|
+          value = public_send(attr.accessor)
+               
+          value = self.class.filter_typed_attribute(attr, value) do |typed|
+            typed.to_attributes
+          end
+              
+          attributes[attr.accessor] = value
+        end
+        attributes
+      end
+      
       
       class << self
         def for_attributes(attributes)
