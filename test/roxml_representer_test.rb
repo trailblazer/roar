@@ -111,6 +111,16 @@ class RoxmlRepresenterFunctionalTest < MiniTest::Spec
         @r = OrderXmlRepresenter.for_attributes("id" => 1, "item" => @i)
         assert_equal({"id" => 1, "item" => {"value" => "Beer"}}, @r.to_attributes)
       end
+      
+      it "calls definition :to_attributes block" do
+        class Representer < Roar::Representer::Roxml
+          xml_accessor :id, :to_attributes => Proc.new { |attrs| attrs["id"] += 1 }
+        end
+        
+        @r = Representer.for_attributes("id" => 1)
+        assert_equal({"id" => 2}, @r.to_attributes)
+      end
+      
     end
     
     

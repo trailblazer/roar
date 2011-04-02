@@ -47,44 +47,28 @@ module Roar
           
         private
           def compute_attributes(represented)
-            attributes = {}
-            self.roxml_attrs.each do |attr|
-              
-              # TODO: put that into the concrete representer class/block.
-              if attr.accessor == "link"
-                puts attr.inspect
-                puts "link"
-                attributes["link"] = attr.sought_type.for_attributes(:rel => 'article', :href => represented.variant_uri)
-                next
+            {}.tap do |attributes|
+              self.roxml_attrs.each do |definition|
+                
+                # TODO: put that into the concrete representer class/block.
+                if definition.accessor == "link"
+                  puts definition.inspect
+                  puts "link"
+                  attributes["link"] = definition.sought_type.for_attributes(:rel => 'article', :href => represented.variant_uri)
+                  next
+                end
+                
+                value = represented.send(definition.accessor)
+                
+                if definition.typed?
+                  value = definition.apply(value) do |v|
+                    definition.sought_type.for_model(v)  # applied to each typed attribute (even in collections).
+                  end
+                end
+                
+                attributes[definition.accessor] = value
               end
-              
-              value = represented.send(attr.accessor)
-               
-              value = filter_typed_attribute(attr, value) do |v|
-                attr.sought_type.for_model(v)  # applied to each typed attribute (even in collections).
-              end
-              
-              attributes[attr.accessor] = value
             end
-            attributes
-          end
-          
-        public
-          # TODO: move to RoxmlRep.
-          # FIXME: move to Reference#apply
-          def filter_typed_attribute(attribute, value)  # TODO: test.
-            sub_representer_class = attribute.sought_type
-            
-            return value unless value and sub_representer_class.is_a?(Class) and sub_representer_class <= Roxml # move to Reference#typed?
-            if attribute.array?
-              value = value.collect do |item|
-                yield item
-              end
-            else
-              value = yield value
-            end
-            
-            value
           end
         end # ClassMethods
         
@@ -104,20 +88,20 @@ module Roar
       # Convert representer's attributes to a nested attributes hash.
       def to_attributes
         {}.tap do |attributes|
-          self.class.roxml_attrs.each do |attr|
-            value = public_send(attr.accessor)
-                 
-            value = self.class.filter_typed_attribute(attr, value) do |typed| # move to Reference#apply
-              typed.to_attributes
+          self.class.roxml_attrs.each do |definition|
+            value = public_send(definition.accessor)
+            
+            if definition.typed?
+              value = definition.apply(value) do |v|
+                v.to_attributes  # applied to each typed attribute (even in collections).
+              end
             end
             
-            attributes[attr.accessor] = value
+            attributes[definition.accessor] = value
+            
+            definition.options[:to_attributes].call(attributes) if definition.options[:to_attributes]
           end
-          
-          if attributes["link"]
-            attributes["variant_uri"] = attributes.delete("link")["href"]
-          end
-        end # TODO: use Reference#apply here.
+        end
       end
       
       
