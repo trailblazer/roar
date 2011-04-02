@@ -46,17 +46,16 @@ module Roar
           end
           
         private
+          # Called in for_attributes.
           def compute_attributes(represented)
             {}.tap do |attributes|
               self.roxml_attrs.each do |definition|
                 
-                # TODO: put that into the concrete representer class/block.
-                if definition.accessor == "link"
-                  puts definition.inspect
-                  puts "link"
-                  attributes["link"] = definition.sought_type.for_attributes(:rel => 'article', :href => represented.variant_uri)
+                if block = definition.options[:from_attributes] # DISCUSS: move into Definition?
+                  definition.instance_exec(attributes, represented, &block)
                   next
                 end
+                
                 
                 value = represented.send(definition.accessor)
                 
@@ -109,7 +108,7 @@ module Roar
         # Creates a representer instance and fills it with +attributes+.
         def for_attributes(attributes)
           new.tap do |representer|
-            attributes.each_pair do |attr, value|
+            attributes.each do |attr, value|
               representer.public_send("#{attr}=", value)
             end
           end
