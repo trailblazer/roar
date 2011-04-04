@@ -126,17 +126,17 @@ class RoxmlRepresenterFunctionalTest < MiniTest::Spec
     
     describe "#to_xml" do
       it "serializes the current model" do
-        assert_exactly_match_xml "<order/>", @r.to_xml.serialize
+        assert_xml_equal "<order/>", @r.to_xml.serialize
         
         @r.id = 2
-        assert_exactly_match_xml "<rap><id>2</id></rap>", @r.to_xml(:name => :rap).serialize
+        assert_xml_equal "<rap><id>2</id></rap>", @r.to_xml(:name => :rap).serialize
       end
     end
     
     
     describe "without options" do
       it "#serialize_model returns the serialized model" do
-        assert_exactly_match_xml "<order><id>1</id></order>", @r.class.serialize_model(@o)
+        assert_xml_equal "<order><id>1</id></order>", @r.class.serialize_model(@o)
       end
       
       
@@ -162,12 +162,12 @@ class RoxmlRepresenterFunctionalTest < MiniTest::Spec
       end
       
       it "#serialize_model skips empty :item" do
-        assert_exactly_match_xml "<order><id>1</id></order>", @c.serialize_model(@o)
+        assert_xml_equal "<order><id>1</id></order>", @c.serialize_model(@o)
       end
       
       it "#to_xml delegates to ItemXmlRepresenter#to_xml" do
         @o.item = Item.new("value" => "Bier")
-        assert_exactly_match_xml "<order><id>1</id><item><value>Bier</value></item>\n</order>", 
+        assert_xml_equal "<order><id>1</id><item><value>Bier</value></item>\n</order>", 
           @c.serialize_model(@o)
       end
       
@@ -192,13 +192,13 @@ class RoxmlRepresenterFunctionalTest < MiniTest::Spec
       end
       
       it "#serialize_model skips empty :item" do
-        assert_exactly_match_xml "<order><id>1</id></order>", @c.serialize_model(@o)
+        assert_xml_equal "<order><id>1</id></order>", @c.serialize_model(@o)
       end
       
       it "#serialize delegates to ItemXmlRepresenter#to_xml in list" do
         @o.items = [Item.new("value" => "Bier")]
         
-        assert_exactly_match_xml "<order><id>1</id><item><value>Bier</value></item></order>", 
+        assert_xml_equal "<order><id>1</id><item><value>Bier</value></item></order>", 
           @c.serialize_model(@o)
       end
       

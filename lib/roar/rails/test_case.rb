@@ -35,7 +35,7 @@ ActionController::TestCase.class_eval do
   end
   
   def assert_body(body, options={})
-    return assert_exactly_match_xml body, @response.body if options[:format]
+    return assert_xml_equal body, @response.body if options[:format]
     assert_equal body, @response.body
   end
   
