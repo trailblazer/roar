@@ -7,7 +7,7 @@ module Roar
     module Hypermedia # TODO: test me.
       def links=(links)
         @links = links.collect do |link|
-          Roar::Representer::Roxml::Hyperlink.for_attributes(link)
+          Roar::Representer::Roxml::Hyperlink.from_attributes(link)
         end
       end
       
