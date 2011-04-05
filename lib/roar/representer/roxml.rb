@@ -38,7 +38,7 @@ module Roar
         
         module ClassMethods
           def for_model(represented) # TODO: move me to ModelWrapper module (and code to instance method).
-            for_attributes(compute_attributes(represented))
+            from_attributes(compute_attributes_for(represented))
           end
           
           def serialize_model(represented)
@@ -46,20 +46,14 @@ module Roar
           end
           
         private
-          # Called in for_attributes.
-          def compute_attributes(represented)
+          # Called in for_model.
+          def compute_attributes_for(represented)
             {}.tap do |attributes|
               self.roxml_attrs.each do |definition|
-                
-                if block = definition.options[:from_attributes] # DISCUSS: move into Definition?
-                  definition.instance_exec(attributes, represented, &block)
-                  next
-                end
-                
-                
+                # alternative reader can be set with :model_reader.
                 value = represented.send(definition.accessor)
                 
-                if definition.typed?
+                if definition.typed? and not definition.options[:ficken]
                   value = definition.apply(value) do |v|
                     definition.sought_type.for_model(v)  # applied to each typed attribute (even in collections).
                   end
@@ -105,14 +99,20 @@ module Roar
       
       
       class << self
-        # Creates a representer instance and fills it with +attributes+.
-        def for_attributes(attributes)
+        # Creates a representer instance and fills it with +attributes+. Note that it executes an optional hook.
+        def from_attributes(attributes)
           new.tap do |representer|
-            attributes.each do |attr, value|
-              representer.public_send("#{attr}=", value)
+            roxml_attrs.each do |definition|
+              if block = definition.options[:from_attributes] # DISCUSS: move into Definition?
+                definition.instance_exec(attributes, &block)
+              end
+              
+              representer.public_send("#{definition.accessor}=", attributes[definition.accessor])
             end
           end
         end
+        
+        
         
         def deserialize(xml)
           from_xml(xml)

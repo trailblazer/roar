@@ -73,6 +73,19 @@ class RoxmlRepresenterFunctionalTest < MiniTest::Spec
       assert_equal({"id" => 1, "item_attributes" => {"value" => "Beer"}}, @r.to_nested_attributes) # DISCUSS: overwrite #to_attributes.
     end
     
+    describe "#compute_attributes_for in #for_model" do
+      it "respects :model_reader" do
+        class Representery < Roar::Representer::Roxml
+          xml_accessor :id, :model_reader => :value
+        end
+        
+        assert_equal "Beer", Representery.for_model(Item.new("value" => "Beer")).id
+      end
+      
+      
+    end
+    
+    
   end
   
   
@@ -94,33 +107,41 @@ class RoxmlRepresenterFunctionalTest < MiniTest::Spec
       @i.value = "Beer"
     end
     
-    describe "#for_attributes" do
-      it "#for_attributes copies represented attributes, nothing more" do
-        @r = OrderXmlRepresenter.for_attributes("id" => 1, "item" => @i)
+    describe "#from_attributes" do
+      it "copies represented attributes, only" do
+        @r = OrderXmlRepresenter.from_attributes("id" => 1, "item" => @i, "unknown" => 1)
         assert_kind_of OrderXmlRepresenter, @r
         assert_equal 1, @r.id
         
         assert_kind_of ItemApplicationXml, @r.item
         assert_equal @r.item.value, "Beer"
       end
+      
+      it "calls definition :from_attributes block" do
+        class Representer < Roar::Representer::Roxml
+          xml_accessor :id, :from_attributes => Proc.new { |attrs| attrs["id"] -= 1 }
+        end
+        
+        @r = Representer.from_attributes("id" => 1)
+        assert_equal 0, @r.id
+      end
     end
     
     
     describe "#to_attributes" do
       it "returns a nested attributes hash" do
-        @r = OrderXmlRepresenter.for_attributes("id" => 1, "item" => @i)
+        @r = OrderXmlRepresenter.from_attributes("id" => 1, "item" => @i)
         assert_equal({"id" => 1, "item" => {"value" => "Beer"}}, @r.to_attributes)
       end
       
       it "calls definition :to_attributes block" do
-        class Representer < Roar::Representer::Roxml
+        class ToAttrRepresenter < Roar::Representer::Roxml
           xml_accessor :id, :to_attributes => Proc.new { |attrs| attrs["id"] += 1 }
         end
         
-        @r = Representer.for_attributes("id" => 1)
+        @r = ToAttrRepresenter.from_attributes("id" => 1)
         assert_equal({"id" => 2}, @r.to_attributes)
       end
-      
     end
     
     
