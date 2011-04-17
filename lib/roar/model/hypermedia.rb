@@ -12,8 +12,15 @@ module Roar
       end
       
       def links
-        @links
+        LinkCollection.new @links
       end
+      
+      class LinkCollection < Array
+        def [](rel)
+          link = find { |l| l.rel.to_s == rel.to_s } and return link.href
+        end
+      end
+      
     end
   end
 end
