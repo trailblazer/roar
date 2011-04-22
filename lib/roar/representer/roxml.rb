@@ -1,6 +1,7 @@
 require 'roar/representer'
 require 'roxml'
 
+
 module Roar
   # Basic work-flow
   # in:   * representer parses representation
@@ -112,11 +113,7 @@ module Roar
         def from_attributes(attributes)
           new.tap do |representer|
             roxml_attrs.each do |definition|
-              if definition.respond_to?(:populate)
-                definition.populate(representer)
-              else 
-                representer.public_send("#{definition.accessor}=", attributes[definition.accessor])
-              end
+              definition.populate(representer, attributes)
             end
           end
         end
@@ -159,5 +156,13 @@ module Roar
       
       
     end
+  end
+end
+
+
+ROXML::Definition.class_eval do
+  # Populate the representer's attribute with the right value.
+  def populate(representer, attributes)
+    representer.public_send("#{accessor}=", attributes[accessor])
   end
 end

@@ -39,16 +39,15 @@ module Roar
         @rel2block ||= []
       end
       
-      def populate(representer)
+      def populate(representer, *args)
         representer.links ||= []
         
         rel2block.each do |link|
-          representer.links << Roar::Representer::Roxml::Hyperlink.from_attributes({"rel" => link[:rel], "href" => representer.instance_exec(&link[:block])})  # DISCUSS: run block in representer context?
+          representer.links << Roar::Representer::Roxml::Hyperlink.from_attributes({
+            "rel"   => link[:rel],
+            "href"  => representer.instance_exec(&link[:block])})  # DISCUSS: run block in representer context?
         end
-        
-                
       end
-      
     end
     
   end

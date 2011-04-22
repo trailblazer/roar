@@ -45,6 +45,20 @@ class LinksDefinitionTest < MiniTest::Spec
   end
 end
 
+class RoxmlDefinitionTest < MiniTest::Spec
+  class Rapper
+    attr_accessor :name
+  end
+  
+  describe "ROXML::Definition" do
+    it "responds to #populate" do
+      @r = Rapper.new
+      ROXML::Definition.new(:name).populate(@r, "name" => "Eugen")
+      assert_equal "Eugen", @r.name
+    end
+  end
+end
+
 class RoxmlRepresenterFunctionalTest < MiniTest::Spec
   class ItemApplicationXml < Roar::Representer::Roxml
     xml_name :item
