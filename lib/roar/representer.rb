@@ -17,12 +17,6 @@ module Roar
         end
       end
       
-      attr_reader :represented
-      
-      def initialize(represented=nil) # FIXME!
-        @represented = represented
-      end
-      
       # DISCUSS: serialize on instance?
       def serialize(represented, mime_type)
         
