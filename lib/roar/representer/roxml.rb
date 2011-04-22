@@ -15,6 +15,13 @@ module Roar
         attrs = {}
         
         to_attributes.each do |k,v|
+        
+        
+        
+        next if k.to_s == "links"  # FIXME: how to skip virtual attributes that are not mapped in a model?
+          
+          
+          
           attrs[k] = v
           if v.is_a?(Hash) or v.is_a?(Array)
             attrs["#{k}_attributes"] = attrs.delete(k)
@@ -50,6 +57,11 @@ module Roar
           def compute_attributes_for(represented)
             {}.tap do |attributes|
               self.roxml_attrs.each do |definition|
+              
+              next if definition.name.to_s == "links" or definition.accessor.to_s == "links"  # FIXME: how to skip virtual attributes that are not mapped in a model?
+              
+              
+              
                 # alternative reader can be set with :model_reader.
                 value = represented.send(definition.accessor)
                 
@@ -107,7 +119,14 @@ module Roar
                 definition.instance_exec(attributes, &block)
               end
               
+              # FIXME: hook for from_attributes preparation. merge with :from_attributes block!
+              if definition.block
+                definition.block.call(representer)
+              else 
+              
+              
               representer.public_send("#{definition.accessor}=", attributes[definition.accessor])
+              end
             end
           end
         end
@@ -126,6 +145,22 @@ module Roar
         xml_accessor :rel,  :from => "@rel"
         xml_accessor :href, :from => "@href"
       end
+      
+      module HyperlinkMethods
+        extend ActiveSupport::Concern
+        module ClassMethods
+          def link(rel, &block)
+            xml_accessor :links, :tag => :link, :as => [Roar::Representer::Roxml::Hyperlink] do |rep|
+              rep.links ||= []
+              rep.links << Roar::Representer::Roxml::Hyperlink.from_attributes({"rel" => rel, "href" => rep.instance_exec(&block)})  # DISCUSS: run block in representer context?
+            end
+          end
+        end
+        
+      end
+      include HyperlinkMethods
+      
+      
     end
   end
 end
