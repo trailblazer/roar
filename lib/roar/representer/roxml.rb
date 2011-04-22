@@ -64,7 +64,7 @@ module Roar
                 # alternative reader can be set with :model_reader.
                 value = represented.send(definition.accessor)
                 
-                if definition.typed? and not definition.options[:ficken]
+                if definition.typed?
                   value = definition.apply(value) do |v|
                     definition.sought_type.for_model(v)  # applied to each typed attribute (even in collections).
                   end
@@ -112,13 +112,10 @@ module Roar
         def from_attributes(attributes)
           new.tap do |representer|
             roxml_attrs.each do |definition|
-              # FIXME: hook for from_attributes preparation. merge with :from_attributes block!
-              if definition.block
-                definition.block.call(representer)
+              if definition.respond_to?(:populate)
+                definition.populate(representer)
               else 
-              
-              
-              representer.public_send("#{definition.accessor}=", attributes[definition.accessor])
+                representer.public_send("#{definition.accessor}=", attributes[definition.accessor])
               end
             end
           end
@@ -143,11 +140,17 @@ module Roar
         extend ActiveSupport::Concern
         
         module ClassMethods
+          
+          
           def link(rel, &block)
-            xml_accessor :links, :tag => :link, :as => [Roar::Representer::Roxml::Hyperlink] do |rep|
-              rep.links ||= []
-              rep.links << Roar::Representer::Roxml::Hyperlink.from_attributes({"rel" => rel, "href" => rep.instance_exec(&block)})  # DISCUSS: run block in representer context?
+            unless links = roxml_attrs.find { |d| d.is_a?(LinksDefinition)}
+              links = LinksDefinition.new(:links, :tag => :link, :as => [Roar::Representer::Roxml::Hyperlink])
+              roxml_attrs << links
+              add_reader(links) # TODO: refactor in Roxml.
+              attr_writer(links.accessor)
             end
+            
+            links.rel2block << {:rel => rel, :block => block}
           end
         end
         

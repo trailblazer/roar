@@ -6,6 +6,45 @@ require "roxml"
 
 require "roar/representer/roxml"
 
+
+
+class RoxmlRepresenterUnitTest < MiniTest::Spec
+  describe "XmlRepresenter" do
+    describe "#link" do
+      class Rapper < Roar::Representer::Roxml
+        link :self
+        link :next
+      end
+      
+      it "creates a LinksDefinition" do
+        assert_equal 1, Rapper.roxml_attrs.size
+        assert_equal [{:rel=>:self, :block=>nil}, {:rel=>:next, :block=>nil}], Rapper.roxml_attrs.first.rel2block
+      end
+    end
+    
+    
+    
+  end
+  
+end
+
+class LinksDefinitionTest < MiniTest::Spec
+  describe "LinksDefinition" do
+    before do
+      @d = Roar::Representer::LinksDefinition.new(:links)
+    end
+    
+    it "accepts options in constructor" do
+      assert_equal [], @d.rel2block
+    end
+    
+    it "accepts configuration" do
+      @d.rel2block << {:rel => :self}
+      assert_equal [{:rel=>:self}], @d.rel2block
+    end
+  end
+end
+
 class RoxmlRepresenterFunctionalTest < MiniTest::Spec
   class ItemApplicationXml < Roar::Representer::Roxml
     xml_name :item
@@ -221,6 +260,7 @@ class HypermediaAPIFunctionalTest
   describe "Hypermedia API" do
     before do
       @c = Class.new(Roar::Representer::Roxml) do
+        xml_name :wuff
         xml_accessor :id
         link :self do "http://self" end
         link :next do "http://next/#{id}" end
@@ -248,6 +288,15 @@ class HypermediaAPIFunctionalTest
       assert_equal 1, @r.links.size
       assert_equal({"rel"=>"self", "href"=>"http://self"}, @r.links.first.to_attributes) 
     end
+    
+    it "renders <link> correctly in XML" do
+      assert_xml_equal %{<wuff>
+  <id>1</id>
+  <link rel="self" href="http://self"/>
+  <link rel="next" href="http://next/1"/>
+</wuff><expected />}, @c.from_attributes({"id" => 1}).serialize
+    end
+    
   end
 end
 
