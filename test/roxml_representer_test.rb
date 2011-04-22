@@ -257,6 +257,15 @@ class HypermediaAPIFunctionalTest
       assert_equal({"rel"=>:next, "href"=>"http://next/1"}, @r.links.last.to_attributes) 
     end
     
+    it "extracts links from XML" do
+      @r = @c.deserialize(%{
+      <order>
+        <link rel="self" href="http://self">
+      </order>
+      })
+      assert_equal 1, @r.links.size
+      assert_equal({"rel"=>"self", "href"=>"http://self"}, @r.links.first.to_attributes) 
+    end
   end
 end
 
