@@ -43,7 +43,7 @@ module Roar
         representer.links ||= []
         
         rel2block.each do |link|
-          representer.links << Roar::Representer::Roxml::Hyperlink.from_attributes({
+          representer.links << sought_type.from_attributes({  # create Hyperlink representer.
             "rel"   => link[:rel],
             "href"  => representer.instance_exec(&link[:block])})  # DISCUSS: run block in representer context?
         end
