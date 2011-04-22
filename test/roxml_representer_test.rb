@@ -116,15 +116,6 @@ class RoxmlRepresenterFunctionalTest < MiniTest::Spec
         assert_kind_of ItemApplicationXml, @r.item
         assert_equal @r.item.value, "Beer"
       end
-      
-      it "calls definition :from_attributes block" do
-        class Representer < Roar::Representer::Roxml
-          xml_accessor :id, :from_attributes => Proc.new { |attrs| attrs["id"] -= 1 }
-        end
-        
-        @r = Representer.from_attributes("id" => 1)
-        assert_equal 0, @r.id
-      end
     end
     
     
@@ -132,15 +123,6 @@ class RoxmlRepresenterFunctionalTest < MiniTest::Spec
       it "returns a nested attributes hash" do
         @r = OrderXmlRepresenter.from_attributes("id" => 1, "item" => @i)
         assert_equal({"id" => 1, "item" => {"value" => "Beer"}}, @r.to_attributes)
-      end
-      
-      it "calls definition :to_attributes block" do
-        class ToAttrRepresenter < Roar::Representer::Roxml
-          xml_accessor :id, :to_attributes => Proc.new { |attrs| attrs["id"] += 1 }
-        end
-        
-        @r = ToAttrRepresenter.from_attributes("id" => 1)
-        assert_equal({"id" => 2}, @r.to_attributes)
       end
     end
     

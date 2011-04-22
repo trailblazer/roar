@@ -21,7 +21,6 @@ module Roar
         next if k.to_s == "links"  # FIXME: how to skip virtual attributes that are not mapped in a model?
           
           
-          
           attrs[k] = v
           if v.is_a?(Hash) or v.is_a?(Array)
             attrs["#{k}_attributes"] = attrs.delete(k)
@@ -103,8 +102,6 @@ module Roar
             end
             
             attributes[definition.accessor] = value
-            
-            definition.options[:to_attributes].call(attributes) if definition.options[:to_attributes]
           end
         end
       end
@@ -115,10 +112,6 @@ module Roar
         def from_attributes(attributes)
           new.tap do |representer|
             roxml_attrs.each do |definition|
-              if block = definition.options[:from_attributes] # DISCUSS: move into Definition?
-                definition.instance_exec(attributes, &block)
-              end
-              
               # FIXME: hook for from_attributes preparation. merge with :from_attributes block!
               if definition.block
                 definition.block.call(representer)
@@ -148,6 +141,7 @@ module Roar
       
       module HyperlinkMethods
         extend ActiveSupport::Concern
+        
         module ClassMethods
           def link(rel, &block)
             xml_accessor :links, :tag => :link, :as => [Roar::Representer::Roxml::Hyperlink] do |rep|
