@@ -43,6 +43,15 @@ class ModelRepresentingTest < MiniTest::Spec
         assert_equal "Beer", @i.value
       end
       
+      it "copies the model to @represented" do
+        @o = Position.new("id" => 1, "item" => @i = Item.new("value" => "Beer"))
+        
+        @r = PositionRepresenter.for_model(@o)
+        assert_equal @o, @r.represented
+        assert_equal @i, @r.item.represented
+      end
+      
+      
       it "works with Hyperlink attributes" do
         @c = Class.new(ItemRepresenter) do
           link :self do "http://self" end

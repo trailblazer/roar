@@ -1,13 +1,15 @@
 module Roar
   module Representer
     module ModelRepresenting
+      attr_accessor :represented
+      
       def self.included(base)
         base.extend ClassMethods
       end
       
       module ClassMethods
-        def for_model(represented) # TODO: move me to ModelWrapper module (and code to instance method).
-          from_attributes(compute_attributes_for(represented))
+        def for_model(represented)
+          from_attributes(compute_attributes_for(represented)) { |rep| rep.represented = represented }
         end
         
         def serialize_model(represented)
