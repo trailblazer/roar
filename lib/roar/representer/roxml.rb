@@ -52,31 +52,38 @@ module Roar
             for_model(represented).serialize
           end
           
+          def definition_class
+            ModelDefinition
+          end
+          
         private
           # Called in for_model.
           def compute_attributes_for(represented)
             {}.tap do |attributes|
               self.roxml_attrs.each do |definition|
-              
-              next if definition.name.to_s == "links" or definition.accessor.to_s == "links"  # FIXME: how to skip virtual attributes that are not mapped in a model?
-              
-              
-              
-                # TODO: move this behaviour into ModelDefinition module.
-                value = represented.send(definition.accessor)
-                
-                if definition.typed?
-                  value = definition.apply(value) do |v|
-                    definition.sought_type.for_model(v)  # applied to each typed attribute (even in collections).
-                  end
-                end
-                
-                attributes[definition.accessor] = value
+                next unless definition.kind_of?(ModelDefinition)  # for now, really only use "our" model attributes.
+                definition.compute_attribute_for(represented, attributes)
               end
             end
           end
+          
+          
         end # ClassMethods
         
+        # Properties that are mapped to a model attribute.
+        class ModelDefinition < ::ROXML::Definition
+          def compute_attribute_for(represented, attributes)
+            value = represented.send(accessor)
+                
+            if typed?
+              value = apply(value) do |v|
+                sought_type.for_model(v)  # applied to each typed attribute (even in collections).
+              end
+            end
+            
+            attributes[accessor] = value
+          end
+        end
       end
       
       

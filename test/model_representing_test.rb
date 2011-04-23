@@ -3,35 +3,53 @@ require 'test_helper'
 class ModelRepresentingTest < MiniTest::Spec
   describe "ModelRepresenting" do
     class ItemRepresenter < Roar::Representer::Roxml
+      include Roar::Representer::Roxml::ModelRepresenting # TODO: move to abstract!
       xml_name :item
       xml_accessor :value
-      include Roar::Representer::Roxml::ModelRepresenting # TODO: move to abstract!
     end
     
     class PositionRepresenter < Roar::Representer::Roxml
+      include Roar::Representer::Roxml::ModelRepresenting # TODO: move to abstract! 
       xml_name :position
       xml_accessor :id
       xml_accessor :item, :as => ItemRepresenter
-      include Roar::Representer::Roxml::ModelRepresenting # TODO: move to abstract!
     end
     
     class OrderRepresenter < Roar::Representer::Roxml
+      include Roar::Representer::Roxml::ModelRepresenting # TODO: move to abstract!
       xml_name :order
       xml_accessor :id
       xml_accessor :items, :as => [ItemRepresenter]
-      include Roar::Representer::Roxml::ModelRepresenting # TODO: move to abstract!
     end
     
-    it "#for_model copies represented model attributes, nothing more" do
-      @o = Position.new("id" => 1, "item" => Item.new("value" => "Beer"))
+    describe "#definition_class" do
+      it "returns ModelDefinition" do
+        assert_equal Roar::Representer::Roxml::ModelRepresenting::ModelDefinition, OrderRepresenter.definition_class
+      end
       
-      @r = PositionRepresenter.for_model(@o)
-      assert_kind_of PositionRepresenter, @r
-      assert_equal 1, @r.id
+    end
+    
+    describe "#for_model" do
+      it "copies represented model attributes, nothing more" do
+        @o = Position.new("id" => 1, "item" => Item.new("value" => "Beer"))
+        
+        @r = PositionRepresenter.for_model(@o)
+        assert_kind_of PositionRepresenter, @r
+        assert_equal 1, @r.id
+        
+        @i = @r.item
+        assert_kind_of ItemRepresenter, @i
+        assert_equal "Beer", @i.value
+      end
       
-      @i = @r.item
-      assert_kind_of ItemRepresenter, @i
-      assert_equal "Beer", @i.value
+      it "works with Hyperlink attributes" do
+        @c = Class.new(ItemRepresenter) do
+          link :self do "http://self" end
+        end
+        
+        assert_equal({"value"=>"Beer", "links"=>[{"rel"=>:self, "href"=>"http://self"}]}, @c.for_model(Item.new("value" => "Beer")).to_attributes)
+      end
+      
     end
     
     describe "#serialize_model" do
