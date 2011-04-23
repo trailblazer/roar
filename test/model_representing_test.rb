@@ -44,6 +44,17 @@ class ModelRepresentingTest < MiniTest::Spec
         assert_xml_equal "<order><id>1</id></order>", OrderRepresenter.serialize_model(Order.new("id" => 1))
       end
       
+      it "serializes the model" do
+        @o = Order.new("id" => 1, "items" => [Item.new("value" => "Beer")])
+        assert_xml_equal %{
+<order>
+  <id>1</id>
+  <item>
+    <value>Beer</value>
+  </item>
+</order>}"", OrderRepresenter.serialize_model(@o)
+      end
+      
     end
     
     

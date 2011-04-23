@@ -62,7 +62,7 @@ module Roar
               
               
               
-                # alternative reader can be set with :model_reader.
+                # TODO: move this behaviour into ModelDefinition module.
                 value = represented.send(definition.accessor)
                 
                 if definition.typed?
@@ -82,7 +82,7 @@ module Roar
       
       
       
-      include ModelRepresenting
+      #include ModelRepresenting
       
       def serialize
         #to_xml(:name => represented.class.model_name).serialize
@@ -109,7 +109,7 @@ module Roar
       
       
       class << self
-        # Creates a representer instance and fills it with +attributes+. Note that it executes an optional hook.
+        # Creates a representer instance and fills it with +attributes+.
         def from_attributes(attributes)
           new.tap do |representer|
             roxml_attrs.each do |definition|
