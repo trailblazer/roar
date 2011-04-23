@@ -1,22 +1,23 @@
 require 'test_helper'
+require 'roar/representer/model_representing'
 
 class ModelRepresentingTest < MiniTest::Spec
   describe "ModelRepresenting" do
     class ItemRepresenter < Roar::Representer::Roxml
-      include Roar::Representer::Roxml::ModelRepresenting # TODO: move to abstract!
+      include Roar::Representer::ModelRepresenting # TODO: move to abstract!
       xml_name :item
       xml_accessor :value
     end
     
     class PositionRepresenter < Roar::Representer::Roxml
-      include Roar::Representer::Roxml::ModelRepresenting # TODO: move to abstract! 
+      include Roar::Representer::ModelRepresenting # TODO: move to abstract! 
       xml_name :position
       xml_accessor :id
       xml_accessor :item, :as => ItemRepresenter
     end
     
     class OrderRepresenter < Roar::Representer::Roxml
-      include Roar::Representer::Roxml::ModelRepresenting # TODO: move to abstract!
+      include Roar::Representer::ModelRepresenting # TODO: move to abstract!
       xml_name :order
       xml_accessor :id
       xml_accessor :items, :as => [ItemRepresenter]
@@ -24,7 +25,7 @@ class ModelRepresentingTest < MiniTest::Spec
     
     describe "#definition_class" do
       it "returns ModelDefinition" do
-        assert_equal Roar::Representer::Roxml::ModelRepresenting::ModelDefinition, OrderRepresenter.definition_class
+        assert_equal Roar::Representer::ModelRepresenting::ModelDefinition, OrderRepresenter.definition_class
       end
       
     end
