@@ -31,25 +31,33 @@ class TestModel
   end
 end
 
-
-class MiniTest::Spec
-  def assert_model(expected, subject)
-    assert_instance_of subject.class, expected 
-    
-    expected.attributes.each_pair do |k, v|
-      if v.is_a?(Array)
-        v.each do |item|
-          subject_collection = subject.attributes[k]
-          assert_equal(item.attributes, subject_collection, "in #{expected.class}.#{k}") if subject_collection.blank?
-          assert_model item, subject_collection[v.index(item)]
-        end
-      elsif v.respond_to?(:attributes)
-        assert_model v, subject.attributes[k]
-      else
-        assert_equal v.to_s, subject.attributes[k].to_s, "#{v.inspect} is not #{subject.attributes[k].inspect} in #{expected.class}.#{k}"
-      end
-    end
-    
-    
+class Item
+  include Roar::Model
+  accessors :value
+  
+  def self.model_name
+    "item"
   end
 end
+
+class Position
+  include Roar::Model
+  accessors :id, :item
+  
+  def self.model_name
+    :order
+  end
+end
+
+class Order
+  include Roar::Model
+  accessors :id, :items
+  
+  def self.model_name
+    :order
+  end
+end
+
+require "test_xml/mini_test"
+require "roxml"
+require "roar/representer/roxml"
