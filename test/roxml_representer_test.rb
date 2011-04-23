@@ -1,7 +1,5 @@
 require 'test_helper'
 
-
-
 class Order
   include Roar::Model
   accessors :id, :item
@@ -40,10 +38,16 @@ class RoxmlRepresenterUnitTest < MiniTest::Spec
       end
     end
     
-    
-    
+    describe "#from_attributes" do
+      it "accepts a block" do
+        @c = Class.new(Roar::Representer::Roxml) do
+          attr_accessor :name
+        end
+        
+        assert_equal("Conan", @c.from_attributes({}) { |rep| rep.name = "Conan" }.name)
+      end
+    end
   end
-  
 end
 
 class LinksDefinitionTest < MiniTest::Spec

@@ -10,11 +10,6 @@ module Roar
   #         by calling representer's accessors (eg in client?) or whatever else
   #       * representation is compiled from representer only
   module Representer
-    
-    
-    
-    
-    
     class Roxml < Base
       include ROXML
       
@@ -46,6 +41,8 @@ module Roar
         # Creates a representer instance and fills it with +attributes+.
         def from_attributes(attributes)
           new.tap do |representer|
+            yield representer if block_given?
+            
             roxml_attrs.each do |definition|
               definition.populate(representer, attributes)
             end
