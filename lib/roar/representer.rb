@@ -1,6 +1,4 @@
 module Roar
-  # deserialize
-  # serialize
   module Representer
     class Base
     end

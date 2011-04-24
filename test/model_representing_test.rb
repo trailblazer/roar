@@ -1,23 +1,23 @@
 require 'test_helper'
-require 'roar/representer/model_representing'
+require 'roar/representer/feature/model_representing'
 
 class ModelRepresentingTest < MiniTest::Spec
   describe "ModelRepresenting" do
     class ItemRepresenter < Roar::Representer::Roxml
-      include Roar::Representer::ModelRepresenting # TODO: move to abstract!
+      include Roar::Representer::Feature::ModelRepresenting # TODO: move to abstract!
       xml_name :item
       xml_accessor :value
     end
     
     class PositionRepresenter < Roar::Representer::Roxml
-      include Roar::Representer::ModelRepresenting # TODO: move to abstract! 
+      include Roar::Representer::Feature::ModelRepresenting # TODO: move to abstract! 
       xml_name :position
       xml_accessor :id
       xml_accessor :item, :as => ItemRepresenter
     end
     
     class OrderRepresenter < Roar::Representer::Roxml
-      include Roar::Representer::ModelRepresenting # TODO: move to abstract!
+      include Roar::Representer::Feature::ModelRepresenting # TODO: move to abstract!
       xml_name :order
       xml_accessor :id
       xml_accessor :items, :as => [ItemRepresenter]
@@ -25,7 +25,7 @@ class ModelRepresentingTest < MiniTest::Spec
     
     describe "#definition_class" do
       it "returns ModelDefinition" do
-        assert_equal Roar::Representer::ModelRepresenting::ModelDefinition, OrderRepresenter.definition_class
+        assert_equal Roar::Representer::Feature::ModelRepresenting::ModelDefinition, OrderRepresenter.definition_class
       end
       
     end
@@ -91,7 +91,7 @@ class ModelRepresentingTest < MiniTest::Spec
       @r = OrderRepresenter.for_model(@o)
       
       OrderRepresenter.class_eval do
-        include Roar::Representer::ActiveRecordMethods
+        include Roar::Representer::Feature::ActiveRecordMethods
       end
       assert_equal({"id" => 1, "items_attributes" => [{"value" => "Beer"}]}, @r.to_nested_attributes) # DISCUSS: overwrite #to_attributes.
     end

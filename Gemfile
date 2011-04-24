@@ -8,7 +8,7 @@ gem "hooks"
 gem "restfulie", "~> 1.0.0"
 
 gem "roxml", :path => "/home/nick/projects/roxml"
-gem "test_xml", "~> 0.1.0" #, :path => "/home/nick/projects/test_xml"
+gem "test_xml", :path => "/home/nick/projects/test_xml" #"~> 0.1.0" #, 
 
 group :test do
   

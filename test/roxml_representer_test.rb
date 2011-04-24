@@ -277,12 +277,12 @@ class HyperlinkRepresenterUnitTest
 end
 
 
-require 'roar/model/hypermedia'
+require 'roar/representer/feature/hypermedia'
 
 class HypermediaTest
   describe "Hypermedia" do
     class Bookmarks
-      include Roar::Model::Hypermedia
+      include Roar::Representer::Feature::Hypermedia
     end
     
     before do
@@ -292,7 +292,7 @@ class HypermediaTest
     end
     
     it "responds to #links" do
-      assert_kind_of Roar::Model::Hypermedia::LinkCollection, @b.links
+      assert_kind_of Roar::Representer::Feature::Hypermedia::LinkCollection, @b.links
       assert_equal 2, @b.links.size
     end
     

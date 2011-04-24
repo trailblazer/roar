@@ -31,20 +31,21 @@ class ProxyTest < MiniTest::Spec
   
   describe "EntityProxy" do
     before do
-      @proxy_class = EntityProxy.class_for(:class => TestModel)
+      Proxy = Roar::Client::EntityProxy
+      @proxy_class = Proxy.class_for(:class => TestModel)
     end
     
     it ".class_for returns an EntityProxy subclass" do
       @proxy = @proxy_class.new
-      assert_kind_of EntityProxy, @proxy
+      assert_kind_of Proxy, @proxy
     end
     
     it "responds to .options" do
-      assert_equal({:class => TestModel}, @proxy_class.options)
+      assert_equal({:class => TestModel}, @proxy_class.send(:options))
     end
     
     it "doesn't override superclass options" do
-      assert_equal nil, EntityProxy.options
+      assert_equal nil, Proxy.options
     end
     
     it "responds to .from_attributes and responds to #original_attributes" do

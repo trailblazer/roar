@@ -8,9 +8,8 @@ require 'active_model'
 require 'roar/client/entity_proxy'
 require 'roar/client/proxy'
 require 'roar/representer'
-require 'roar/representer/xml'
 require 'roar/model'
-require 'roar/model/http_verbs'
+require 'roar/representer/feature/http_verbs'
 
 require 'stringio'  # FIXME. remove for 3.0.4.
 require 'builder'
