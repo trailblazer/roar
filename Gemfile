@@ -7,7 +7,7 @@ gemspec
 gem "hooks"
 gem "restfulie", "~> 1.0.0"
 
-gem "roxml", :path => "/home/nick/projects/roxml"
+gem "representable", :path => "/home/nick/projects/roxml"
 gem "test_xml", :path => "/home/nick/projects/test_xml" #"~> 0.1.0" #, 
 
 group :test do

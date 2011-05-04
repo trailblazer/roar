@@ -1,5 +1,5 @@
 require 'roar/representer'
-require 'roxml'
+require 'representable'
 
 
 module Roar
@@ -11,7 +11,7 @@ module Roar
   #       * representation is compiled from representer only
   module Representer
     class Roxml < Base
-      include ROXML
+      include Representable
       
       def serialize
         #to_xml(:name => represented.class.model_name).serialize
@@ -22,7 +22,7 @@ module Roar
       # Convert representer's attributes to a nested attributes hash.
       def to_attributes
         {}.tap do |attributes|
-          self.class.roxml_attrs.each do |definition|
+          self.class.representable_attrs.each do |definition|
             value = public_send(definition.accessor)
             
             if definition.typed?
@@ -43,7 +43,7 @@ module Roar
           new.tap do |representer|
             yield representer if block_given?
             
-            roxml_attrs.each do |definition|
+            representable_attrs.each do |definition|
               definition.populate(representer, attributes)
             end
           end
@@ -71,9 +71,9 @@ module Roar
           
           
           def link(rel, &block)
-            unless links = roxml_attrs.find { |d| d.is_a?(LinksDefinition)}
+            unless links = representable_attrs.find { |d| d.is_a?(LinksDefinition)}
               links = LinksDefinition.new(:links, :tag => :link, :as => [Roar::Representer::Roxml::Hyperlink])
-              roxml_attrs << links
+              representable_attrs << links
               add_reader(links) # TODO: refactor in Roxml.
               attr_writer(links.accessor)
             end
@@ -91,7 +91,7 @@ module Roar
 end
 
 
-ROXML::Definition.class_eval do
+Representable::Definition.class_eval do
   # Populate the representer's attribute with the right value.
   def populate(representer, attributes)
     representer.public_send("#{accessor}=", attributes[accessor])

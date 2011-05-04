@@ -25,7 +25,7 @@ module Roar
           # Called in for_model.
           def compute_attributes_for(represented)
             {}.tap do |attributes|
-              self.roxml_attrs.each do |definition|
+              self.representable_attrs.each do |definition|
                 next unless definition.kind_of?(ModelDefinition)  # for now, really only use "our" model attributes.
                 definition.compute_attribute_for(represented, attributes)
               end
@@ -36,7 +36,7 @@ module Roar
         end # ClassMethods
         
         # Properties that are mapped to a model attribute.
-        class ModelDefinition < ::ROXML::Definition
+        class ModelDefinition < ::Representable::Definition
           def compute_attribute_for(represented, attributes)
             value = represented.send(accessor)
                 

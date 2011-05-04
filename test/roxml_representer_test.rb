@@ -33,8 +33,8 @@ class RoxmlRepresenterUnitTest < MiniTest::Spec
       end
       
       it "creates a LinksDefinition" do
-        assert_equal 1, Rapper.roxml_attrs.size
-        assert_equal [{:rel=>:self, :block=>nil}, {:rel=>:next, :block=>nil}], Rapper.roxml_attrs.first.rel2block
+        assert_equal 1, Rapper.representable_attrs.size
+        assert_equal [{:rel=>:self, :block=>nil}, {:rel=>:next, :block=>nil}], Rapper.representable_attrs.first.rel2block
       end
     end
     
@@ -75,7 +75,7 @@ class RoxmlDefinitionTest < MiniTest::Spec
   describe "ROXML::Definition" do
     it "responds to #populate" do
       @r = Rapper.new
-      ROXML::Definition.new(:name).populate(@r, "name" => "Eugen")
+      Representable::Definition.new(:name).populate(@r, "name" => "Eugen")
       assert_equal "Eugen", @r.name
     end
   end

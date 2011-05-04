@@ -3,8 +3,8 @@ module Roar
     class Base
     end
     
-    require "roxml/definition"
-    class LinksDefinition < ROXML::Definition
+    require "representable/definition"
+    class LinksDefinition < Representable::Definition
       def rel2block
         @rel2block ||= []
       end

@@ -58,5 +58,4 @@ class Order
 end
 
 require "test_xml/mini_test"
-require "roxml"
 require "roar/representer/roxml"
