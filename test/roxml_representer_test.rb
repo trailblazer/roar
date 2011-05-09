@@ -11,14 +11,14 @@ end
 
 
 class ItemRepresenter < Roar::Representer::Roxml
-  xml_name :item
-  xml_accessor :value
+  self.representation_name= :item
+  representable_property :value
 end
 
 class PositionRepresenter < Roar::Representer::Roxml
-  xml_name :position
-  xml_accessor :id
-  xml_accessor :item, :as => ItemRepresenter
+  self.representation_name= :position
+  representable_property :id
+  representable_property :item, :as => ItemRepresenter
 end
 
 
@@ -96,8 +96,8 @@ class RoxmlRepresenterFunctionalTest < MiniTest::Spec
   end
   
   class TestXmlRepresenter < Roar::Representer::Roxml
-    xml_name :order  # FIXME: get from represented?
-    xml_accessor :id
+    self.representation_name= :order  # FIXME: get from represented?
+    representable_property :id
   end
   
   
@@ -185,9 +185,9 @@ class RoxmlRepresenterFunctionalTest < MiniTest::Spec
     describe "with a typed list" do
       before do
         @c = Class.new(Roar::Representer::Roxml) do
-          xml_name :order
-          xml_accessor :id
-          xml_accessor :items, :as => [ItemRepresenter], :tag => :item
+          self.representation_name= :order
+          representable_property :id
+          representable_collection :items, :as => ItemRepresenter, :tag => :item
         end
         
         @r = @c.from_attributes("id" => 1)
@@ -220,8 +220,8 @@ class HypermediaAPIFunctionalTest
   describe "Hypermedia API" do
     before do
       @c = Class.new(Roar::Representer::Roxml) do
-        xml_name :wuff
-        xml_accessor :id
+        self.representation_name= :wuff
+        representable_property :id
         link :self do "http://self" end
         link :next do "http://next/#{id}" end
       end
@@ -265,6 +265,11 @@ class HyperlinkRepresenterUnitTest
     before do
       @l = Roar::Representer::Roxml::Hyperlink.from_xml(%{<link rel="self" href="http://roar.apotomo.de"/>})
     end
+    
+    it "responds to #representation_name" do
+      assert_equal :link, @l.class.representation_name
+    end
+    
     
     it "responds to #rel" do
       assert_equal "self", @l.rel

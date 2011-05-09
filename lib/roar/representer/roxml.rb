@@ -1,5 +1,5 @@
 require 'roar/representer'
-require 'representable'
+require 'representable/xml'
 
 
 module Roar
@@ -11,7 +11,7 @@ module Roar
   #       * representation is compiled from representer only
   module Representer
     class Roxml < Base
-      include Representable
+      include Representable::XML
       
       def serialize
         #to_xml(:name => represented.class.model_name).serialize
@@ -59,9 +59,9 @@ module Roar
       
       # Encapsulates a <link ...>.
       class Hyperlink < self
-        xml_name :link
-        xml_accessor :rel,  :from => "@rel"
-        xml_accessor :href, :from => "@href"
+        self.representation_name = :link
+        representable_property :rel,  :from => "@rel"
+        representable_property :href, :from => "@href"
       end
       
       module HyperlinkMethods

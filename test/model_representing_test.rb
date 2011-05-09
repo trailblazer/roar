@@ -5,22 +5,22 @@ class ModelRepresentingTest < MiniTest::Spec
   describe "ModelRepresenting" do
     class ItemRepresenter < Roar::Representer::Roxml
       include Roar::Representer::Feature::ModelRepresenting # TODO: move to abstract!
-      xml_name :item
-      xml_accessor :value
+      self.representation_name= :item
+      representable_property :value
     end
     
     class PositionRepresenter < Roar::Representer::Roxml
       include Roar::Representer::Feature::ModelRepresenting # TODO: move to abstract! 
-      xml_name :position
-      xml_accessor :id
-      xml_accessor :item, :as => ItemRepresenter
+      self.representation_name= :position
+      representable_property :id
+      representable_property :item, :as => ItemRepresenter
     end
     
     class OrderRepresenter < Roar::Representer::Roxml
       include Roar::Representer::Feature::ModelRepresenting # TODO: move to abstract!
-      xml_name :order
-      xml_accessor :id
-      xml_accessor :items, :as => [ItemRepresenter]
+      self.representation_name= :order
+      representable_property :id
+      representable_property :items, :as => [ItemRepresenter]
     end
     
     describe "#definition_class" do
