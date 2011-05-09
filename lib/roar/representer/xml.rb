@@ -9,6 +9,7 @@ module Roar
   # out:  * attributes in representer are assigned - either as hash in #to_xml, by calling #serialize(represented),
   #         by calling representer's accessors (eg in client?) or whatever else
   #       * representation is compiled from representer only
+  # TODO: make XML a module to include in Hyperlink < Base.
   module Representer
     class XML < Base
       include Representable::XML
@@ -59,6 +60,7 @@ module Roar
       
       # Encapsulates a <link ...>.
       class Hyperlink < self
+        #include Representable::XML
         self.representation_name = :link
         representable_property :rel,  :from => "@rel"
         representable_property :href, :from => "@href"
