@@ -10,12 +10,12 @@ class Order
 end
 
 
-class ItemRepresenter < Roar::Representer::Roxml
+class ItemRepresenter < Roar::Representer::XML
   self.representation_name= :item
   representable_property :value
 end
 
-class PositionRepresenter < Roar::Representer::Roxml
+class PositionRepresenter < Roar::Representer::XML
   self.representation_name= :position
   representable_property :id
   representable_property :item, :as => ItemRepresenter
@@ -24,10 +24,10 @@ end
 
 
 
-class RoxmlRepresenterUnitTest < MiniTest::Spec
+class XMLRepresenterUnitTest < MiniTest::Spec
   describe "XmlRepresenter" do
     describe "#link" do
-      class Rapper < Roar::Representer::Roxml
+      class Rapper < Roar::Representer::XML
         link :self
         link :next
       end
@@ -40,7 +40,7 @@ class RoxmlRepresenterUnitTest < MiniTest::Spec
     
     describe "#from_attributes" do
       it "accepts a block" do
-        @c = Class.new(Roar::Representer::Roxml) do
+        @c = Class.new(Roar::Representer::XML) do
           attr_accessor :name
         end
         
@@ -67,7 +67,7 @@ class LinksDefinitionTest < MiniTest::Spec
   end
 end
 
-class RoxmlDefinitionTest < MiniTest::Spec
+class XMLDefinitionTest < MiniTest::Spec
   class Rapper
     attr_accessor :name
   end
@@ -85,7 +85,7 @@ end
 
 
 
-class RoxmlRepresenterFunctionalTest < MiniTest::Spec
+class XMLRepresenterFunctionalTest < MiniTest::Spec
   class GreedyOrder
     include Roar::Model
     accessors :id, :items
@@ -95,13 +95,13 @@ class RoxmlRepresenterFunctionalTest < MiniTest::Spec
     end
   end
   
-  class TestXmlRepresenter < Roar::Representer::Roxml
+  class TestXmlRepresenter < Roar::Representer::XML
     self.representation_name= :order  # FIXME: get from represented?
     representable_property :id
   end
   
   
-  describe "RoxmlRepresenter" do
+  describe "XMLRepresenter" do
     before do
       @m = {"id" => "1"}
       @o = Order.new(@m)
@@ -184,7 +184,7 @@ class RoxmlRepresenterFunctionalTest < MiniTest::Spec
     
     describe "with a typed list" do
       before do
-        @c = Class.new(Roar::Representer::Roxml) do
+        @c = Class.new(Roar::Representer::XML) do
           self.representation_name= :order
           representable_property :id
           representable_collection :items, :as => ItemRepresenter, :tag => :item
@@ -219,7 +219,7 @@ end
 class HypermediaAPIFunctionalTest
   describe "Hypermedia API" do
     before do
-      @c = Class.new(Roar::Representer::Roxml) do
+      @c = Class.new(Roar::Representer::XML) do
         self.representation_name= :wuff
         representable_property :id
         link :self do "http://self" end
@@ -263,7 +263,7 @@ end
 class HyperlinkRepresenterUnitTest
   describe "API" do
     before do
-      @l = Roar::Representer::Roxml::Hyperlink.from_xml(%{<link rel="self" href="http://roar.apotomo.de"/>})
+      @l = Roar::Representer::XML::Hyperlink.from_xml(%{<link rel="self" href="http://roar.apotomo.de"/>})
     end
     
     it "responds to #representation_name" do
@@ -291,7 +291,7 @@ class HypermediaTest
     end
     
     before do
-      #@l = Roar::Representer::Roxml::Hyperlink.from_xml(%{<link rel="self" href="http://roar.apotomo.de"/>})
+      #@l = Roar::Representer::XML::Hyperlink.from_xml(%{<link rel="self" href="http://roar.apotomo.de"/>})
       @b = Bookmarks.new
       @b.links = [{"rel" => "self", "href" => "http://self"}, {"rel" => "next", "href" => "http://next"}]
     end
