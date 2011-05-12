@@ -25,7 +25,7 @@ class ModelRepresentingTest < MiniTest::Spec
     
     describe "#definition_class" do
       it "returns ModelDefinition" do
-        assert_equal Roar::Representer::Feature::ModelRepresenting::ModelDefinition, OrderRepresenter.definition_class
+        assert_equal Roar::Representer::Feature::ModelRepresenting::ModelDefinition, OrderRepresenter.send(:definition_class)
       end
       
     end

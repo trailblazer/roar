@@ -17,11 +17,11 @@ module Roar
             for_model(represented).serialize
           end
           
+        private
           def definition_class
             ModelDefinition
           end
           
-        private
           # Called in for_model.
           def compute_attributes_for(represented)
             {}.tap do |attributes|
