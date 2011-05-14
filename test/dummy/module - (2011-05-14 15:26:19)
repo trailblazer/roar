@@ -1,0 +1,5 @@
+module Representer
+  module CSV
+    class AlbumRepresenter; end
+  end
+end
