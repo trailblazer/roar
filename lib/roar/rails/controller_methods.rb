@@ -30,7 +30,7 @@ module Roar
           # TODO: find the correct representer for #format.
           representer = controller.representer_class_for(resource.class, format)
           controller.render given_options.merge!(options).merge!(
-            format => representer.serialize_model(resource, controller)
+            format => representer.serialize_model_with_controller(resource, controller)
           )
         end
         

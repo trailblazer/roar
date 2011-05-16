@@ -15,7 +15,7 @@ module Roar
       end
       
       module ClassMethods
-        def for_model(represented, controller)
+        def for_model_with_controller(represented, controller)
           # DISCUSS: use #for_model_attributes for overriding?
           puts representable_attrs.inspect
           from_attributes(compute_attributes_for(represented)) do |rep| 
@@ -24,8 +24,8 @@ module Roar
           end
         end
         
-        def serialize_model(represented, controller)
-          for_model(represented, controller).serialize
+        def serialize_model_with_controller(represented, controller)
+          for_model_with_controller(represented, controller).serialize
         end
       end
     end
