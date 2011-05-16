@@ -11,4 +11,9 @@ class AlbumsController < ActionController::Base
     respond_with @album
   end
   
+  def create
+    @album = Album.create(represented)
+    
+    respond_with @album
+  end
 end

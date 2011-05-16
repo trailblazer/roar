@@ -3,11 +3,11 @@ require 'roar/rails/test_case'
 require "dummy/config/environment"
 require "rails/test_help" # adds stuff like @routes, etc.
 
-module Representer
-  module CSV
+#module Representer
+  module BMP
     class AlbumRepresenter; end
   end
-end
+#end
     
 class ControllerMethodsTest < ActionController::TestCase
   tests AlbumsController
@@ -23,8 +23,8 @@ class ControllerMethodsTest < ActionController::TestCase
     assert_equal Song, @controller.represented_class
   end
   
-  test "reponds to #representer_class_for" do
-    assert_equal Representer::CSV::AlbumRepresenter, @controller.representer_class_for(Album, :csv)
+  test "responds to #representer_class_for" do
+    assert_equal BMP::AlbumRepresenter, @controller.representer_class_for(Album, :bmp)
   end
   
   # TODO: all functional tests from order-service here.
@@ -50,6 +50,32 @@ class ControllerFunctionalTest < ActionController::TestCase
       </song>
       
       <link rel="self"      href="http://test.host/albums/1" />
+      <link rel="album-search"  href="http://test.host/articles/starts_with/{query}" />
+    </album>}, :format => :xml
+  end
+  
+  test "POST: creates a new album and returns the xml representation" do
+    post :create, %{<album>
+      <year>1997</year>
+      <song>
+        <title>Cooler Than You</title>
+      </song>
+    </album>}, :format => :xml
+    
+    assert @album = Album.find(:last)
+    assert_equal "1997", @album.year
+    assert_equal "Cooler Than You", @album.songs.first.title
+    
+    assert_response 201, "Location" => album_url(@album) # Created
+    assert_body %{
+    <album>
+      <id>2</id>  
+      <year>1997</year>
+      <song>
+        <title>Cooler Than You</title>
+      </song>
+      
+      <link rel="self"      href="http://test.host/albums/2" />
       <link rel="album-search"  href="http://test.host/articles/starts_with/{query}" />
     </album>}, :format => :xml
   end

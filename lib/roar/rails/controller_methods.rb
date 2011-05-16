@@ -17,12 +17,16 @@ module Roar
         end
       end
       
-      
+    #private
       def representer_class_for(model_class, format)
         # DISCUSS: upcase and static namespace is not cool, but works for now.
-        "Representer::#{format.to_s.upcase}::#{model_class}Representer".constantize
+        "#{format.to_s.upcase}::#{model_class}Representer".constantize
       end
       
+      def represented
+        representer = representer_class_for(self.class.represented_class, formats.first).deserialize(request.raw_post)
+        representer.to_nested_attributes
+      end
       
       
       class Responder < ActionController::Responder
