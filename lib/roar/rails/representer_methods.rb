@@ -32,7 +32,12 @@ module Roar
         end
       end
       
+      # Introduces strongly opinionated convenience methods in Representer.
       module Conventions
+        def representation_name
+          super.to_s.sub("_representer", "").singularize
+        end
+        
         def collection(name, options={})
           namespace     = self.name.split("::")[-2] # FIXME: this assumption is pretty opinionated.
           singular_name = name.to_s.singularize
@@ -41,7 +46,6 @@ module Roar
             :as => "#{namespace}/#{singular_name}Representer".classify.constantize,
             :tag => singular_name)
         end
-        
       end
     end
   end

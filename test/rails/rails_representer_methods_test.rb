@@ -21,6 +21,8 @@ class RailsRepresenterMethodsTest < MiniTest::Spec
       assert @d.array?
     end
     
+    it "provides conventions for #representation_name" do
+      assert_equal "album", @c.representation_name
+    end
   end
-  
 end
