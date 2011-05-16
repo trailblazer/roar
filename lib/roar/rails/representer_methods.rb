@@ -11,6 +11,8 @@ module Roar
           
           include ActionController::UrlFor
           include ::Rails.application.routes.url_helpers
+          
+          extend Conventions
         end
       end
       
@@ -28,6 +30,18 @@ module Roar
         def serialize_model_with_controller(represented, controller)
           for_model_with_controller(represented, controller).serialize
         end
+      end
+      
+      module Conventions
+        def collection(name, options={})
+          namespace     = self.name.split("::")[-2] # FIXME: this assumption is pretty opinionated.
+          singular_name = name.to_s.singularize
+          
+          super name, options.reverse_merge(
+            :as => "#{namespace}/#{singular_name}Representer".classify.constantize,
+            :tag => singular_name)
+        end
+        
       end
     end
   end

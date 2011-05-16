@@ -1,5 +1,6 @@
 require 'roar/rails/controller_methods'
 require 'roar/rails/representer_methods'
+require 'roar/representer/feature/model_representing'
 
 module Roar
   module Rails

@@ -5,7 +5,7 @@
       
       property :id
       property :year
-      collection :songs, :as => SongRepresenter, :tag => :song
+      collection :songs
       
       link :self do
         album_url(represented.id)
