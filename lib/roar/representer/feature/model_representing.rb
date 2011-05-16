@@ -10,6 +10,7 @@ module Roar
         
         module ClassMethods
           def for_model(represented)
+            # DISCUSS: split that into #for_model_attributes so it's easier overridable?
             from_attributes(compute_attributes_for(represented)) { |rep| rep.represented = represented }
           end
           

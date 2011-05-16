@@ -42,15 +42,15 @@ class ControllerFunctionalTest < ActionController::TestCase
     <album>
       <id>1</id>  
       <year>2011</year>
-        <song>
-          <title>Alltax</title>
-        </song>
-        <song>
-          <title>Bali</title>
-        </song>
-        
-        <link rel="self"      href="http://test.host/albums/1" />
-        <link rel="album-search"  href="http://test.host/articles/starts_with/{query}" />
-      </album>}, :format => :xml
+      <song>
+        <title>Alltax</title>
+      </song>
+      <song>
+        <title>Bali</title>
+      </song>
+      
+      <link rel="self"      href="http://test.host/albums/1" />
+      <link rel="album-search"  href="http://test.host/articles/starts_with/{query}" />
+    </album>}, :format => :xml
   end
 end
