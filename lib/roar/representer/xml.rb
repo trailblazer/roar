@@ -15,7 +15,6 @@ module Roar
       include Representable::XML
       
       def serialize
-        #to_xml(:name => represented.class.model_name).serialize
         to_xml.serialize
       end
       
@@ -50,8 +49,6 @@ module Roar
           end
         end
         
-        
-        
         def deserialize(xml)
           from_xml(xml)
         end
@@ -70,8 +67,6 @@ module Roar
         extend ActiveSupport::Concern
         
         module ClassMethods
-          
-          
           def link(rel, &block)
             unless links = representable_attrs.find { |d| d.is_a?(LinksDefinition)}
               links = LinksDefinition.new(:links, :tag => :link, :as => [Roar::Representer::XML::Hyperlink])

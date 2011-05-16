@@ -1,9 +1,16 @@
+require 'representable'
+
 module Roar
   module Representer
     class Base
+      include Representable
+      
+      class << self
+        alias_method :property, :representable_property
+        alias_method :collection, :representable_collection
+      end
     end
     
-    require "representable/definition"
     class LinksDefinition < Representable::Definition
       def rel2block
         @rel2block ||= []
