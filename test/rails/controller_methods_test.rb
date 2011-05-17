@@ -27,7 +27,18 @@ class ControllerMethodsTest < ActionController::TestCase
     assert_equal BMP::AlbumRepresenter, @controller.representer_class_for(Album, :bmp)
   end
   
-  # TODO: all functional tests from order-service here.
+  test "responds to #representation" do
+    post :create, %{<album>
+      <year>2011</year>
+      <song>
+        <title>Walking In Your Footsteps</title>
+      </song>
+    </album>}, :format => :xml
+    
+     
+    assert_equal({"id"=>"", "year"=>"2011",
+      "songs_attributes"=>[{"title"=>"Walking In Your Footsteps"}]}, @controller.representation)
+  end
 end
 
 

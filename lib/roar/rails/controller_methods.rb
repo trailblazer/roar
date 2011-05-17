@@ -42,7 +42,6 @@ module Roar
         # This is the common behavior for formats associated with APIs, such as :xml and :json.
         def api_behavior(error)
           if has_errors?
-            #display resource.errors, :status => :unprocessable_entity
             controller.render :text => resource.errors, :status => :unprocessable_entity # TODO: which media format? use an ErrorRepresenter shipped with Roar.
           elsif get?
             display resource
