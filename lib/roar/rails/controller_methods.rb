@@ -20,7 +20,7 @@ module Roar
     #private
       def representer_class_for(model_class, format)
         # DISCUSS: upcase and static namespace is not cool, but works for now.
-        "#{format.to_s.upcase}::#{model_class}Representer".constantize
+        "Representer::#{format.to_s.upcase}::#{model_class}Representer".constantize
       end
       
       # Returns the deserialized representation as a hash suitable for #create and #update_attributes.

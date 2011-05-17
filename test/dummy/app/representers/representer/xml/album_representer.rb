@@ -1,4 +1,4 @@
-#module Representer
+module Representer
   module XML
     class AlbumRepresenter < Roar::Representer::XML
       self.representation_name= :album
@@ -16,4 +16,4 @@
       end
     end
   end
-#end
+end

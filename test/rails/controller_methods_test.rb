@@ -3,11 +3,11 @@ require 'roar/rails/test_case'
 require "dummy/config/environment"
 require "rails/test_help" # adds stuff like @routes, etc.
 
-#module Representer
+module Representer
   module BMP
     class AlbumRepresenter; end
   end
-#end
+end
     
 class ControllerMethodsTest < ActionController::TestCase
   tests AlbumsController
@@ -24,7 +24,7 @@ class ControllerMethodsTest < ActionController::TestCase
   end
   
   test "responds to #representer_class_for" do
-    assert_equal BMP::AlbumRepresenter, @controller.representer_class_for(Album, :bmp)
+    assert_equal Representer::BMP::AlbumRepresenter, @controller.representer_class_for(Album, :bmp)
   end
   
   test "responds to #representation" do
