@@ -23,7 +23,8 @@ module Roar
         "#{format.to_s.upcase}::#{model_class}Representer".constantize
       end
       
-      def represented
+      # Returns the deserialized representation as a hash suitable for #create and #update_attributes.
+      def representation
         representer = representer_class_for(self.class.represented_class, formats.first).deserialize(request.raw_post)
         representer.to_nested_attributes
       end
@@ -40,15 +41,15 @@ module Roar
         
         # This is the common behavior for formats associated with APIs, such as :xml and :json.
         def api_behavior(error)
-          #raise error unless resourceful?
-          if get?
+          if has_errors?
+            #display resource.errors, :status => :unprocessable_entity
+            controller.render :text => resource.errors, :status => :unprocessable_entity # TODO: which media format? use an ErrorRepresenter shipped with Roar.
+          elsif get?
             display resource
           elsif post?
             display resource, :status => :created, :location => api_location
           elsif put?
             display resource
-          elsif has_empty_resource_definition?
-            display empty_resource, :status => :ok
           else
             head :ok
           end
