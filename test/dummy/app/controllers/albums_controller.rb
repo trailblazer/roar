@@ -12,7 +12,15 @@ class AlbumsController < ActionController::Base
   end
   
   def create
-    @album = Album.create(represented)
+    @album = Album.create(representation)
+    
+    respond_with @album
+  end
+  
+  def update
+    @album = Album.find(params[:id])
+    @album.songs.delete_all # make PUT behave REST-compliant.
+    @album.update_attributes(representation)
     
     respond_with @album
   end

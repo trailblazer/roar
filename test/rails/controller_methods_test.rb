@@ -79,4 +79,45 @@ class ControllerFunctionalTest < ActionController::TestCase
       <link rel="album-search"  href="http://test.host/articles/starts_with/{query}" />
     </album>}, :format => :xml
   end
+  
+  test "POST: invalid incoming representations yields to 422" do
+    post :create, :format => :xml
+    
+    assert_response 422  # Unprocessable Entity
+  end
+  
+  test "PUT: updates album and returns the xml representation" do
+    put :update, %{
+    <album>
+      <year>1997</year>
+      <song>
+        <title>Cooler Than You</title>
+      </song>
+      <song>
+        <title>Rubbing The Elf</title>
+      </song>
+    </album>}, :id => 1, :format => :xml
+    
+    assert @album = Album.find(1)
+    assert_equal "1997", @album.year
+    assert_equal 2, @album.songs.size
+    assert_equal "Cooler Than You", @album.songs.first.title
+    assert_equal "Rubbing The Elf", @album.songs.last.title
+    
+    assert_response 200
+    assert_body %{
+    <album>
+      <id>1</id>
+      <year>1997</year>
+      <song>
+        <title>Cooler Than You</title>
+      </song>
+      <song>
+        <title>Rubbing The Elf</title>
+      </song>
+      
+      <link rel="self"      href="http://test.host/albums/1" />
+      <link rel="album-search"  href="http://test.host/articles/starts_with/{query}" />
+    </album>}, :format => :xml
+  end
 end
