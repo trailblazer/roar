@@ -43,7 +43,7 @@ module Roar
           singular_name = name.to_s.singularize
           
           super name, options.reverse_merge(
-            :as => "#{namespace}/#{singular_name}Representer".classify.constantize,
+            :as => "representer/#{namespace}/#{singular_name}Representer".classify.constantize,
             :tag => singular_name)
         end
       end
