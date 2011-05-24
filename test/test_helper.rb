@@ -6,7 +6,6 @@ require 'minitest/spec'
 
 require 'active_model'
 #require 'roar/client/entity_proxy'
-require 'roar/client/proxy'
 require 'roar/representer'
 require 'roar/model'
 require 'roar/representer/feature/http_verbs'

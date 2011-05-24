@@ -1,4 +1,4 @@
-require 'roar/client/proxy'
+require 'roar/client/transport'
 
 module Roar
   # Used in Models as convenience, ActiveResource-like methods. # FIXME: currently this is meant for clients like Representers.
@@ -7,7 +7,7 @@ module Roar
       module HttpVerbs
         # needs #resource_base.
         
-        include Client::Proxy
+        #include Client::Proxy
         extend ActiveSupport::Concern
         
         included do |base|
