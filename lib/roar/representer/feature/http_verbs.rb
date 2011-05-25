@@ -38,6 +38,8 @@ module Roar
         def put(url, format)
           self.class.put(url, serialize, format)
         end
+        
+        # TODO: implement delete, patch.
       end
     end
   end
