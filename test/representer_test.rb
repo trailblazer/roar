@@ -15,5 +15,11 @@ class RepresenterTest < MiniTest::Spec
       @c.collection :songs
       assert_equal "songs", @c.representable_attrs.first.name
     end
+    
+    it "accepts property hash in #new" do
+      @c.property :title
+      assert_equal "Counting Down", @c.new(:title => "Counting Down").title
+    end
+    
   end
 end

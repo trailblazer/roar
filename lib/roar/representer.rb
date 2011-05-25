@@ -9,6 +9,11 @@ module Roar
         alias_method :property, :representable_property
         alias_method :collection, :representable_collection
       end
+      
+      def initialize(properties={})
+        properties.each { |p,v| send("#{p}=", v) }  # DISCUSS: check if valid property?
+      end
+      
     end
     
     class LinksDefinition < Representable::Definition
