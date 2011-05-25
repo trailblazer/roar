@@ -23,6 +23,14 @@ class FakeServer < Sinatra::Base
   #patch "/method" do
   #  "<method>patch</method>"
   #end
+  
+  post "/band" do
+    "<band><label>n/a</label><name>Strung Out</name></band>"
+  end
+  
+  put "/band/strungout" do
+    "<band><label>Fat Wreck</label><name>Strung Out</name></band>"
+  end
 end
 
 FakeServer.run! :host => 'localhost', :port => 9999

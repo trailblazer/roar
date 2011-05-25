@@ -5,9 +5,6 @@ module Roar
   module Representer
     module Feature
       module HttpVerbs
-        # needs #resource_base.
-        
-        #include Client::Proxy
         extend ActiveSupport::Concern
         
         included do |base|
@@ -23,24 +20,24 @@ module Roar
             deserialize(representation)
           end
           
-          def post(url, body)
-            representation = post_uri(url, body).body
+          def post(url, body, format)
+            representation = post_uri(url, body, format).body
             deserialize(representation)
           end
           
+          def put(url, body, format)
+            representation = put_uri(url, body, format).body
+            deserialize(representation)
+          end
         end
         
-        # FIXME: fix redundancy.
-        def post(url)
-            representation = self.class.post_uri(url, serialize).body
-            self.class.deserialize(representation)
-          end
-          # FIXME: fix redundancy.
-        def put(url)
-            representation = self.class.put_uri(url, serialize).body
-            self.class.deserialize(representation)
-          end
+        def post(url, format)
+          self.class.post(url, serialize, format)
+        end
         
+        def put(url, format)
+          self.class.put(url, serialize, format)
+        end
       end
     end
   end
