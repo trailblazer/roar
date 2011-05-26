@@ -25,11 +25,14 @@ class FakeServer < Sinatra::Base
   #end
   
   post "/band" do
-    "<band><label>n/a</label><name>Strung Out</name></band>"
+    %{<band><label>n/a</label><name>Strung Out</name>
+      <link href="http://search" rel="search" />
+      <link href="http://band/strungout" rel="self" />
+    </band>}
   end
   
   put "/band/strungout" do
-    "<band><label>Fat Wreck</label><name>Strung Out</name></band>"
+    %{<band><label>Fat Wreck</label><name>Strung Out</name></band>}
   end
 end
 
