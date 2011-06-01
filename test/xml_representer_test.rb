@@ -260,7 +260,7 @@ class HypermediaAPIFunctionalTest
   end
 end
 
-class HyperlinkRepresenterUnitTest
+class XmlHyperlinkRepresenterTest
   describe "API" do
     before do
       @l = Roar::Representer::XML::Hyperlink.from_xml(%{<link rel="self" href="http://roar.apotomo.de"/>})

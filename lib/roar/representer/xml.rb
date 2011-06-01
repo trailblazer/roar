@@ -55,13 +55,14 @@ module Roar
       end
       
       
-      # Encapsulates a <link ...>.
+      # Encapsulates a hypermedia <link ...>.
       class Hyperlink < self
-        #include Representable::XML
         self.representation_name = :link
-        representable_property :rel,  :from => "@rel"
-        representable_property :href, :from => "@href"
+        
+        property :rel,  :from => "@rel"
+        property :href, :from => "@href"
       end
+      
       
       module HyperlinkMethods
         extend ActiveSupport::Concern
