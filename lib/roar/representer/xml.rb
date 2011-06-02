@@ -18,37 +18,8 @@ module Roar
         to_xml.serialize
       end
       
-      # DISCUSS: should be abstract in Representer::Base.
-      # Convert representer's attributes to a nested attributes hash.
-      def to_attributes
-        {}.tap do |attributes|
-          self.class.representable_attrs.each do |definition|
-            value = public_send(definition.accessor)
-            
-            if definition.typed?
-              value = definition.apply(value) do |v|
-                v.to_attributes  # applied to each typed attribute (even in collections).
-              end
-            end
-            
-            attributes[definition.accessor] = value
-          end
-        end
-      end
-      
       
       class << self
-        # Creates a representer instance and fills it with +attributes+.
-        def from_attributes(attributes)
-          new.tap do |representer|
-            yield representer if block_given?
-            
-            representable_attrs.each do |definition|
-              definition.populate(representer, attributes)
-            end
-          end
-        end
-        
         def deserialize(xml)
           from_xml(xml)
         end
@@ -64,26 +35,12 @@ module Roar
       end
       
       
-      module HyperlinkMethods
-        extend ActiveSupport::Concern
-        
-        module ClassMethods
-          def link(rel, &block)
-            unless links = representable_attrs.find { |d| d.is_a?(LinksDefinition)}
-              links = LinksDefinition.new(:links, :tag => :link, :as => [Roar::Representer::XML::Hyperlink])
-              representable_attrs << links
-              add_reader(links) # TODO: refactor in Roxml.
-              attr_writer(links.accessor)
-            end
-            
-            links.rel2block << {:rel => rel, :block => block}
-          end
-        end
-        
+      def self.links_definition_options
+        {:tag => :link, :as => [Hyperlink]}
       end
-      include HyperlinkMethods
       
-      
+      require 'roar/representer/feature/hypermedia'
+      include Feature::Hypermedia
     end
   end
 end

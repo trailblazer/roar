@@ -216,7 +216,7 @@ class XMLRepresenterFunctionalTest < MiniTest::Spec
   end
 end
 
-class HypermediaAPIFunctionalTest
+class XmlHypermediaTest
   describe "Hypermedia API" do
     before do
       @c = Class.new(Roar::Representer::XML) do
