@@ -18,11 +18,8 @@ module Roar
         to_xml.serialize
       end
       
-      
-      class << self
-        def deserialize(xml)
-          from_xml(xml)
-        end
+      def self.deserialize(xml)
+        from_xml(xml)
       end
       
       
