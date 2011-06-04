@@ -9,13 +9,11 @@ module Roar
         extend ActiveSupport::Concern
         
         def links=(links)
-          @links = links.collect do |link|
-            Roar::Representer::XML::Hyperlink.from_attributes(link)
-          end
+          @links = LinkCollection.new(links)
         end
         
         def links
-          LinkCollection.new @links
+          @links
         end
         
         class LinkCollection < Array
@@ -31,8 +29,8 @@ module Roar
             unless links = representable_attrs.find { |d| d.is_a?(LinksDefinition)}
               links = LinksDefinition.new(:links, links_definition_options)
               representable_attrs << links
-              add_reader(links) # TODO: refactor in Roxml.
-              attr_writer(links.accessor)
+              #add_reader(links) # TODO: refactor in Roxml.
+#              attr_writer(links.accessor)
             end
             
             links.rel2block << {:rel => rel, :block => block}
@@ -42,4 +40,4 @@ module Roar
       end
     end
   end
-end
+end 
