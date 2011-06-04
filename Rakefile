@@ -5,7 +5,7 @@ require 'rake/testtask'
 
 Rake::TestTask.new(:test) do |test|
   test.libs << 'test'
-  test.test_files = FileList['test/xml_representer_test.rb', 'test/model_representing_test.rb', 'test/representer_test.rb', 'test/transport_test.rb', 'test/http_verbs_test.rb', 'test/integration_test.rb', 'test/json_representer_test.rb']
+  test.test_files = FileList['test/xml_representer_test.rb', 'test/model_representing_test.rb', 'test/representer_test.rb', 'test/transport_test.rb', 'test/http_verbs_test.rb', 'test/integration_test.rb', 'test/json_representer_test.rb', 'test/xml_hypermedia_test.rb', 'test/hypermedia_test.rb']
   test.verbose = true
 end
 

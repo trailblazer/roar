@@ -216,51 +216,7 @@ class XMLRepresenterFunctionalTest < MiniTest::Spec
   end
 end
 
-class XmlHypermediaTest
-  describe "Hypermedia API" do
-    before do
-      @c = Class.new(Roar::Representer::XML) do
-        self.representation_name= :wuff
-        representable_property :id
-        link :self do "http://self" end
-        link :next do "http://next/#{id}" end
-      end
-      @r = @c.new
-    end
-    
-    it "responds to #links" do
-      assert_equal nil, @r.links
-    end
-    
-    it "computes links in #from_attributes" do
-      @r = @c.from_attributes({"id" => 1})
-      assert_equal 2, @r.links.size
-      assert_equal({"rel"=>:self, "href"=>"http://self"}, @r.links.first.to_attributes)
-      assert_equal({"rel"=>:next, "href"=>"http://next/1"}, @r.links.last.to_attributes) 
-    end
-    
-    it "extracts links from XML" do
-      @r = @c.deserialize(%{
-      <order>
-        <link rel="self" href="http://self">
-      </order>
-      })
-      assert_equal 1, @r.links.size
-      assert_equal({"rel"=>"self", "href"=>"http://self"}, @r.links.first.to_attributes) 
-    end
-    
-    it "renders <link> correctly in XML" do
-      assert_xml_equal %{<wuff>
-  <id>1</id>
-  <link rel="self" href="http://self"/>
-  <link rel="next" href="http://next/1"/>
-</wuff><expected />}, @c.from_attributes({"id" => 1}).serialize
-    end
-    
-  end
-end
-
-class XmlHyperlinkRepresenterTest
+class XmlHyperlinkRepresenterTest < MiniTest::Spec
   describe "API" do
     before do
       @l = Roar::Representer::XML::Hyperlink.from_xml(%{<link rel="self" href="http://roar.apotomo.de"/>})
@@ -277,36 +233,6 @@ class XmlHyperlinkRepresenterTest
     
     it "responds to #href" do
       assert_equal "http://roar.apotomo.de", @l.href
-    end
-  end
-end
-
-
-require 'roar/representer/feature/hypermedia'
-
-class HypermediaTest
-  describe "Hypermedia" do
-    class Bookmarks
-      include Roar::Representer::Feature::Hypermedia
-    end
-    
-    before do
-      #@l = Roar::Representer::XML::Hyperlink.from_xml(%{<link rel="self" href="http://roar.apotomo.de"/>})
-      @b = Bookmarks.new
-      @b.links = [{"rel" => "self", "href" => "http://self"}, {"rel" => "next", "href" => "http://next"}]
-    end
-    
-    it "responds to #links" do
-      assert_kind_of Roar::Representer::Feature::Hypermedia::LinkCollection, @b.links
-      assert_equal 2, @b.links.size
-    end
-    
-    
-    it "responds to links #[]" do
-      assert_equal "http://self", @b.links["self"]
-      assert_equal "http://self", @b.links[:self]
-      assert_equal "http://next", @b.links[:next]
-      assert_equal nil, @b.links[:prev]
     end
   end
 end
