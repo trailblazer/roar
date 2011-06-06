@@ -20,7 +20,7 @@ class HypermediaTest
       end
       
       it "works with empty links set" do
-        assert_equal [], Bookmarks.new.links
+        assert_equal nil, Bookmarks.new.links # default empty array doesn't make sense.
       end
     end
     
