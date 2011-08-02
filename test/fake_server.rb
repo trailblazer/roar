@@ -38,6 +38,22 @@ class FakeServer < Sinatra::Base
   put "/band/strungout" do
     %{<band><label>Fat Wreck</label><name>Strung Out</name></band>}
   end
+  
+  
+  post "/orders" do
+    '{"order": {"client_id": "1", "links": [{"href":"http://localhost:9999/orders/1/items", "rel": "items"}, {"href":"http://localhost:9999/orders/1", "rel": "self"}]}}'
+  end
+  post "/orders/1/items" do
+    {:item => {:article_id => "666-S", :amount => 1}}.to_json
+  end
+  get "/orders/1" do
+    {:order => {:client_id => 1, :item => {:article_id => "666-S", :amount => 1}, :links => [
+      {:rel => :self, :href => "http://localhost:9999/orders/1"},
+      {:rel => :items, :href => "http://localhost:9999/orders/1/items"}]
+      
+    }}.to_json
+  end
+  
 end
 
 FakeServer.run! :host => 'localhost', :port => 9999

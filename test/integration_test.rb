@@ -49,6 +49,35 @@ class RepresenterIntegrationTest < MiniTest::Spec
     end
   end
   
+  module JSON
+    class Order < Roar::Representer::JSON
+      property :client_id
+      
+      include Roar::Representer::Feature::HttpVerbs
+      include Roar::Representer::Feature::Hypermedia
+      
+      
+      link :search do
+        search_url
+      end
+      
+      link :self do
+        order_url(represented)
+      end
+    end
+    
+    class Item < Roar::Representer::JSON
+      property :article_id
+      property :amount
+      
+      include Roar::Representer::Feature::HttpVerbs
+      include Roar::Representer::Feature::Hypermedia
+      
+      
+    end
+    
+  end
+  
   describe "Representer as client" do
     describe "JSON" do
       it "allows a POST workflow" do
@@ -63,6 +92,32 @@ class RepresenterIntegrationTest < MiniTest::Spec
         #@r.extend Roar::Representer::Feature::Hypermedia
         assert_equal "http://search",         @r.links[:search]
         assert_equal "http://band/strungout", @r.links[:self]
+      end
+      
+      # TODO: implement me.
+      it "allows an ordering POST workflow" do
+        # create representation with initial values:
+        @o = JSON::Order.new(:client_id => 1)
+        assert_equal 1, @o.client_id
+        
+        @o.post!("http://localhost:9999/orders", "application/order+json")
+        # check HATEOAS:
+        #@r.extend Roar::Representer::Feature::Hypermedia
+        assert_equal "http://localhost:9999/orders/1/items",     @o.links[:items]
+        assert_equal "http://localhost:9999/orders/1",           @o.links[:self]
+        
+        
+        # manually POST item:
+        @i = JSON::Item.new(:article_id => "666-S", :amount => 1)
+        @i.post!(@o.links[:items], "application/item+json")
+        @o.get!(@o.links[:self], "application/order+json")
+        
+        
+        
+        
+        # use the DSL to add items:
+        #@o.links[:items].post(:article_id => "666-S", :amount => 1)
+        
       end
     end
     

@@ -25,6 +25,16 @@ class HttpVerbsTest < MiniTest::Spec
       assert_equal "n/a", rep.label
     end
     
+    it "#post! deserializes the incoming representation and replaces attributes" do
+      @r.name = "Strung Out"
+      assert_equal nil, @r.label
+      @r.post!("http://localhost:9999/band", "application/xml")
+      assert_equal "Strung Out", @r.name
+      assert_equal "n/a", @r.label
+    end
+    
+    
+    
     it "#put deserializes the incoming representation and returns it" do
       @r.name   = "Strung Out"
       @r.label  = "Fat Wreck"
