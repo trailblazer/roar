@@ -5,25 +5,214 @@ _Streamlines the development of RESTful, Resource-Oriented Architectures in Ruby
 
 h2. Introduction
 
-*Note:* This is a WIP, don't blame us if the API changes ;-)
+REST is an architectural style for distributed systems. However, many implementations forget about the _distributed_ part of REST and simply map CRUD operations to HTTP verbs in a monolithic application.
 
-ROAR is a framework for developing distributed, hypermedia-driven systems in Ruby. 
+Roar is a framework for developing distributed applications while using hypermedia as key for application workflow.
 
 
-It bundles all the great tools we have and defines generic, simple interfaces to have real RESTful behaviour. Most applications simply expose CRUD operations via HTTP, whereas ROAR encourages you to use the power of different resource representations, content negotiation, HATEOAS and more.
+h2. Example
 
-THE CENTRAL ASPECT is the resource. most trickiest: representation
+Say your webshop consists of two completely separated apps. The REST backend, a Sinatra app, serves articles and processes orders. The frontend, being browsed by your clients, is a rich Rails application. It queries the services for articles, renders them nicely and reads or writes orders with REST calls. That being said, the frontend turns out to be a pure REST client.
 
-h2. Dependencies
 
-Currently it relies on the following gems:
+h2. Representations
 
-* ActiveModel
-* Restfulie 
+Representations are the pivotal elements of REST. Work in a REST system means working with representations, which can be put down to parsing or extracting representations and rendering the like.
 
-h2. Representation
+Roar makes it easy to render and parse representations of resources after defining the formats.
 
-Representer holds the mapping instructions for conversion from and to a representation (e.g. XML). This used to be split into controller and model. Now you can unit test your representations.
+
+h3. Creating Representations
+
+Why not GET a particular article, what about a good beer?
+
+@GET http://articles/lonestarbeer@
+
+It's cheap and it's good. The response of a GET is a representation of the requested resource. A *representation* is always a *document*. In this example, it's a bit of JSON.
+
+pre. { "article": {
+  "title":  "Lonestar Beer",
+  "id":     4711,
+  "links":[
+    { "rel":  "self", 
+      "href": "http://articles/lonestarbeer"}
+  ]}
+}
+
+p. In addition to boring article data, there's a _link_ embedded in the document. This is *hypermedia*, yeah! We will learn more about that shortly.
+
+So, how did the service render that JSON document? It could use an ERB template, @#to_json@, or maybe another gem. The document could also be created by a *representer*.
+
+Representers are the key ingredience in Roar, so let's check them out!
+
+
+h2. Representers
+
+To render a representational document, the backend service has to define a representer.
+
+<pre>module JSON
+  class Article < Roar::Representer::JSON
+    property :title
+    property :id
+    
+    link :self do
+      article_url(represented)
+    end 
+  end
+end
+</pre>
+
+Hooray, we can define plain properties and embedd links easily - and we can even use URL helpers (in Rails). There's even more, nesting, collections, but more on that later!
+
+
+h3. Rendering Representations in the Service
+
+In order to *render* an actual document, the backend service would have to do a few steps: creating a representer, filling in data, and then serialize it.
+
+<pre>JSON::Article.new(
+  :title  => "Beck's",
+  :id     => 666).serialize # => "{\"article\":{\"id\":666, ...
+</pre>
+
+Using the @ModelRepresenting@ feature module we can take a shortcut.
+
+<pre>JSON::Article.from_model(@article).
+  serialize # => "{\"article\":{\"id\":666, ...
+</pre>
+
+Articles itself are useless, so they may be placed into orders. This is the next example.
+
+
+h3. Nesting Representations
+
+What if we wanted to check an existing order? We'd @GET http://orders/1@, right?
+
+<pre>{ "order": {
+  "id":         1,
+  "client_id":  "815",
+  "articles":   [
+    {"title": "Lonestar Beer",
+    "id":     4711,
+    "links":[
+      { "rel":  "self", 
+        "href": "http://articles/lonestarbeer"}
+    ]}
+  ],
+  "links":[
+    { "rel":  "self", 
+      "href": "http://orders/1"},
+    { "rel":  "items", 
+      "href": "http://orders/1/items"}
+  ]}
+}
+</pre>
+
+Since orders may contain a composition of articles, how would the order service define its representer?
+
+<pre>module JSON
+  class Order < Roar::Representer::JSON
+    property :id
+    property :client_id
+    
+    collection :articles, :as => Article
+    
+    link :self do
+      order_url(represented)
+    end
+    
+    link :items do
+      items_url
+    end 
+  end
+end
+</pre>
+
+The declarative @#collection@ method lets us define compositions of representers.
+
+
+h3. Parsing Documents in the Service
+
+Rendering stuff is easy, representers define and serialize documents for us. However, representers can do more. They work _bi-directional_ in terms of rendering outgoing _and_ parsing incoming representation documents.
+
+If we implement an endpoint for creating new orders, we'd allow POST to @http://orders/@. Let's explore the service code for parsing and creation.
+
+<pre>
+  post "/orders" do
+    incoming = JSON::Order.deserialize(request.body.string)
+    puts incoming.to_attributes #=> {:client_id => 815}
+</pre>
+ 
+Again, the @ModelRepresenting@ module comes in handy for creating a new database record.
+
+<pre>
+  post "/orders" do
+    # ...
+    @order = Order.create(incoming.to_nested_attributes)
+    
+    JSON::Order.for_model(@order).serialize
+</pre>
+
+Look how the @#to_nested_attributes@ method helps extracting data from the incoming document and, again, @#serialize@ returns the freshly created order's representation. Roar's representers are truely working in both directions, rendering and parsing and thus prevent you from redundant knowledge sharing.
+
+
+h2. Representers in the Client
+
+The new representer abstraction layer seems complex and irritating first, where you used @params[]@ and @#to_json@ is a new OOP instance now. But... the cool thing is: You can package representers in gems and distribute them to your client layer as well.
+
+
+h3. Using HTTP
+
+Naturally, REST clients need to make HTTP requests to services. There are plenty of great gems helping out, namely Restfulie, HTTParty, etc. Representers provide support for HTTP, given you mix in the @HTTPVerbs@ feature module.
+
+In order to create a new order, the frontend needs to place a POST request to the REST backend. Here's how this could happen using a representer.
+
+
+<pre>
+  order = JSON::Order.new(:client_id => current_user.id)
+  order.post!("http://orders/")
+</pre>
+
+A couple of steps happen here.
+
+# Using the constructor a blank order document is created.
+# Initial values like the client's id are passed as arguments.
+# This document is <code>POST</code>ed to the given URL.
+# The backend service creates an actual order record and sends back the representation.
+# In the @#post!@ call, the returned document is parsed and attributes in the representer instance are updated accordingly,
+
+
+h3. Using Accessors
+ 
+The client is happy! He created a real order, now he could add articles using the frontend.
+
+h3. Using Hypermedia
+
+
+Now making that system RESTful basically means
+
+# The frontend knows one _single entry point_ URL to the REST services. This is @http://articles@.
+# Do _not_ let the frontend compute any URLs to further actions.
+# Showing articles, creating a new order, adding articles to it and finally placing the order - this all requires further URLs. These URLs are embedded as _hypermedia_ in the representations sent by the REST backend.
+
+
+
+
+
+
+Representers provide an easy DSL for defining documents and an object-oriented way for accessing and modifying.
+
+
+h2. Hypermedia
+
+
+
+
+
+
+
+
+
+
 
 Representations are implemented as mixins and can be used both on client and server.
  
