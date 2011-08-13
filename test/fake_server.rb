@@ -1,7 +1,7 @@
-require 'rubygems'
+require "bundler/setup"
 require 'sinatra/base'
-require 'active_support'
-require 'json'
+require 'sinatra/reloader'
+
 
 class FakeServer < Sinatra::Base
   get "/method" do
@@ -40,18 +40,39 @@ class FakeServer < Sinatra::Base
   end
   
   
+  
+  require Dir.pwd + '/order_representers'
+  JSON::Order.class_eval do
+    def items_url
+      "http://localhost:9999/orders/1/items"
+    end
+    def order_url(order)
+      "http://localhost:9999/orders/#{order}"
+    end
+    def represented
+      1
+    end
+    
+  end
+  
+  
   post "/orders" do
-    '{"order": {"client_id": "1", "links": [{"href":"http://localhost:9999/orders/1/items", "rel": "items"}, {"href":"http://localhost:9999/orders/1", "rel": "self"}]}}'
+    incoming = JSON::Order.deserialize(request.body.string)
+    # create new record
+    
+    # render new record
+    
+    JSON::Order.from_attributes(incoming.to_attributes).serialize
   end
+  
   post "/orders/1/items" do
-    {:item => {:article_id => "666-S", :amount => 1}}.to_json
+    incoming = JSON::Item.deserialize(request.body.string)
+    
+    JSON::Item.from_attributes(incoming.to_attributes).serialize
   end
+  
   get "/orders/1" do
-    {:order => {:client_id => 1, :item => {:article_id => "666-S", :amount => 1}, :links => [
-      {:rel => :self, :href => "http://localhost:9999/orders/1"},
-      {:rel => :items, :href => "http://localhost:9999/orders/1/items"}]
-      
-    }}.to_json
+    JSON::Order.new(:client_id => 1, :items => [JSON::Item.new(:article_id => "666-S", :amount => 1)]).serialize
   end
   
 end
