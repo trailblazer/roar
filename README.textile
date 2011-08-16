@@ -70,13 +70,16 @@ h3. Rendering Representations in the Service
 In order to *render* an actual document, the backend service would have to do a few steps: creating a representer, filling in data, and then serialize it.
 
 <pre>JSON::Article.new(
-  :title  => "Beck's",
-  :id     => 666).serialize # => "{\"article\":{\"id\":666, ...
+  :title  => "Lonestar",
+  :id     => 666).
+  serialize # => "{\"article\":{\"id\":666, ...
 </pre>
 
 Using the @ModelRepresenting@ feature module we can take a shortcut.
 
-<pre>JSON::Article.from_model(@article).
+<pre>@beer = Article.find_by_title("Lonestar")
+
+JSON::Article.from_model(@beer).
   serialize # => "{\"article\":{\"id\":666, ...
 </pre>
 
@@ -92,7 +95,7 @@ What if we wanted to check an existing order? We'd @GET http://orders/1@, right?
   "client_id":  "815",
   "articles":   [
     {"title": "Lonestar Beer",
-    "id":     4711,
+    "id":     666,
     "links":[
       { "rel":  "self", 
         "href": "http://articles/lonestarbeer"}
@@ -132,9 +135,9 @@ The declarative @#collection@ method lets us define compositions of representers
 
 h3. Parsing Documents in the Service
 
-Rendering stuff is easy, representers define and serialize documents for us. However, representers can do more. They work _bi-directional_ in terms of rendering outgoing _and_ parsing incoming representation documents.
+Rendering stuff is easy: Representers allow defining the layout and serializing documents for us. However, representers can do more. They work _bi-directional_ in terms of rendering outgoing _and_ parsing incoming representation documents.
 
-If we implement an endpoint for creating new orders, we'd allow POST to @http://orders/@. Let's explore the service code for parsing and creation.
+If we were to implement an endpoint for creating new orders, we'd allow POST to @http://orders/@. Let's explore the service code for parsing and creation.
 
 <pre>
   post "/orders" do
@@ -157,14 +160,14 @@ Look how the @#to_nested_attributes@ method helps extracting data from the incom
 
 h2. Representers in the Client
 
-The new representer abstraction layer seems complex and irritating first, where you used @params[]@ and @#to_json@ is a new OOP instance now. But... the cool thing is: You can package representers in gems and distribute them to your client layer as well.
+The new representer abstraction layer seems complex and irritating first, where you used @params[]@ and @#to_json@ is a new OOP instance now. But... the cool thing is: You can package representers in gems and distribute them to your client layer as well. In our example, the web frontend can take advantage of the representers, too.
 
 
 h3. Using HTTP
 
-Naturally, REST clients need to make HTTP requests to services. There are plenty of great gems helping out, namely Restfulie, HTTParty, etc. Representers provide support for HTTP, given you mix in the @HTTPVerbs@ feature module.
+Communication between REST clients and services happens via HTTP - clients request, services respond. There are plenty of great gems helping out, namely Restfulie, HTTParty, etc. Representers in Roar provide support for HTTP as well, given you mix in the @HTTPVerbs@ feature module!
 
-In order to create a new order, the frontend needs to place a POST request to the REST backend. Here's how this could happen using a representer.
+To create a new order, the frontend needs to POST to the REST backend. Here's how this could happen using a representer on HTTP.
 
 
 <pre>
@@ -172,20 +175,82 @@ In order to create a new order, the frontend needs to place a POST request to th
   order.post!("http://orders/")
 </pre>
 
-A couple of steps happen here.
+A couple of noteworthy steps happen here.
 
 # Using the constructor a blank order document is created.
-# Initial values like the client's id are passed as arguments.
-# This document is <code>POST</code>ed to the given URL.
+# Initial values like the client's id are passed as arguments and placed in the document.
+# The filled-out document is <code>POST</code>ed to the given URL.
 # The backend service creates an actual order record and sends back the representation.
 # In the @#post!@ call, the returned document is parsed and attributes in the representer instance are updated accordingly,
+
+After the HTTP roundtrip, the order instance keeps all the information we need for proceeding the ordering workflow.
+
+<pre>
+  order.id #=> 42
+</pre>
+
+h3. Discovering Hypermedia
+
+Now that we got a fresh order, let's place some items! The system's API allows adding articles to an existing order by <code>POST</code>ing articles to a specific resource. This endpoint is propagated in the order document using *hypermedia*.
+
+Where and what is this hypermedia?
+
+First, check the JSON document we get back from the POST.
+
+<pre>{ "order": {
+  "id":         42,
+  "client_id":  1337,
+  "articles":   [],
+  "links":[
+    { "rel":  "self", 
+      "href": "http://orders/42"},
+    { "rel":  "items", 
+      "href": "http://orders/42/items"}
+  ]}
+}
+</pre>
+
+Two hypermedia links are embedded in this representation, both feature a @rel@ attribute for defining a link semantic - a "meaning" - and a @href@ attribute for a network address. Isn't that great?
+
+* The @self@ link refers to the actual resource. It's a REST best practice and representations should always refer to their resource address.
+* The @items@ link is what we want. The address @http://orders/42/items@ is what we have to refer to when adding articles to this order. Why? Cause we decided that!
+
+
+h3. Using Hypermedia
+
+Let the frontend add the delicious "Lonestar" beer to our order, now!
+
+<pre>
+beer = JSON::Article.new(:title => "Lonestar")
+beer.post!(order.links[:items])
+</pre>
+
+That's all we need to do.
+
+# First, we create an article representation.
+# Then, the @#links@ method helps extracting the @items@ link URL from the order document.
+# A simple POST to the respective address places the item in the order.
+
+The @order@ instance in the frontend is now stale since it doesn't contain items, yet.
+
+<pre>
+order.items #=> []
+</pre>
+
+To update attributes, a GET is needed.
+
+<pre>
+order.get!(order.links[:self])
+</pre>
+
+Again, we use hypermedia to retrieve the order's URL.
+
+*Note:* If this looks clumsy - It's just the raw API for representers. You might be interested in the upcoming DSL that simplifys frequent workflows as updating a representer. 
 
 
 h3. Using Accessors
  
 The client is happy! He created a real order, now he could add articles using the frontend.
-
-h3. Using Hypermedia
 
 
 Now making that system RESTful basically means
