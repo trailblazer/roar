@@ -55,7 +55,7 @@ p. In addition to boring article data, there's a _link_ embedded in the document
 
 So, how did the service render that JSON document? It could use an ERB template, @#to_json@, or maybe another gem. The document could also be created by a *representer*.
 
-Representers are the key ingredience in Roar, so let's check them out!
+Representers are the key ingredients in Roar, so let's check them out!
 
 
 h2. Representers
