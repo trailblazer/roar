@@ -1,4 +1,4 @@
-require 'test_helper'
+require File.expand_path(File.dirname(__FILE__) + '/test_helper')
 
 require 'roar/representer/xml'
 require 'roar/representer/json'
@@ -50,7 +50,7 @@ class RepresenterIntegrationTest < MiniTest::Spec
   end
   
   
-  require 'order_representers'
+  require File.expand_path(File.dirname(__FILE__) + '/order_representers')
   describe "Representer as client" do
     describe "JSON" do
       it "allows a POST workflow" do
