@@ -10,6 +10,18 @@ REST is an architectural style for distributed systems. However, many implementa
 Roar is a framework for developing distributed applications while using hypermedia as key for application workflow.
 
 
+h2. Quick, What Features?
+
+* Roar worries about incoming and outgoing *representation documents*.
+* Representers let you declaratively *define your representations*.
+* Representations now are *OOP instances* with accessors, methods and behaviour.
+* Both *rendering and parsing* representations is handled by representers which keeps knowledge in one place.
+* Features as *hypermedia* support and *HTTP* methods can be mixed in dynamically.
+* Representers are packagable in gems for *distribution to services and clients*.
+* *Framework agnostic*, runs with Sinatra, Rails & Co.
+* Extra support for *Rails*.
+* Makes *testing distributed REST systems* as easy as possible.
+
 h2. Example
 
 Say your webshop consists of two completely separated apps. The REST backend, a Sinatra app, serves articles and processes orders. The frontend, being browsed by your clients, is a rich Rails application. It queries the services for articles, renders them nicely and reads or writes orders with REST calls. That being said, the frontend turns out to be a pure REST client.
@@ -179,7 +191,7 @@ A couple of noteworthy steps happen here.
 
 # Using the constructor a blank order document is created.
 # Initial values like the client's id are passed as arguments and placed in the document.
-# The filled-out document is <code>POST</code>ed to the given URL.
+# The filled-out document is POSTed to the given URL.
 # The backend service creates an actual order record and sends back the representation.
 # In the @#post!@ call, the returned document is parsed and attributes in the representer instance are updated accordingly,
 
@@ -191,7 +203,7 @@ After the HTTP roundtrip, the order instance keeps all the information we need f
 
 h3. Discovering Hypermedia
 
-Now that we got a fresh order, let's place some items! The system's API allows adding articles to an existing order by <code>POST</code>ing articles to a specific resource. This endpoint is propagated in the order document using *hypermedia*.
+Now that we got a fresh order, let's place some items! The system's API allows adding articles to an existing order by POSTing articles to a specific resource. This endpoint is propagated in the order document using *hypermedia*.
 
 Where and what is this hypermedia?
 
@@ -221,17 +233,17 @@ h3. Using Hypermedia
 Let the frontend add the delicious "Lonestar" beer to our order, now!
 
 <pre>
-beer = JSON::Article.new(:title => "Lonestar")
-beer.post!(order.links[:items])
+beer = JSON::Article.new(:title => "Lonestar Beer")
+beer.post(order.links[:items])
 </pre>
 
 That's all we need to do.
 
-# First, we create an article representation.
+# First, we create an appropriate article representation.
 # Then, the @#links@ method helps extracting the @items@ link URL from the order document.
 # A simple POST to the respective address places the item in the order.
 
-The @order@ instance in the frontend is now stale since it doesn't contain items, yet.
+The @order@ instance in the frontend is now stale - it doesn't contain articles, yet, since it is still the document from the first post to @http://orders/@.
 
 <pre>
 order.items #=> []
@@ -243,55 +255,43 @@ To update attributes, a GET is needed.
 order.get!(order.links[:self])
 </pre>
 
-Again, we use hypermedia to retrieve the order's URL.
+Again, we use hypermedia to retrieve the order's URL. And now, the added article is included in the order.
 
-*Note:* If this looks clumsy - It's just the raw API for representers. You might be interested in the upcoming DSL that simplifys frequent workflows as updating a representer. 
+[*Note:* If this looks clumsy - It's just the raw API for representers. You might be interested in the upcoming DSL that simplifys frequent workflows as updating a representer.]
+
+<pre>
+order.to_attributes #=> {:id => 42, :client_id => 1337, 
+  :articles => [{:title => "Lonestar Beer", :id => 666}]}
+</pre>
+
+This is cool, we used REST representers and hypermedia to create an order and fill it with articles. It's time for a beer, isn't it?
 
 
 h3. Using Accessors
  
-The client is happy! He created a real order, now he could add articles using the frontend.
+What if the ordering API is going a different way? What if we had to place articles into the order document ourselves, and then PUT this representation to @http://orders/42@? No problem with representers!
+
+Here's what could happen in the frontend.
+
+<pre>
+beer = JSON::Article.new(:title => "Lonestar Beer")
+order.items << beer
+order.post!(order.links[:self])
+</pre>
+
+This was dead simple since representations can be composed of different documents in Roar.
 
 
-Now making that system RESTful basically means
+h2. Current Status
 
-# The frontend knows one _single entry point_ URL to the REST services. This is @http://articles@.
+Please note that Roar is still in conception, the API might change as well as concepts do.
+ 
+
+h2. What is REST about?
+
+Making that system RESTful basically means
+
+# The frontend knows one _single entry point_ URL to the REST services. This is @http://orders@.
 # Do _not_ let the frontend compute any URLs to further actions.
 # Showing articles, creating a new order, adding articles to it and finally placing the order - this all requires further URLs. These URLs are embedded as _hypermedia_ in the representations sent by the REST backend.
-
-
-
-
-
-
-Representers provide an easy DSL for defining documents and an object-oriented way for accessing and modifying.
-
-
-h2. Hypermedia
-
-
-
-
-
-
-
-
-
-
-
-Representations are implemented as mixins and can be used both on client and server.
- 
-Representer should suit your representation and not try to make your representation suit the underlying representing layer.
-
-h2. Client/Server
-client: accessing nested attributes in complex xml hashes sucks. order[:position][1][:article] 
-don't confuse client/server with view/controller
-
-h2. Hypermedia and HATEOAS
-
-
-h2. Testing
-#assert_response <code>, "Location" => "http://api.drinkandtrack.org/user/1"
-post :create, "<order/>"
-xml_equal
 
