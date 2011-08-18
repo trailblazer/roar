@@ -5,12 +5,12 @@ _Streamlines the development of RESTful, Resource-Oriented Architectures in Ruby
 
 h2. Introduction
 
-REST is an architectural style for distributed systems. However, many implementations forget about the _distributed_ part of REST and simply map CRUD operations to HTTP verbs in a monolithic application.
-
 Roar is a framework for developing distributed applications while using hypermedia as key for application workflow.
 
+REST is an architectural style for distributed systems. However, many implementations forget about the _distributed_ part of REST and simply map CRUD operations to HTTP verbs in a monolithic application.
 
-h2. Quick, What Features?
+
+h2. Features
 
 * Roar worries about incoming and outgoing *representation documents*.
 * Representers let you declaratively *define your representations*.
