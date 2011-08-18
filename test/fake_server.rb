@@ -41,7 +41,7 @@ class FakeServer < Sinatra::Base
   
   
   
-  require Dir.pwd + '/order_representers'
+  require File.expand_path(File.dirname(__FILE__) + '/order_representers')
   JSON::Order.class_eval do
     def items_url
       "http://localhost:9999/orders/1/items"

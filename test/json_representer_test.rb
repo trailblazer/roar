@@ -1,4 +1,4 @@
-require 'test_helper'
+require File.expand_path(File.dirname(__FILE__) + '/test_helper')
 
 require "test_xml/mini_test"
 require "roar/representer/json"
