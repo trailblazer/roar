@@ -33,7 +33,14 @@ module Roar
       class Responder < ActionController::Responder
         def display(resource, given_options={})
           # TODO: find the correct representer for #format.
-          representer = controller.representer_class_for(resource.class, format)
+          # TODO: should we infer the represented class per default?
+          # TODO: unit-test this method.
+          #representer = controller.representer_class_for(resource.class, format)
+          representer = controller.representer_class_for(controller.represented_class, format)
+          
+          # DISCUSS: do that here?
+          #representer.extend(RepresenterMethods::ClassMethods)
+          
           controller.render given_options.merge!(options).merge!(
             format => representer.serialize_model_with_controller(resource, controller)
           )
