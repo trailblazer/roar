@@ -35,7 +35,7 @@ module Roar
       # Introduces strongly opinionated convenience methods in Representer.
       module Conventions
         def representation_name
-          super.to_s.sub("_representer", "").singularize
+          super.to_s.singularize
         end
         
         def collection(name, options={})
@@ -43,7 +43,7 @@ module Roar
           singular_name = name.to_s.singularize
           
           super name, options.reverse_merge(
-            :as => "representer/#{namespace}/#{singular_name}Representer".classify.constantize,
+            :as => "representer/#{namespace}/#{singular_name}".classify.constantize,
             :tag => singular_name)
         end
       end

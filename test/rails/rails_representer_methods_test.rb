@@ -4,8 +4,8 @@ require 'roar/rails'
 
 module Representer
   module JPG
-    class SongRepresenter; end
-    class AlbumRepresenter < Roar::Representer::XML; end
+    class Song; end
+    class Album < Roar::Representer::XML; end
   end
 end
 
@@ -14,14 +14,14 @@ end
 class RailsRepresenterMethodsTest < MiniTest::Spec
   describe "Rails::RepresenterMethods" do
     before do
-      @c = Representer::JPG::AlbumRepresenter  # TODO: mix Rails into Base, not XML only.
+      @c = Representer::JPG::Album  # TODO: mix Rails into Base, not XML only.
     end
     
     it "provides conventions for #collection" do
       @c.collection :songs
       
       @d = @c.representable_attrs.first
-      assert_equal Representer::JPG::SongRepresenter, @d.sought_type
+      assert_equal Representer::JPG::Song, @d.sought_type
       assert @d.array?
     end
     

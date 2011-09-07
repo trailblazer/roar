@@ -5,7 +5,7 @@ require "rails/test_help" # adds stuff like @routes, etc.
 
 module Representer
   module BMP
-    class AlbumRepresenter; end
+    class Album; end
   end
 end
     
@@ -24,7 +24,7 @@ class ControllerMethodsTest < ActionController::TestCase
   end
   
   test "responds to #representer_class_for" do
-    assert_equal Representer::BMP::AlbumRepresenter, @controller.representer_class_for(Album, :bmp)
+    assert_equal Representer::BMP::Album, @controller.representer_class_for(Album, :bmp)
   end
   
   test "responds to #representation" do
