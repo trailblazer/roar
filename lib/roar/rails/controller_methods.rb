@@ -23,10 +23,15 @@ module Roar
         "Representer::#{format.to_s.upcase}::#{model_class}".constantize
       end
       
+      # Returns a representer instance that has parsed the request body.
+      def incoming
+        representer = representer_class_for(self.class.represented_class, formats.first).deserialize(request.raw_post)
+      end
+      
+      
       # Returns the deserialized representation as a hash suitable for #create and #update_attributes.
       def representation
-        representer = representer_class_for(self.class.represented_class, formats.first).deserialize(request.raw_post)
-        representer.to_nested_attributes
+        incoming.to_nested_attributes
       end
       
       
