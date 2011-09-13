@@ -39,6 +39,19 @@ class ControllerMethodsTest < ActionController::TestCase
     assert_equal({"id"=>"", "year"=>"2011",
       "songs_attributes"=>[{"title"=>"Walking In Your Footsteps"}]}, @controller.representation)
   end
+  
+  test "responds to #incoming" do
+    post :create, %{<album>
+      <year>2011</year>
+      <song>
+        <title>Walking In Your Footsteps</title>
+      </song>
+    </album>}, :format => :xml
+    
+     
+    assert_equal({"id"=>"", "year"=>"2011",
+      "songs"=>[{"title"=>"Walking In Your Footsteps"}], "links"=>[]}, @controller.incoming.to_attributes)
+  end
 end
 
 
