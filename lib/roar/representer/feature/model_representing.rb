@@ -54,23 +54,25 @@ module Roar
       
       
       module ActiveRecordMethods
-        def to_nested_attributes # FIXME: works on first level only, doesn't check if we really need to suffix _attributes and is horriby implemented. just for protoyping.  
-          attrs = {}
-          
-          to_attributes.each do |k,v|
-          
-          
-          
-          next if k.to_s == "links"  # FIXME: how to skip virtual attributes that are not mapped in a model?
-            
-            
-            attrs[k] = v
-            if v.is_a?(Hash) or v.is_a?(Array)
-              attrs["#{k}_attributes"] = attrs.delete(k)
+        def to_nested_attributes # FIXME: extract iterating with #to_attributes. 
+          {}.tap do |attributes|
+            self.class.representable_attrs.each do |definition|
+              next unless definition.kind_of?(ModelRepresenting::ModelDefinition)
+              
+              value = public_send(definition.accessor)
+              
+              if definition.typed?
+                value = definition.apply(value) do |v|
+                  v.to_nested_attributes  # applied to each typed attribute (even in collections).
+                end
+              end
+              
+              key = definition.name
+              key = "#{key}_attributes" if definition.typed?
+              
+              attributes[key] = value
             end
           end
-          
-          attrs
         end
       end
     end

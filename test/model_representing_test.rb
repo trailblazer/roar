@@ -85,15 +85,41 @@ class ModelRepresentingTest < MiniTest::Spec
       
     end
     
-    
-    it "Model::ActiveRecordMethods#to_nested_attributes" do
-      @o = Order.new("id" => 1, "items" => [Item.new("value" => "Beer")])
-      @r = OrderRepresenter.for_model(@o)
-      
-      OrderRepresenter.class_eval do
-        include Roar::Representer::Feature::ActiveRecordMethods
+    describe "#to_nested_attributes" do
+      it "provides a AR-compatible hash" do
+        @o = Order.new("id" => 1, "items" => [Item.new("value" => "Beer")])
+        @r = OrderRepresenter.for_model(@o)
+        
+        OrderRepresenter.class_eval do
+          include Roar::Representer::Feature::ActiveRecordMethods
+        end
+        ItemRepresenter.class_eval do
+          include Roar::Representer::Feature::ActiveRecordMethods
+        end
+        assert_equal({"id" => 1, "items_attributes" => [{"value" => "Beer"}]}, @r.to_nested_attributes) # DISCUSS: overwrite #to_attributes.
       end
-      assert_equal({"id" => 1, "items_attributes" => [{"value" => "Beer"}]}, @r.to_nested_attributes) # DISCUSS: overwrite #to_attributes.
+      
+      it "doesn't include :links" do
+        @o = Order.new("id" => 1, "items" => [Item.new("value" => "Beer")])
+        
+        
+        
+        OrderRepresenter.class_eval do
+          include Roar::Representer::Feature::ActiveRecordMethods
+          link :self do
+        #    "bla"
+          end
+        end
+        ItemRepresenter.class_eval do
+          include Roar::Representer::Feature::ActiveRecordMethods
+          link :self do
+            
+          end
+        end
+        @r = OrderRepresenter.for_model(@o)
+        
+        assert_equal({"id" => 1, "items_attributes" => [{"value" => "Beer"}]}, @r.to_nested_attributes) # DISCUSS: overwrite #to_attributes.
+      end
     end
   end
 end
