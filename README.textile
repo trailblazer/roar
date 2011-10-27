@@ -63,7 +63,9 @@ h2. Representers
 To render a representational document, the backend service has to define a representer.
 
 <pre>module JSON
-  class Article < Roar::Representer::JSON
+  class Article
+    include Roar::Representer::JSON
+    
     property :title
     property :id
     
@@ -125,7 +127,9 @@ What if we wanted to check an existing order? We'd @GET http://orders/1@, right?
 Since orders may contain a composition of articles, how would the order service define its representer?
 
 <pre>module JSON
-  class Order < Roar::Representer::JSON
+  class Order 
+    include Roar::Representer::JSON
+    
     property :id
     property :client_id
     
