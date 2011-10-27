@@ -2,13 +2,21 @@ require 'representable'
 
 module Roar
   module Representer
-    class Base
-      include Representable
+    module Base
+      def self.included(base)
+        base.class_eval do
+          include Representable
+          extend ClassMethods
+          
+          class << self
+            alias_method :property, :representable_property
+            alias_method :collection, :representable_collection
+          end
+        end
+      end
       
-      class << self
-        alias_method :property, :representable_property
-        alias_method :collection, :representable_collection
         
+      module ClassMethods
         # Creates a representer instance and fills it with +attributes+.
         def from_attributes(attributes)
           new.tap do |representer|

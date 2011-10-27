@@ -3,7 +3,8 @@ require 'test_helper'
 class XmlHypermediaTest < MiniTest::Spec
   describe "Hypermedia API" do
     before do
-      @c = Class.new(Roar::Representer::XML) do
+      @c = Class.new do
+        include Roar::Representer::XML
         self.representation_name= :wuff
         representable_property :id
         link :self do "http://self" end

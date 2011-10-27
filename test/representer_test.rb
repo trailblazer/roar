@@ -3,7 +3,9 @@ require 'test_helper'
 class RepresenterTest < MiniTest::Spec
   describe "Representer" do
     before do
-      @c = Class.new(Roar::Representer::Base)
+      @c = Class.new do
+        include Roar::Representer::Base
+      end
     end
     
     it "aliases #representable_property to #property" do

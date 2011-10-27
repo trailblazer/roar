@@ -10,15 +10,17 @@ class Order
 end
 
 
-class ItemRepresenter < Roar::Representer::XML
+class ItemRepresenter
+  include Roar::Representer::XML
   self.representation_name= :item
-  representable_property :value
+  property :value
 end
 
-class PositionRepresenter < Roar::Representer::XML
+class PositionRepresenter
+  include Roar::Representer::XML
   self.representation_name= :position
-  representable_property :id
-  representable_property :item, :as => ItemRepresenter
+  property :id
+  property :item, :as => ItemRepresenter
 end
 
 
@@ -27,7 +29,8 @@ end
 class XMLRepresenterUnitTest < MiniTest::Spec
   describe "XmlRepresenter" do
     describe "#link" do
-      class Rapper < Roar::Representer::XML
+      class Rapper
+        include Roar::Representer::XML
         link :self
         link :next
       end
@@ -40,7 +43,9 @@ class XMLRepresenterUnitTest < MiniTest::Spec
     
     describe "#from_attributes" do
       it "accepts a block" do
-        @c = Class.new(Roar::Representer::XML) do
+        @c = Class.new do
+          include Roar::Representer::XML
+          
           attr_accessor :name
         end
         
@@ -95,9 +100,10 @@ class XMLRepresenterFunctionalTest < MiniTest::Spec
     end
   end
   
-  class TestXmlRepresenter < Roar::Representer::XML
+  class TestXmlRepresenter
+    include Roar::Representer::XML
     self.representation_name= :order  # FIXME: get from represented?
-    representable_property :id
+    property :id
   end
   
   
@@ -184,10 +190,12 @@ class XMLRepresenterFunctionalTest < MiniTest::Spec
     
     describe "with a typed list" do
       before do
-        @c = Class.new(Roar::Representer::XML) do
+        @c = Class.new do
+          include Roar::Representer::XML
+          
           self.representation_name= :order
-          representable_property :id
-          representable_collection :items, :as => ItemRepresenter, :tag => :item
+          property :id
+          collection :items, :as => ItemRepresenter, :tag => :item
         end
         
         @r = @c.from_attributes("id" => 1)

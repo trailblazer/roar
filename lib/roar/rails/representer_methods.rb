@@ -44,7 +44,8 @@ module Roar
           
           super name, options.reverse_merge(
             :as => "representer/#{namespace}/#{singular_name}".classify.constantize,
-            :tag => singular_name)
+            #:tag => singular_name  # FIXME: how/where to decide if singular TAG or not?
+            )
         end
       end
     end

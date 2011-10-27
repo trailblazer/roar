@@ -4,7 +4,9 @@ require 'roar/representer/feature/hypermedia'
 
 module JSON
   
-  class Item < Roar::Representer::JSON
+  class Item
+    include Roar::Representer::JSON
+    
     property :article_id
     property :amount
     
@@ -13,7 +15,8 @@ module JSON
   end
   
   
-  class Order < Roar::Representer::JSON
+  class Order
+    include Roar::Representer::JSON
     property :client_id
     collection :items, :as => Item
     

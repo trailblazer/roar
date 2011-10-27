@@ -3,24 +3,27 @@ require 'roar/representer/feature/model_representing'
 
 class ModelRepresentingTest < MiniTest::Spec
   describe "ModelRepresenting" do
-    class ItemRepresenter < Roar::Representer::XML
+    class ItemRepresenter
+      include Roar::Representer::XML
       include Roar::Representer::Feature::ModelRepresenting # TODO: move to abstract!
       self.representation_name= :item
-      representable_property :value
+      property :value
     end
     
-    class PositionRepresenter < Roar::Representer::XML
+    class PositionRepresenter
+      include Roar::Representer::XML
       include Roar::Representer::Feature::ModelRepresenting # TODO: move to abstract! 
       self.representation_name= :position
-      representable_property :id
-      representable_property :item, :as => ItemRepresenter
+      property :id
+      property :item, :as => ItemRepresenter
     end
     
-    class OrderRepresenter < Roar::Representer::XML
+    class OrderRepresenter
+      include Roar::Representer::XML
       include Roar::Representer::Feature::ModelRepresenting # TODO: move to abstract!
       self.representation_name= :order
-      representable_property :id
-      representable_property :items, :as => [ItemRepresenter]
+      property :id
+      collection :items, :as => ItemRepresenter
     end
     
     describe "#definition_class" do

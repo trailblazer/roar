@@ -4,9 +4,10 @@ require "test_xml/mini_test"
 require "roar/representer/json"
 
 class JsonRepresenterFunctionalTest < MiniTest::Spec
-  class OrderRepresenter < Roar::Representer::JSON
+  class OrderRepresenter
+    include Roar::Representer::JSON
     self.representation_name= :order
-    representable_property :id
+    property :id
   end
   
   
@@ -60,12 +61,13 @@ end
 class JsonHypermediaTest
   describe "Hypermedia API" do
     before do
-      @c = Class.new(Roar::Representer::JSON) do
+      @c = Class.new do
+        include Roar::Representer::JSON
         include Roar::Representer::Feature::Hypermedia
         
         self.representation_name= :order
         
-        representable_property :id
+        property :id
         
         link :self do "http://self" end
         link :next do "http://next/#{id}" end

@@ -35,7 +35,7 @@ ActionController::TestCase.class_eval do
   end
   
   def assert_body(body, options={})
-    return assert_xml_equal body, @response.body if options[:format]
+    return assert_xml_equal body, @response.body if options[:format] == :xml  # FIXME: how do we know whether assert_xml is appropriate?
     assert_equal body, @response.body
   end
   

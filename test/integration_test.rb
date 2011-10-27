@@ -8,7 +8,8 @@ require 'roar/representer/feature/hypermedia'
 
 class RepresenterIntegrationTest < MiniTest::Spec
   module XML
-    class BandRepresenter < Roar::Representer::XML
+    class BandRepresenter
+      include Roar::Representer::XML
       self.representation_name = :band
       
       property :name
@@ -29,7 +30,8 @@ class RepresenterIntegrationTest < MiniTest::Spec
   
   # TODO: inherit properly.
   module JSON
-    class BandRepresenter < Roar::Representer::JSON
+    class BandRepresenter
+      include Roar::Representer::JSON
       self.representation_name = :band
       
       property :name
