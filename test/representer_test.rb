@@ -23,5 +23,26 @@ class RepresenterTest < MiniTest::Spec
       assert_equal "Counting Down", @c.new(:title => "Counting Down").title
     end
     
+    
+    describe "#from_attributes" do
+      it "accepts a block yielding the created representer instance" do
+        @c.class_eval { attr_accessor :name }
+        
+        assert_equal("Conan", @c.from_attributes({}) { |rep| rep.name = "Conan" }.name)
+      end
+      
+      it "copies known properties, only, but doesn't complain" do
+        @c.class_eval { property :id }
+        
+        assert_equal 1, @c.from_attributes("id" => 1, "unknown" => "don't use me").id
+      end
+      
+      it "accepts symbols and strings as property name" do
+        @c.class_eval { property :id }
+        
+        assert_equal @c.from_attributes(:id => 1).id, @c.from_attributes("id" => 1).id
+      end
+    end
+    
   end
 end

@@ -40,18 +40,6 @@ class XMLRepresenterUnitTest < MiniTest::Spec
         assert_equal [{:rel=>:self, :block=>nil}, {:rel=>:next, :block=>nil}], Rapper.representable_attrs.first.rel2block
       end
     end
-    
-    describe "#from_attributes" do
-      it "accepts a block" do
-        @c = Class.new do
-          include Roar::Representer::XML
-          
-          attr_accessor :name
-        end
-        
-        assert_equal("Conan", @c.from_attributes({}) { |rep| rep.name = "Conan" }.name)
-      end
-    end
   end
 end
 
@@ -115,18 +103,6 @@ class XMLRepresenterFunctionalTest < MiniTest::Spec
       @i = ItemRepresenter.new
       @i.value = "Beer"
     end
-    
-    describe "#from_attributes" do
-      it "copies represented attributes, only" do
-        @r = PositionRepresenter.from_attributes("id" => 1, "item" => @i, "unknown" => 1)
-        assert_kind_of PositionRepresenter, @r
-        assert_equal 1, @r.id
-        
-        assert_kind_of ItemRepresenter, @r.item
-        assert_equal @r.item.value, "Beer"
-      end
-    end
-    
     
     describe "#to_attributes" do
       it "returns a nested attributes hash" do

@@ -19,6 +19,8 @@ module Roar
       module ClassMethods
         # Creates a representer instance and fills it with +attributes+.
         def from_attributes(attributes)
+          attributes = attributes.inject({}){ |memo,(k,v)| memo[k.to_s] = v; memo }
+
           new.tap do |representer|
             yield representer if block_given?
             
@@ -52,6 +54,7 @@ module Roar
       end
     end
     
+    # TODO: move to hypermedia feature?
     class LinksDefinition < Representable::Definition
       def rel2block
         @rel2block ||= []
@@ -63,7 +66,7 @@ module Roar
         rel2block.each do |link|
           representer.links << sought_type.from_attributes({  # create Hyperlink representer.
             "rel"   => link[:rel],
-            "href"  => representer.instance_exec(&link[:block])})  # DISCUSS: run block in representer context?
+            "href"  => representer.instance_exec(&link[:block])})  # DISCUSS: run block in representer context? pass attributes as block argument?
         end
       end
     end
