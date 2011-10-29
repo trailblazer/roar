@@ -1,5 +1,4 @@
 require 'representable'
-require 'representable_extensions'
 
 module Roar
   module Representer
