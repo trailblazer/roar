@@ -36,8 +36,6 @@ module Roar
       
       
       def serialize
-        populate_attributes!  # FIXME: put me somewhere else!
-        
         to_xml.serialize
       end
       
