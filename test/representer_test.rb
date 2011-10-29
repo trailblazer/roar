@@ -38,22 +38,5 @@ class RepresenterTest < MiniTest::Spec
         assert_equal @c.from_attributes(:id => 1).id, @c.from_attributes("id" => 1).id
       end
     end
-    
-    
-    describe "#find_representable_attr" do
-      it "returns Definition if block condition matches" do
-        @c.class_eval do
-          property :id
-          property :client_id
-        end
-        
-        assert_equal "client_id", @c.new.send(:find_representable_attr, &lambda{|d| d.name == "client_id"}).name
-      end
-      
-      it "returns nil if nothing matches" do
-        assert_equal nil, @c.new.send(:find_representable_attr, &lambda {|d| d == 1})
-      end
-    end
-    
   end
 end

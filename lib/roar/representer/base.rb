@@ -43,11 +43,6 @@ module Roar
           end
         end
       end
-      
-    protected
-      def find_representable_attr(&block)
-        self.class.representable_attrs.find(&block)
-      end
     end
   end
 end

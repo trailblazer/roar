@@ -34,12 +34,16 @@ module Roar
       protected
         # Setup hypermedia links by invoking their blocks. Usually called by #serialize.
         def prepare_links!
-          links_def = self.class.representable_attrs.find { |d| d.kind_of?(LinksDefinition) } or return
+          links_def = self.class.find_links_definition or return
           links_def.rel2block.each do |link|
             links << links_def.sought_type.from_attributes({  # create Hyperlink representer.
             "rel"   => link[:rel],
-            "href"  => instance_exec(&link[:block])})  # DISCUSS: run block in representer context? pass attributes as block argument?
+            "href"  => run_link_block(link[:block])})
           end
+        end
+        
+        def run_link_block(block)
+          instance_exec(&block)
         end
         
         
@@ -53,12 +57,16 @@ module Roar
         module ClassMethods
           # Defines an embedded hypermedia link.
           def link(rel, &block)
-            unless links = representable_attrs.find { |d| d.is_a?(LinksDefinition)}
+            unless links = find_links_definition
               links = LinksDefinition.new(:links, links_definition_options)
               representable_attrs << links
             end
             
             links.rel2block << {:rel => rel, :block => block}
+          end
+          
+          def find_links_definition
+            representable_attrs.find do |d| d.is_a?(LinksDefinition) end
           end
         end
         

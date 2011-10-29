@@ -62,6 +62,22 @@ class HypermediaTest
         assert_equal Roar::Representer::Feature::Hypermedia::LinkCollection.new, @bookmarks.new.links
       end
     end
+    
+    
+    describe "#find_links_definition" do
+      it "returns Definition if links are present" do
+        @bookmarks.class_eval do
+          property :id
+          link :self
+        end
+        
+        assert_equal "links", @bookmarks.find_links_definition.name
+      end
+      
+      it "returns nil if no links defined" do
+        assert_equal nil, @bookmarks.find_links_definition
+      end
+    end
   end
 end
 
