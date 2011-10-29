@@ -9,10 +9,6 @@ class HypermediaTest
     end
     
     before do
-      Hyperlink = Roar::Representer::XML::Hyperlink # TODO: move to abstract module.
-      @b = Bookmarks.new
-      @b.links = [Hyperlink.from_attributes({"rel" => "self", "href" => "http://self"}), Hyperlink.from_attributes({"rel" => "next", "href" => "http://next"})]
-      
       @bookmarks = Class.new(Bookmarks) do
         self.representation_name = :bookmarks
       end
@@ -34,27 +30,58 @@ class HypermediaTest
       it "still works even if there are no links defined" do
         assert_xml_equal '<bookmarks/>', @bookmarks.new.serialize
       end
-      
     end
     
     
     describe "#links" do
-      it "returns links" do
-        assert_kind_of Roar::Representer::Feature::Hypermedia::LinkCollection, @b.links
-        assert_equal 2, @b.links.size
+      before do
+        @set  = Bookmarks.new
+        hyper = Roar::Representer::XML::Hyperlink
+        
+        @set.links = [hyper.from_attributes({"rel" => "self", "href" => "http://self"}),
+                      hyper.from_attributes({"rel" => "next", "href" => "http://next"})]
       end
       
-      it "works with empty links set" do
-        assert_equal nil, Bookmarks.new.links # default empty array doesn't make sense.
+      describe "#links=" do
+        it "wraps links in a LinkCollection" do
+          assert_kind_of Roar::Representer::Feature::Hypermedia::LinkCollection, @set.links
+          assert_equal 2, @set.links.size
+        end
+      end
+      
+      describe "#link[]" do
+        it "provides shorthand accessor for rels" do
+          assert_equal "http://self", @set.links["self"]
+          assert_equal "http://self", @set.links[:self]
+          assert_equal "http://next", @set.links[:next]
+          assert_equal nil, @set.links[:prev]
+        end
+      end
+      
+      it "returns an empty list when no links present" do
+        assert_equal Roar::Representer::Feature::Hypermedia::LinkCollection.new, @bookmarks.new.links
       end
     end
-    
-    
-    it "responds to links #[]" do
-      assert_equal "http://self", @b.links["self"]
-      assert_equal "http://self", @b.links[:self]
-      assert_equal "http://next", @b.links[:next]
-      assert_equal nil, @b.links[:prev]
+  end
+end
+
+class LinksDefinitionTest < MiniTest::Spec
+  describe "LinksDefinition" do
+    before do
+      @d = Roar::Representer::Feature::Hypermedia::LinksDefinition.new(:links)
     end
+    
+    it "accepts options in constructor" do
+      assert_equal [], @d.rel2block
+    end
+    
+    it "accepts configuration" do
+      @d.rel2block << {:rel => :self}
+      assert_equal [{:rel=>:self}], @d.rel2block
+    end
+    
+    it "responds to #each to iterate rel2block" do
+    end
+    
   end
 end

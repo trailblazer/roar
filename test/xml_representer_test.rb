@@ -43,40 +43,6 @@ class XMLRepresenterUnitTest < MiniTest::Spec
   end
 end
 
-class LinksDefinitionTest < MiniTest::Spec
-  describe "LinksDefinition" do
-    before do
-      @d = Roar::Representer::LinksDefinition.new(:links)
-    end
-    
-    it "accepts options in constructor" do
-      assert_equal [], @d.rel2block
-    end
-    
-    it "accepts configuration" do
-      @d.rel2block << {:rel => :self}
-      assert_equal [{:rel=>:self}], @d.rel2block
-    end
-  end
-end
-
-class XMLDefinitionTest < MiniTest::Spec
-  class Rapper
-    attr_accessor :name
-  end
-  
-  describe "ROXML::Definition" do
-    it "responds to #populate" do
-      @r = Rapper.new
-      Representable::Definition.new(:name).populate(@r, "name" => "Eugen")
-      assert_equal "Eugen", @r.name
-    end
-  end
-end
-
-
-
-
 
 class XMLRepresenterFunctionalTest < MiniTest::Spec
   class GreedyOrder

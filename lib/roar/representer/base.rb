@@ -43,14 +43,11 @@ module Roar
           end
         end
       end
-    end
-    
-    # TODO: move to hypermedia feature?
-    class LinksDefinition < Representable::Definition
-      def rel2block
-        @rel2block ||= []
+      
+    protected
+      def find_representable_attr(&block)
+        self.class.representable_attrs.find(&block)
       end
     end
-    
   end
 end

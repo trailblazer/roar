@@ -1,7 +1,7 @@
 require 'test_helper'
 
 class XmlHypermediaTest < MiniTest::Spec
-  describe "Hypermedia API" do
+  describe "Hypermedia feature within XML" do
     before do
       @c = Class.new do
         include Roar::Representer::XML

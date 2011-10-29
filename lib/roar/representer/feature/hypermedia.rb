@@ -3,8 +3,16 @@ require "roar/model"
 module Roar
   module Representer
     module Feature
-      # Adds links methods to the model which can then be used for hypermedia links when
-      # representing the model.
+      # Adds #link to the representer to define hypermedia links in the representation.
+      #
+      # Example:
+      #
+      #   class Order
+      #     include Roar::Representer::JSON
+      #
+      #     link :self do
+      #       "http://orders/#{id}"
+      #     end
       module Hypermedia
         def self.included(base)
           base.extend ClassMethods
@@ -15,20 +23,17 @@ module Roar
           super # Representer::Base
         end
         
-        
-        def links=(links)
-          @links = LinkCollection.new(links)
+        def links=(link_list)
+          links.replace(link_list)
         end
         
         def links
-          @links
+          @links ||= LinkCollection.new
         end
         
       protected
         # Setup hypermedia links by invoking their blocks. Usually called by #serialize.
         def prepare_links!
-          self.links ||= []
-        
           links_def = self.class.representable_attrs.find { |d| d.kind_of?(LinksDefinition) } or return
           links_def.rel2block.each do |link|
             links << links_def.sought_type.from_attributes({  # create Hyperlink representer.
@@ -57,6 +62,13 @@ module Roar
           end
         end
         
+        
+        class LinksDefinition < Representable::Definition
+          # TODO: hide rel2block in interface.
+          def rel2block
+            @rel2block ||= []
+          end
+        end
       end
     end
   end
