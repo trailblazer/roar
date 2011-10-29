@@ -5,8 +5,16 @@ module Roar
     module Feature
       # Adds links methods to the model which can then be used for hypermedia links when
       # representing the model.
-      module Hypermedia # TODO: test me.
-        extend ActiveSupport::Concern # TODO: remove dependency.
+      module Hypermedia
+        def self.included(base)
+          base.extend ClassMethods
+        end
+        
+        def serialize(*)
+          prepare_links!
+          super # Representer::Base
+        end
+        
         
         def links=(links)
           @links = LinkCollection.new(links)
@@ -15,6 +23,20 @@ module Roar
         def links
           @links
         end
+        
+      protected
+        # Setup hypermedia links by invoking their blocks. Usually called by #serialize.
+        def prepare_links!
+          self.links ||= []
+        
+          links_def = self.class.representable_attrs.find { |d| d.kind_of?(LinksDefinition) } or return
+          links_def.rel2block.each do |link|
+            links << links_def.sought_type.from_attributes({  # create Hyperlink representer.
+            "rel"   => link[:rel],
+            "href"  => instance_exec(&link[:block])})  # DISCUSS: run block in representer context? pass attributes as block argument?
+          end
+        end
+        
         
         class LinkCollection < Array
           def [](rel)

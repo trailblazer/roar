@@ -2,8 +2,9 @@ require 'test_helper'
 require 'roar/representer/feature/hypermedia'
 
 class HypermediaTest
-  describe "Hypermedia" do
+  describe "Hypermedia Feature" do
     class Bookmarks
+      include Roar::Representer::XML
       include Roar::Representer::Feature::Hypermedia
     end
     
@@ -11,7 +12,31 @@ class HypermediaTest
       Hyperlink = Roar::Representer::XML::Hyperlink # TODO: move to abstract module.
       @b = Bookmarks.new
       @b.links = [Hyperlink.from_attributes({"rel" => "self", "href" => "http://self"}), Hyperlink.from_attributes({"rel" => "next", "href" => "http://next"})]
+      
+      @bookmarks = Class.new(Bookmarks) do
+        self.representation_name = :bookmarks
+      end
     end
+    
+    describe "#serialize" do
+      it "sets up links before rendering" do
+        @bookmarks.class_eval do
+          link :self do "http://bookmarks" end
+          link :all do "http://bookmarks/all" end
+        end
+        
+        assert_xml_equal '<bookmarks>
+                            <link rel="self" href="http://bookmarks"/>
+                            <link rel="all" href="http://bookmarks/all"/>
+                          </bookmarks>', @bookmarks.new.serialize
+      end
+      
+      it "still works even if there are no links defined" do
+        assert_xml_equal '<bookmarks/>', @bookmarks.new.serialize
+      end
+      
+    end
+    
     
     describe "#links" do
       it "returns links" do

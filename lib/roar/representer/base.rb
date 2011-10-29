@@ -44,29 +44,12 @@ module Roar
           end
         end
       end
-      
-    private
-      def populate_attributes!
-        self.class.representable_attrs.each do |definition|
-          definition.populate(self)
-        end
-      end
     end
     
     # TODO: move to hypermedia feature?
     class LinksDefinition < Representable::Definition
       def rel2block
         @rel2block ||= []
-      end
-      
-      def populate(representer)
-        representer.links ||= []
-        
-        rel2block.each do |link|
-          representer.links << sought_type.from_attributes({  # create Hyperlink representer.
-            "rel"   => link[:rel],
-            "href"  => representer.instance_exec(&link[:block])})  # DISCUSS: run block in representer context? pass attributes as block argument?
-        end
       end
     end
     
