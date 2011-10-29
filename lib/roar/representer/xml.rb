@@ -1,4 +1,4 @@
-require 'roar/representer'
+require 'roar/representer/base'
 require 'representable/xml'
 
 
@@ -23,6 +23,7 @@ module Roar
         end
       end
       
+      
       module ClassMethods
         def links_definition_options
           {:tag => :link, :as => [Hyperlink]}
@@ -35,6 +36,8 @@ module Roar
       
       
       def serialize
+        populate_attributes!  # FIXME: put me somewhere else!
+        
         to_xml.serialize
       end
       

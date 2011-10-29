@@ -19,23 +19,14 @@ module Roar
         
       module ClassMethods
         # Creates a representer instance and fills it with +attributes+.
-        def from_attributes(attributes)
-          attributes = attributes.inject({}){ |memo,(k,v)| memo[k.to_s] = v; memo }
-
+        def from_attributes(attributes) # DISCUSS: better move to #new? how do we handle the original #new then?
           new.tap do |representer|
             yield representer if block_given?
-            
-            representable_attrs.each do |definition|
-              definition.populate(representer, attributes)
-            end
+            attributes.each { |p,v| representer.public_send("#{p}=", v) }
           end
         end
       end
       
-      
-      def initialize(properties={})
-        properties.each { |p,v| send("#{p}=", v) }  # DISCUSS: check if valid property?
-      end
       
       # Convert representer's attributes to a nested attributes hash.
       def to_attributes
@@ -53,6 +44,13 @@ module Roar
           end
         end
       end
+      
+    private
+      def populate_attributes!
+        self.class.representable_attrs.each do |definition|
+          definition.populate(self)
+        end
+      end
     end
     
     # TODO: move to hypermedia feature?
@@ -61,7 +59,7 @@ module Roar
         @rel2block ||= []
       end
       
-      def populate(representer, *args)
+      def populate(representer)
         representer.links ||= []
         
         rel2block.each do |link|

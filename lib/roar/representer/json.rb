@@ -1,4 +1,4 @@
-require 'roar/representer'
+require 'roar/representer/base'
 require 'representable/json'
 
 
