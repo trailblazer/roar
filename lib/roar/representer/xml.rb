@@ -35,7 +35,7 @@ module Roar
       end
       
       
-      def serialize
+      def serialize(*)
         to_xml.serialize
       end
       

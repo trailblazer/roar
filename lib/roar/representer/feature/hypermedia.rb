@@ -18,8 +18,8 @@ module Roar
           base.extend ClassMethods
         end
         
-        def serialize(*)
-          prepare_links!
+        def serialize(options={})
+          prepare_links! unless options[:links] == false  # DISCUSS: doesn't work when links are already setup (e.g. from #deserialize).
           super # Representer::Base
         end
         

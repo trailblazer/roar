@@ -1,7 +1,6 @@
 require 'roar/representer/base'
 require 'representable/json'
 
-
 module Roar
   module Representer
     module JSON
@@ -16,6 +15,7 @@ module Roar
         end
       end
       
+      
       module ClassMethods
         def deserialize(json)
           from_json(json)
@@ -28,7 +28,7 @@ module Roar
       end
       
       
-      def serialize
+      def serialize(*)
         to_json
       end
       
@@ -42,6 +42,5 @@ module Roar
         property :href
       end
     end
-    
   end
 end

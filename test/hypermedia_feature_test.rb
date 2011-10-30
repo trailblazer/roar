@@ -32,6 +32,14 @@ class HypermediaTest
       it "still works even if there are no links defined" do
         assert_xml_equal '<bookmarks/>', @bookmarks.new.serialize
       end
+      
+      it "doesn't render links with :links => false" do
+        assert_xml_equal '<bookmarks>
+                            <id>1</id>
+                          </bookmarks>', 
+          @bookmarks_with_links.from_attributes(:id => 1).serialize(:links => false)
+      end
+      
     end
     
     
