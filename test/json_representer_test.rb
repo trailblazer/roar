@@ -77,7 +77,7 @@ class JsonHypermediaTest
     end
     
     it "responds to #links" do
-      assert_equal nil, @r.links
+      assert_equal [], @r.links
     end
     
     it "computes links in #from_attributes" do
@@ -88,14 +88,14 @@ class JsonHypermediaTest
     end
     
     it "extracts links from JSON" do
-      @r = @c.deserialize({:order => {:links => [{:rel => "self", :href => "http://self"}]}}.to_json)
+      @r = @c.from_json({:order => {:links => [{:rel => "self", :href => "http://self"}]}}.to_json)
       
       assert_equal 1, @r.links.size
       assert_equal({"rel"=>"self", "href"=>"http://self"}, @r.links.first.to_attributes) 
     end
     
     it "renders link: correctly in JSON" do
-      assert_equal "{\"order\":{\"id\":1,\"links\":[{\"rel\":\"self\",\"href\":\"http://self\"},{\"rel\":\"next\",\"href\":\"http://next/1\"}]}}", @c.from_attributes({"id" => 1}).serialize
+      assert_equal "{\"order\":{\"id\":1,\"links\":[{\"rel\":\"self\",\"href\":\"http://self\"},{\"rel\":\"next\",\"href\":\"http://next/1\"}]}}", @c.from_attributes(:id => 1).to_json
     end
     
   end

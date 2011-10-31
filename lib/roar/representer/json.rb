@@ -8,10 +8,21 @@ module Roar
         base.class_eval do
           include Base
           include Representable::JSON
-          extend ClassMethods
           
-          require 'roar/representer/feature/hypermedia'
-          include Feature::Hypermedia
+          extend ClassMethods
+          include InstanceMethods # otherwise Representable overrides our #to_json.
+        end
+      end
+      
+      module InstanceMethods
+        def to_json(*args)
+          before_serialize(*args)
+          super
+        end
+        
+        # Generic entry-point for rendering.
+        def serialize(*args)
+          to_json(*args)
         end
       end
       
@@ -25,11 +36,6 @@ module Roar
         def links_definition_options
           {:as => [Hyperlink]}
         end
-      end
-      
-      
-      def serialize(*)
-        to_json
       end
       
       
