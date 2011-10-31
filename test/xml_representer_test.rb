@@ -31,6 +31,8 @@ class XMLRepresenterUnitTest < MiniTest::Spec
     describe "#link" do
       class Rapper
         include Roar::Representer::XML
+        include Roar::Representer::Feature::Hypermedia
+        
         link :self
         link :next
       end
@@ -80,28 +82,39 @@ class XMLRepresenterFunctionalTest < MiniTest::Spec
     
     describe "#to_xml" do
       it "serializes the current model" do
-        assert_xml_equal "<order/>", @r.to_xml.serialize
+        assert_xml_equal "<order/>", @r.to_xml
         
         @r.id = 2
-        assert_xml_equal "<rap><id>2</id></rap>", @r.to_xml(:name => :rap).serialize
+        assert_xml_equal "<rap><id>2</id></rap>", @r.to_xml(:name => :rap)
+      end
+      
+      it "is aliased to #serialize" do
+        assert_equal @r.to_xml, @r.serialize
+      end
+    end
+    
+    describe "#from_xml" do
+      it "is aliased to #deserialize" do
+        assert_equal TestXmlRepresenter.from_xml("<order/>").to_attributes, TestXmlRepresenter.deserialize("<order/>").to_attributes
       end
     end
     
     
+    
     describe "without options" do
-      it "#serialize returns the serialized model" do
+      it "#to_xml returns the serialized model" do
         @r.id = 1
-        assert_xml_equal "<order><id>1</id></order>", @r.serialize
+        assert_xml_equal "<order><id>1</id></order>", @r.to_xml
       end
       
       
       it ".from_xml returns the deserialized model" do
-        @m = TestXmlRepresenter.deserialize("<order><id>1</id></order>")
+        @m = TestXmlRepresenter.from_xml("<order><id>1</id></order>")
         assert_equal "1", @m.id
       end
       
       it ".from_xml still works with nil" do
-        assert TestXmlRepresenter.deserialize(nil)
+        assert TestXmlRepresenter.from_xml(nil)
       end
       
     end
@@ -113,16 +126,16 @@ class XMLRepresenterFunctionalTest < MiniTest::Spec
       end
       
       it "#serialize skips empty :item" do
-        assert_xml_equal "<position><id>1</id></position>", @r.serialize
+        assert_xml_equal "<position><id>1</id></position>", @r.to_xml
       end
       
       it "#to_xml delegates to ItemRepresenter#to_xml" do
         @r.item = @i
-        assert_xml_equal "<position><id>1</id><item><value>Beer</value></item></position>", @r.serialize
+        assert_xml_equal "<position><id>1</id><item><value>Beer</value></item></position>", @r.to_xml
       end
       
       it ".from_xml typecasts :item" do
-        @m = PositionRepresenter.deserialize("<position><id>1</id><item><value>beer</value></item>\n</position>")
+        @m = PositionRepresenter.from_xml("<position><id>1</id><item><value>beer</value></item>\n</position>")
         
         assert_equal "1",     @m.id
         assert_equal "beer",  @m.item.value
@@ -137,25 +150,25 @@ class XMLRepresenterFunctionalTest < MiniTest::Spec
           
           self.representation_name= :order
           property :id
-          collection :items, :as => ItemRepresenter, :tag => :item
+          collection :items, :as => ItemRepresenter, :from => :item
         end
         
         @r = @c.from_attributes("id" => 1)
       end
       
       it "#serialize_model skips empty :item" do
-        assert_xml_equal "<order><id>1</id></order>", @r.serialize
+        assert_xml_equal "<order><id>1</id></order>", @r.to_xml
       end
       
       it "#serialize delegates to ItemXmlRepresenter#to_xml in list" do
         @r.items = [ItemRepresenter.from_attributes("value" => "Bier")]
         
         assert_xml_equal "<order><id>1</id><item><value>Bier</value></item></order>", 
-          @r.serialize
+          @r.to_xml
       end
       
       it ".from_xml typecasts list" do
-        @m = @c.deserialize("<order><id>1</id><item><value>beer</value></item>\n</order>")
+        @m = @c.from_xml("<order><id>1</id><item><value>beer</value></item>\n</order>")
         
         assert_equal "1",     @m.id
         assert_equal 1,       @m.items.size

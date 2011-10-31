@@ -1,7 +1,6 @@
 require 'roar/representer/base'
 require 'representable/xml'
 
-
 module Roar
   # Basic work-flow
   # in:   * representer parses representation
@@ -17,29 +16,37 @@ module Roar
           include Base
           include Representable::XML
           extend ClassMethods
-          
-          require 'roar/representer/feature/hypermedia'
-          include Feature::Hypermedia
+          include InstanceMethods # otherwise Representable overrides our #to_xml.
+        end
+      end
+      
+      module InstanceMethods
+        def to_xml(*args)
+          before_serialize(*args)
+          super.serialize
+        end
+        
+        # Generic entry-point for rendering.
+        def serialize(*args)
+          to_xml(*args)
         end
       end
       
       
       module ClassMethods
+        include Representable::XML::ClassMethods
+        
         def links_definition_options
           {:tag => :link, :as => [Hyperlink]}
         end
         
-        def deserialize(xml)
-          from_xml(xml)
+        # Generic entry-point for parsing.
+        def deserialize(*args)
+          from_xml(*args)
         end
       end
       
-      
-      def serialize(*)
-        to_xml.serialize
-      end
-      
-      
+            
       # Encapsulates a hypermedia <link ...>.
       class Hyperlink
         include XML
