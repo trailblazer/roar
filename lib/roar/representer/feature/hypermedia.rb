@@ -10,6 +10,8 @@ module Roar
       #   class Order
       #     include Roar::Representer::JSON
       #
+      #     property :id
+      #
       #     link :self do
       #       "http://orders/#{id}"
       #     end
@@ -18,7 +20,7 @@ module Roar
           base.extend ClassMethods
         end
         
-        def serialize(options={})
+        def before_serialize(options={})
           prepare_links! unless options[:links] == false  # DISCUSS: doesn't work when links are already setup (e.g. from #deserialize).
           super # Representer::Base
         end
@@ -55,7 +57,7 @@ module Roar
         
         
         module ClassMethods
-          # Defines an embedded hypermedia link.
+          # Defines a hypermedia link to be embedded in the document.
           def link(rel, &block)
             unless links = find_links_definition
               links = LinksDefinition.new(:links, links_definition_options)

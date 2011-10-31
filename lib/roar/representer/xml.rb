@@ -15,6 +15,7 @@ module Roar
         base.class_eval do
           include Base
           include Representable::XML
+
           extend ClassMethods
           include InstanceMethods # otherwise Representable overrides our #to_xml.
         end
@@ -37,7 +38,7 @@ module Roar
         include Representable::XML::ClassMethods
         
         def links_definition_options
-          {:tag => :link, :as => [Hyperlink]}
+          {:from => :link, :as => [Hyperlink]}
         end
         
         # Generic entry-point for parsing.

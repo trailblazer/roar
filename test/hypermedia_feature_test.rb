@@ -20,32 +20,32 @@ class HypermediaTest
     end
     
     
-    describe "#serialize" do
+    describe "#to_xml" do
       it "sets up links and renders <link> correctly in XML" do
         assert_xml_equal '<bookmarks>
                             <id>1</id>
                             <link rel="self" href="http://bookmarks"/>
                             <link rel="all" href="http://bookmarks/all"/>
-                          </bookmarks>', @bookmarks_with_links.from_attributes(:id => 1).serialize
+                          </bookmarks>', @bookmarks_with_links.from_attributes(:id => 1).to_xml
       end
       
       it "still works even if there are no links defined" do
-        assert_xml_equal '<bookmarks/>', @bookmarks.new.serialize
+        assert_xml_equal '<bookmarks/>', @bookmarks.new.to_xml
       end
       
       it "doesn't render links with :links => false" do
         assert_xml_equal '<bookmarks>
                             <id>1</id>
                           </bookmarks>', 
-          @bookmarks_with_links.from_attributes(:id => 1).serialize(:links => false)
+          @bookmarks_with_links.from_attributes(:id => 1).to_xml(:links => false)
       end
       
     end
     
     
-    describe "#deserialize" do
+    describe "#from_xml" do
       it "extracts links from document" do
-        doc = @bookmarks_with_links.deserialize(%{
+        doc = @bookmarks_with_links.from_xml(%{
         <bookmarks>
           <link rel="self" href="http://bookmarks">
         </bookmarks>
@@ -57,7 +57,7 @@ class HypermediaTest
       end
       
       it "sets up an empty link list if no links found in the document" do
-        assert_equal [], @bookmarks_with_links.deserialize(%{<bookmarks/>}).links
+        assert_equal [], @bookmarks_with_links.from_xml(%{<bookmarks/>}).links
       end
     end
     
@@ -100,7 +100,7 @@ class HypermediaTest
           link :self
         end
         
-        assert_equal "link", @bookmarks.find_links_definition.name
+        assert_equal "links", @bookmarks.find_links_definition.name
       end
       
       it "returns nil if no links defined" do
