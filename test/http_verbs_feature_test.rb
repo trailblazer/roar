@@ -2,9 +2,8 @@ require 'test_helper'
 require 'roar/representer/feature/http_verbs'
 
 class HttpVerbsTest < MiniTest::Spec
-  class BandRepresenter
+  class Band
     include Roar::Representer::XML
-    self.representation_name = :band
     
     property :name
     property :label
@@ -14,7 +13,7 @@ class HttpVerbsTest < MiniTest::Spec
   
   describe "HttpVerbs" do
     before do
-      @r = BandRepresenter.new
+      @r = Band.new
     end
     
     # TODO: assert that Restfulie#post receives the correct document.

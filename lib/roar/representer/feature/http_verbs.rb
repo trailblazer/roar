@@ -1,15 +1,14 @@
 require 'roar/client/transport'
 
 module Roar
-  # Used in Models as convenience, ActiveResource-like methods. # FIXME: currently this is meant for clients like Representers.
+  # Gives HTTP-power to representers where those can automatically serialize, send, process and deserialize HTTP-requests.
   module Representer
     module Feature
       module HttpVerbs
-        extend ActiveSupport::Concern
-        
-        included do |base|
-          base.class_attribute :resource_base
+        def self.included(base)
+          base.extend ClassMethods
         end
+        
         
         module ClassMethods
           include Client::Transport
