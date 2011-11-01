@@ -5,15 +5,36 @@ require 'test/unit'
 require 'minitest/spec'
 
 require 'roar/representer/base'
-require 'roar/model'
+require 'roar/representer/feature/hypermedia'
 require 'roar/representer/feature/http_verbs'
 
 require 'stringio'  # FIXME. remove for 3.0.4.
 require 'builder'
 
+  module TestModel
+    def self.included(base)
+      base.extend ClassMethods
+    end
+    
+    
+    module ClassMethods
+      def accessors(*names)
+        names.each do |name|
+          attr_accessor name
+        end
+      end
+    end
+    
+    attr_accessor :attributes
+    
+    def initialize(attributes={})
+      @attributes = attributes
+    end
+  end
+
 
 class Item
-  include Roar::Model
+  include TestModel
   accessors :value
   
   def self.model_name
@@ -22,7 +43,7 @@ class Item
 end
 
 class Position
-  include Roar::Model
+  include TestModel
   accessors :id, :item
   
   def self.model_name
@@ -31,7 +52,7 @@ class Position
 end
 
 class Order
-  include Roar::Model
+  include TestModel
   accessors :id, :items
   
   def self.model_name
