@@ -36,8 +36,8 @@ class ModelRepresentingTest < MiniTest::Spec
     describe "#for_model" do
       it "copies represented model attributes, nothing more" do
         @o = Position.new("id" => 1, "item" => Item.new("value" => "Beer"))
-        
         @r = PositionRepresenter.for_model(@o)
+        puts @r.inspect
         assert_kind_of PositionRepresenter, @r
         assert_equal 1, @r.id
         

@@ -1,15 +1,5 @@
 require 'test_helper'
 
-class Order
-  include Roar::Model
-  accessors :id, :item
-  
-  def self.model_name
-    :order
-  end
-end
-
-
 class ItemRepresenter
   include Roar::Representer::XML
   self.representation_name= :item
@@ -48,7 +38,7 @@ end
 
 class XMLRepresenterFunctionalTest < MiniTest::Spec
   class GreedyOrder
-    include Roar::Model
+    include TestModel
     accessors :id, :items
     
     def self.model_name
