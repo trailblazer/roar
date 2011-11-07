@@ -1,7 +1,7 @@
 require 'test_helper'
 
 class RepresenterTest < MiniTest::Spec
-  describe "Representer" do
+  describe "Representer::Base" do
     before do
       @c = Class.new do
         include Roar::Representer::Base
@@ -38,5 +38,18 @@ class RepresenterTest < MiniTest::Spec
         assert_equal @c.from_attributes(:id => 1).id, @c.from_attributes("id" => 1).id
       end
     end
+  end
+  
+  describe "Inheritance" do
+    it "properly inherits properties" do
+      base = Class.new do
+        include Roar::Representer::JSON
+        self.representation_name= "collection"
+        property :name
+      end
+      
+      assert_equal "{\"collection\":{\"name\":\"Paulo\"}}", Class.new(base).from_attributes(:name => "Paulo").to_json
+    end
+    
   end
 end
