@@ -43,6 +43,10 @@ module Roar
           end
         end
       end
+    
+    private
+      def before_serialize(*)
+      end
     end
   end
 end
