@@ -5,14 +5,14 @@ class ModelRepresentingTest < MiniTest::Spec
   describe "ModelRepresenting" do
     class ItemRepresenter
       include Roar::Representer::XML
-      include Roar::Representer::Feature::ModelRepresenting # TODO: move to abstract!
+      include Roar::Representer::Feature::ModelRepresenting
       self.representation_name= :item
       property :value
     end
     
     class PositionRepresenter
       include Roar::Representer::XML
-      include Roar::Representer::Feature::ModelRepresenting # TODO: move to abstract! 
+      include Roar::Representer::Feature::ModelRepresenting
       self.representation_name= :position
       property :id
       property :item, :as => ItemRepresenter
@@ -20,7 +20,7 @@ class ModelRepresentingTest < MiniTest::Spec
     
     class OrderRepresenter
       include Roar::Representer::XML
-      include Roar::Representer::Feature::ModelRepresenting # TODO: move to abstract!
+      include Roar::Representer::Feature::ModelRepresenting
       self.representation_name= :order
       property :id
       collection :items, :as => ItemRepresenter
@@ -37,7 +37,6 @@ class ModelRepresentingTest < MiniTest::Spec
       it "copies represented model attributes, nothing more" do
         @o = Position.new("id" => 1, "item" => Item.new("value" => "Beer"))
         @r = PositionRepresenter.for_model(@o)
-        puts @r.inspect
         assert_kind_of PositionRepresenter, @r
         assert_equal 1, @r.id
         
@@ -46,23 +45,13 @@ class ModelRepresentingTest < MiniTest::Spec
         assert_equal "Beer", @i.value
       end
       
-      it "copies the model to @represented" do
+      it "references the model in @represented" do
         @o = Position.new("id" => 1, "item" => @i = Item.new("value" => "Beer"))
         
         @r = PositionRepresenter.for_model(@o)
         assert_equal @o, @r.represented
         assert_equal @i, @r.item.represented
       end
-      
-      
-      it "works with Hyperlink attributes" do
-        @c = Class.new(ItemRepresenter) do
-          link :self do "http://self" end
-        end
-        
-        assert_equal({"value"=>"Beer", "links"=>[{"rel"=>:self, "href"=>"http://self"}]}, @c.for_model(Item.new("value" => "Beer")).to_attributes)
-      end
-      
     end
     
     describe "#serialize_model" do
@@ -109,12 +98,14 @@ class ModelRepresentingTest < MiniTest::Spec
         
         OrderRepresenter.class_eval do
           include Roar::Representer::Feature::ActiveRecordMethods
+          include Roar::Representer::Feature::Hypermedia
           link :self do
         #    "bla"
           end
         end
         ItemRepresenter.class_eval do
           include Roar::Representer::Feature::ActiveRecordMethods
+          include Roar::Representer::Feature::Hypermedia
           link :self do
             
           end
