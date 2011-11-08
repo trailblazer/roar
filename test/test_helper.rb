@@ -28,7 +28,9 @@ require 'builder'
     attr_accessor :attributes
     
     def initialize(attributes={})
-      @attributes = attributes
+      attributes.each do |k,v|
+        send("#{k}=", v)
+      end
     end
   end
 
