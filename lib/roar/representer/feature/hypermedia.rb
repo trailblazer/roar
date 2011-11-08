@@ -1,5 +1,3 @@
-require "roar/model"
-
 module Roar
   module Representer
     module Feature
