@@ -39,7 +39,7 @@ module Roar
           
           self.class.representable_attrs.each do |definition|
 
-            send(definition.setter, rep.public_send(definition.accessor))
+            send(definition.setter, rep.public_send(definition.getter))
           end # TODO: this sucks. do this with #properties and #replace_properties.
         end
         
@@ -47,7 +47,7 @@ module Roar
           rep = self.class.get(url, format) # TODO: where's the format? why do we need class here?
           
           self.class.representable_attrs.each do |definition|
-            send(definition.setter, rep.public_send(definition.accessor))
+            send(definition.setter, rep.public_send(definition.getter))
           end # TODO: this sucks. do this with #properties and #replace_properties.
         end
         

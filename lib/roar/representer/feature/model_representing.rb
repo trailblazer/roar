@@ -39,7 +39,7 @@ module Roar
         # Properties that are mapped to a model attribute.
         class ModelDefinition < ::Representable::Definition
           def compute_attribute_for(represented, attributes)
-            value = represented.send(accessor)
+            value = represented.send(getter)
                 
             if typed?
               value = apply(value) do |v|
@@ -47,7 +47,7 @@ module Roar
               end
             end
             
-            attributes[accessor] = value
+            attributes[name] = value
           end
         end
       end
@@ -59,7 +59,7 @@ module Roar
             self.class.representable_attrs.each do |definition|
               next unless definition.kind_of?(ModelRepresenting::ModelDefinition)
               
-              value = public_send(definition.accessor)
+              value = public_send(definition.getter)
               
               if definition.typed?
                 value = definition.apply(value) do |v|

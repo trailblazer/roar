@@ -31,7 +31,7 @@ module Roar
       def to_attributes
         {}.tap do |attributes|
           self.class.representable_attrs.each do |definition|
-            value = public_send(definition.accessor)
+            value = public_send(definition.getter)
             
             if definition.typed?
               value = definition.apply(value) do |v|
@@ -39,7 +39,7 @@ module Roar
               end
             end
             
-            attributes[definition.accessor] = value
+            attributes[definition.name] = value
           end
         end
       end
