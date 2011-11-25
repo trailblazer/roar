@@ -8,9 +8,8 @@ require 'roar/representer/feature/hypermedia'
 
 class RepresenterIntegrationTest < MiniTest::Spec
   module XML
-    class BandRepresenter
+    class Band
       include Roar::Representer::XML
-      self.representation_name = :band
       
       property :name
       property :label
@@ -30,9 +29,8 @@ class RepresenterIntegrationTest < MiniTest::Spec
   
   # TODO: inherit properly.
   module JSON
-    class BandRepresenter
+    class Band
       include Roar::Representer::JSON
-      self.representation_name = :band
       
       property :name
       property :label
@@ -57,7 +55,7 @@ class RepresenterIntegrationTest < MiniTest::Spec
     describe "JSON" do
       it "allows a POST workflow" do
         # create representation with initial values:
-        @r = JSON::BandRepresenter.new(:name => "Bigwig")
+        @r = JSON::Band.from_attributes(:name => "Bigwig")
         assert_equal "Bigwig", @r.name
         
         @r = @r.post("http://localhost:9999/band", "application/band+json")
@@ -72,7 +70,7 @@ class RepresenterIntegrationTest < MiniTest::Spec
       # TODO: implement me.
       it "allows an ordering workflow" do
         # create representation with initial values:
-        @o = ::JSON::Order.new(:client_id => 1)
+        @o = ::JSON::Order.from_attributes(:client_id => 1)
         assert_equal 1, @o.client_id
         
         @o.post!("http://localhost:9999/orders", "application/order+json")
@@ -84,7 +82,7 @@ class RepresenterIntegrationTest < MiniTest::Spec
         
         
         # manually POST item:
-        @i = ::JSON::Item.new(:article_id => "666-S", :amount => 1)
+        @i = ::JSON::Item.from_attributes(:article_id => "666-S", :amount => 1)
         @i.post!(@o.links[:items], "application/item+json")
         @o.get!(@o.links[:self], "application/order+json")
         
@@ -106,7 +104,7 @@ class RepresenterIntegrationTest < MiniTest::Spec
     describe "XML" do
       it "allows a POST workflow" do
         # create representation with initial values:
-        @r = XML::BandRepresenter.new(:name => "Bigwig")
+        @r = XML::Band.from_attributes(:name => "Bigwig")
         assert_equal "Bigwig", @r.name
         
         @r = @r.post("http://localhost:9999/band", "application/band+xml")

@@ -47,6 +47,19 @@ module Roar
     private
       def before_serialize(*)
       end
+      
+      # Returns block used in #from_json and #from_xml to filter incoming arguments.
+      # This method is subject to change and might be removed, soon.
+      def deserialize_block_for_options(options)
+        return unless props = options[:except] || options[:include]
+        props.collect!{ |name| name.to_s }
+        
+        lambda do |bind| 
+          res = props.include?(bind.definition.name)
+          options[:include] ? res : !res
+        end
+      end
+      
     end
   end
 end

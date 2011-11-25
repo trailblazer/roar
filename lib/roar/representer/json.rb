@@ -20,6 +20,16 @@ module Roar
           super
         end
         
+        def from_json(document, options={})
+          document ||= "{}" # DISCUSS: provide this for convenience, or better not?
+          
+          if block = deserialize_block_for_options(options) and 
+            return super(document, &block)
+          end
+          
+          super
+        end
+        
         # Generic entry-point for rendering.
         def serialize(*args)
           to_json(*args)

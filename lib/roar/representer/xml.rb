@@ -2,13 +2,8 @@ require 'roar/representer/base'
 require 'representable/xml'
 
 module Roar
-  # Basic work-flow
-  # in:   * representer parses representation
-  #       * recognized elements are stored as representer attributes
-  # out:  * attributes in representer are assigned - either as hash in #to_xml, by calling #serialize(represented),
-  #         by calling representer's accessors (eg in client?) or whatever else
-  #       * representation is compiled from representer only
-  # TODO: make XML a module to include in Hyperlink < Base.
+  # Includes #from_xml and #to_xml into your represented object.
+  # In addition to that, some more options are available when declaring properties.
   module Representer
     module XML
       def self.included(base)
@@ -22,6 +17,14 @@ module Roar
       end
       
       module InstanceMethods
+        def from_xml(document, options={})
+          if block = deserialize_block_for_options(options)
+            return super(document, &block)
+          end
+          
+          super
+        end
+        
         def to_xml(*args)
           before_serialize(*args)
           super.serialize
@@ -50,6 +53,7 @@ module Roar
             
       # Encapsulates a hypermedia <link ...>.
       class Hyperlink
+        # TODO: make XML a module to include in Hyperlink < Base.
         include XML
         
         self.representation_name = :link

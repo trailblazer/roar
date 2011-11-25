@@ -84,11 +84,28 @@ class XMLRepresenterFunctionalTest < MiniTest::Spec
     end
     
     describe "#from_xml" do
+      class Order
+        include Roar::Representer::XML
+        property :id
+        property :pending
+      end
+    
       it "is aliased to #deserialize" do
         assert_equal TestXmlRepresenter.from_xml("<order/>").to_attributes, TestXmlRepresenter.deserialize("<order/>").to_attributes
       end
+      
+      it "accepts :except option" do
+        order = Order.from_xml(%{<order><id>1</id><pending>1</pending></order>}, :except => [:id])
+        assert_equal nil, order.id
+        assert_equal "1", order.pending
+      end
+      
+      it "accepts :include option" do
+        order = Order.from_xml(%{<order><id>1</id><pending>1</pending></order>}, :include => [:id])
+        assert_equal "1", order.id
+        assert_equal nil, order.pending
+      end
     end
-    
     
     
     describe "without options" do

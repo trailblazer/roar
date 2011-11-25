@@ -3,38 +3,49 @@ require 'test_helper'
 require "test_xml/mini_test"
 require "roar/representer/json"
 
-class JsonRepresenterFunctionalTest < MiniTest::Spec
-  class OrderRepresenter
+class JsonRepresenterTest < MiniTest::Spec
+  class Order
     include Roar::Representer::JSON
-    self.representation_name= :order
     property :id
+    property :pending
   end
   
   
   describe "JsonRepresenter" do
     before do
-      @r = OrderRepresenter.new
+      @r = Order.new
     end
     
     describe "#to_json" do
       it "#serialize returns the serialized model" do
         @r.id = 1
-        assert_equal '{"order":{"id":1}}', @r.serialize
+        assert_equal '{"order":{"id":1}}', @r.to_json
       end
-      
-      
-      it ".from_xml returns the deserialized model" do
-        @m = OrderRepresenter.deserialize('{"order": {"id":1}}')
+    end
+    
+    describe ".from_json" do
+      it "returns the deserialized model" do
+        @m = Order.from_json('{"order": {"id":1}}')
         assert_equal 1, @m.id
       end
       
-      it ".from_xml still works with nil" do
-        assert OrderRepresenter.deserialize(nil)
+      it "accepts :except option" do
+        order = Order.from_json({order: {id: 1, pending: 1}}.to_json, :except => [:id])
+        assert_equal nil, order.id
+        assert_equal 1, order.pending
       end
       
+      it "accepts :include option" do
+        order = Order.from_json({order: {id: 1, pending: 1}}.to_json, :include => [:id])
+        assert_equal 1, order.id
+        assert_equal nil, order.pending
+      end
+      
+      it "works with a nil document" do
+        assert Order.from_json(nil)
+      end
     end
   end
-  
 end
 
 class JsonHyperlinkRepresenterTest

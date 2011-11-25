@@ -3,6 +3,8 @@ h1. ROAR
 _Streamlines the development of RESTful, Resource-Oriented Architectures in Ruby._
 
 
+Lets make documents suit our models and not models fit to documents
+
 h2. Introduction
 
 Roar is a framework for developing distributed applications while using hypermedia as key for application workflow.
