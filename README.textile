@@ -1,28 +1,27 @@
 h1. ROAR
 
-_Streamlines the development of RESTful, Resource-Oriented Architectures in Ruby._
+_Resource-Oriented Architectures in Ruby._
 
 
 Lets make documents suit our models and not models fit to documents
 
 h2. Introduction
 
-Roar is a framework for developing distributed applications while using hypermedia as key for application workflow.
+REST is about representations. Representations are documents. Documents are pushed back and forth between clients and REST services. Roar focuses on providing object-oriented representations.
 
-REST is an architectural style for distributed systems. However, many implementations forget about the _distributed_ part of REST and simply map CRUD operations to HTTP verbs in a monolithic application.
+Most REST gems provide a neat HTTP interface, automatic parsing of documents and a more or less convenient way for rendering representations. Roar is different. The central concept of Roar are *representers* - object-oriented documents suitable for parsing _and_ rendering, extendable at runtime and with hypermedia support. The Representer concept is the answer to the missing REST abstraction layer in most frameworks.
 
 
 h2. Features
 
-* Roar worries about incoming and outgoing *representation documents*.
-* Representers let you declaratively *define your representations*.
-* Representations now are *OOP instances* with accessors, methods and behaviour.
-* Both *rendering and parsing* representations is handled by representers which keeps knowledge in one place.
-* Features as *hypermedia* support and *HTTP* methods can be mixed in dynamically.
-* Representers are packagable in gems for *distribution to services and clients*.
-* *Framework agnostic*, runs with Sinatra, Rails & Co.
-* Extra support for *Rails*.
-* Makes *testing distributed REST systems* as easy as possible.
+* OOP access to documents.
+* Parsing _and_ rendering of representations in one place.
+* Declaratively define document syntax and semantics.
+* Hypermedia support.
+* ActiveResource-like client support.
+* Useable in both client _and_ server.
+* Framework agnostic, runs with sinatra, Rails, webmachine and friends.
+
 
 h2. Example
 
@@ -64,17 +63,16 @@ h2. Representers
 
 To render a representational document, the backend service has to define a representer.
 
-<pre>module JSON
-  class Article
-    include Roar::Representer::JSON
-    
-    property :title
-    property :id
-    
-    link :self do
-      article_url(represented)
-    end 
-  end
+<pre>
+class Article
+  include Roar::Representer::JSON
+  
+  property :title
+  property :id
+  
+  link :self do
+    article_url(represented)
+  end 
 end
 </pre>
 
@@ -85,18 +83,10 @@ h3. Rendering Representations in the Service
 
 In order to *render* an actual document, the backend service would have to do a few steps: creating a representer, filling in data, and then serialize it.
 
-<pre>JSON::Article.new(
-  :title  => "Lonestar",
-  :id     => 666).
-  serialize # => "{\"article\":{\"id\":666, ...
-</pre>
-
-Using the @ModelRepresenting@ feature module we can take a shortcut.
-
-<pre>@beer = Article.find_by_title("Lonestar")
-
-JSON::Article.from_model(@beer).
-  serialize # => "{\"article\":{\"id\":666, ...
+<pre>Article.new(
+  title: "Lonestar",
+  id:    666).
+  to_json # => "{\"article\":{\"id\":666, ...
 </pre>
 
 Articles itself are useless, so they may be placed into orders. This is the next example.
@@ -128,23 +118,22 @@ What if we wanted to check an existing order? We'd @GET http://orders/1@, right?
 
 Since orders may contain a composition of articles, how would the order service define its representer?
 
-<pre>module JSON
-  class Order 
-    include Roar::Representer::JSON
-    
-    property :id
-    property :client_id
-    
-    collection :articles, :as => Article
-    
-    link :self do
-      order_url(represented)
-    end
-    
-    link :items do
-      items_url
-    end 
+<pre>
+class Order 
+  include Roar::Representer::JSON
+  
+  property :id
+  property :client_id
+  
+  collection :articles, :as => Article
+  
+  link :self do
+    order_url(represented)
   end
+  
+  link :items do
+    items_url
+  end 
 end
 </pre>
 
@@ -159,21 +148,11 @@ If we were to implement an endpoint for creating new orders, we'd allow POST to 
 
 <pre>
   post "/orders" do
-    incoming = JSON::Order.deserialize(request.body.string)
+    incoming = Order.deserialize(request.body.string)
     puts incoming.to_attributes #=> {:client_id => 815}
 </pre>
  
-Again, the @ModelRepresenting@ module comes in handy for creating a new database record.
-
-<pre>
-  post "/orders" do
-    # ...
-    @order = Order.create(incoming.to_nested_attributes)
-    
-    JSON::Order.for_model(@order).serialize
-</pre>
-
-Look how the @#to_nested_attributes@ method helps extracting data from the incoming document and, again, @#serialize@ returns the freshly created order's representation. Roar's representers are truely working in both directions, rendering and parsing and thus prevent you from redundant knowledge sharing.
+Look how the @#to_attributes@ method helps extracting data from the incoming document and, again, @#to_json@ returns the freshly created order's representation. Roar's representers are truely working in both directions, rendering and parsing and thus prevent you from redundant knowledge sharing.
 
 
 h2. Representers in the Client
@@ -189,7 +168,7 @@ To create a new order, the frontend needs to POST to the REST backend. Here's ho
 
 
 <pre>
-  order = JSON::Order.new(:client_id => current_user.id)
+  order = Order.new(:client_id => current_user.id)
   order.post!("http://orders/")
 </pre>
 
@@ -239,7 +218,7 @@ h3. Using Hypermedia
 Let the frontend add the delicious "Lonestar" beer to our order, now!
 
 <pre>
-beer = JSON::Article.new(:title => "Lonestar Beer")
+beer = Article.new(:title => "Lonestar Beer")
 beer.post(order.links[:items])
 </pre>
 
@@ -280,7 +259,7 @@ What if the ordering API is going a different way? What if we had to place artic
 Here's what could happen in the frontend.
 
 <pre>
-beer = JSON::Article.new(:title => "Lonestar Beer")
+beer = Article.new(:title => "Lonestar Beer")
 order.items << beer
 order.post!(order.links[:self])
 </pre>
