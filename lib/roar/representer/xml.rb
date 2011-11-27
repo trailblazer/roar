@@ -41,7 +41,7 @@ module Roar
         include Representable::XML::ClassMethods
         
         def links_definition_options
-          {:from => :link, :as => [Hyperlink]}
+          {:from => :link, :as => Hyperlink, :collection => true}
         end
         
         # Generic entry-point for parsing.
