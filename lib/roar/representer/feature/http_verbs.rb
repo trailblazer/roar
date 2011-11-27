@@ -1,4 +1,4 @@
-require 'roar/client/transport'
+require 'roar/representer/feature/transport'
 
 module Roar
   # Gives HTTP-power to representers where those can automatically serialize, send, process and deserialize HTTP-requests.
@@ -11,7 +11,7 @@ module Roar
         
         
         module ClassMethods
-          include Client::Transport
+          include Transport
           
           def get(url, format)  # TODO: test me!
             #url = resource_base + variable_path.to_s
