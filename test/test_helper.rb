@@ -8,9 +8,6 @@ require 'roar/representer/base'
 require 'roar/representer/feature/hypermedia'
 require 'roar/representer/feature/http_verbs'
 
-require 'stringio'  # FIXME. remove for 3.0.4.
-require 'builder'
-
   module TestModel
     def self.included(base)
       base.extend ClassMethods
