@@ -2,8 +2,8 @@ h1. ROAR
 
 _Resource-Oriented Architectures in Ruby._
 
+"Lets make documents suit our models and not models fit to documents."
 
-Lets make documents suit our models and not models fit to documents
 
 h2. Introduction
 
