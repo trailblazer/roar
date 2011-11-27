@@ -15,7 +15,7 @@ module Roar
       end
       
       module InstanceMethods
-        def to_json(*args)
+        def to_hash(*args)
           before_serialize(*args)
           super
         end

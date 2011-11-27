@@ -39,8 +39,25 @@ class HypermediaTest
                           </bookmarks>', 
           @bookmarks_with_links.from_attributes(:id => 1).to_xml(:links => false)
       end
-      
     end
+    
+    describe "#to_json" do
+      it "sets up links even when nested" do
+        class Note
+          include Roar::Representer::JSON
+          include Roar::Representer::Feature::Hypermedia
+          link(:self) { "http://me" }
+        end
+        
+        class Page
+          include Roar::Representer::JSON
+          property :note, :as => Note
+        end
+        
+        assert_equal "{\"page\":{\"note\":{\"links\":[{\"rel\":\"self\",\"href\":\"http://me\"}]}}}", Page.from_attributes(note: Note.new).to_json
+      end
+    end
+    
     
     
     describe "#from_xml" do
