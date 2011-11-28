@@ -1,5 +1,6 @@
 require 'test_helper'
 require 'roar/representer/feature/hypermedia'
+require 'roar/representer/json'
 
 class HypermediaTest
   describe "Hypermedia Feature" do
@@ -42,13 +43,18 @@ class HypermediaTest
     end
     
     describe "#to_json" do
-      it "sets up links even when nested" do
-        class Note
-          include Roar::Representer::JSON
-          include Roar::Representer::Feature::Hypermedia
-          link(:self) { "http://me" }
-        end
+      class Note
+        include Roar::Representer::JSON
+        include Roar::Representer::Feature::Hypermedia
+        link(:self) { "http://me" }
+      end
         
+      it "works twice" do
+        note = Note.new
+        assert_equal note.to_json, note.to_json
+      end
+      
+      it "sets up links even when nested" do
         class Page
           include Roar::Representer::JSON
           property :note, :as => Note
@@ -147,3 +153,19 @@ class LinksDefinitionTest < MiniTest::Spec
     
   end
 end
+
+class LinkCollectionTest < MiniTest::Spec
+  describe "LinkCollection" do
+    it "provides #update_link" do
+      collection  = Roar::Representer::Feature::Hypermedia::LinkCollection.new
+      link        = Roar::Representer::XML::Hyperlink.from_attributes(rel: "self", href: "http://self")
+      
+      collection.update_link(link)
+      assert_equal 1, collection.size
+      
+      collection.update_link(link)
+      assert_equal 1, collection.size
+    end
+  end
+end
+

@@ -34,11 +34,14 @@ module Roar
       protected
         # Setup hypermedia links by invoking their blocks. Usually called by #serialize.
         def prepare_links!
-          links_def = self.class.find_links_definition or return
+          links_def       = self.class.find_links_definition or return
+          hyperlink_class = links_def.sought_type
+          
           links_def.rel2block.each do |link|
-            links << links_def.sought_type.from_attributes({  # create Hyperlink representer.
-            "rel"   => link[:rel],
-            "href"  => run_link_block(link[:block])})
+            links.update_link(hyperlink_class.from_attributes( # create Hyperlink representer.
+              :rel  => link[:rel],
+              :href => run_link_block(link[:block]))
+            )
           end
         end
         
@@ -50,6 +53,15 @@ module Roar
         class LinkCollection < Array
           def [](rel)
             link = find { |l| l.rel.to_s == rel.to_s } and return link.href
+          end
+          
+          # Checks if the link is already contained by querying for its +rel+.
+          # If so, it gets replaced. Otherwise, the new link gets appended.
+          def update_link(link)
+            if i = find_index { |l| l.rel.to_s == link.rel.to_s }
+              return self[i] = link
+            end
+            self << link
           end
         end
         
