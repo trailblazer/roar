@@ -67,7 +67,16 @@ module Roar
         
         
         module ClassMethods
-          # Defines a hypermedia link to be embedded in the document.
+          # Declares a hypermedia link in the document.
+          #
+          # Example:
+          #
+          #   link :self do
+          #     "http://orders/#{id}"
+          #   end
+          #
+          # The block is executed in instance context, so you may call properties or other accessors.
+          # Note that you're free to put decider logic into #link blocks, too.
           def link(rel, &block)
             unless links = find_links_definition
               links = LinksDefinition.new(:links, links_definition_options)
@@ -78,7 +87,7 @@ module Roar
           end
           
           def find_links_definition
-            representable_attrs.find do |d| d.is_a?(LinksDefinition) end
+            representable_attrs.find { |d| d.is_a?(LinksDefinition) }
           end
         end
         
