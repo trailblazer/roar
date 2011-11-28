@@ -1,122 +1,85 @@
 require 'test_helper'
-
-require 'roar/representer/xml'
 require 'roar/representer/json'
-
-require 'roar/representer/feature/http_verbs'
 require 'roar/representer/feature/hypermedia'
 
-class RepresenterIntegrationTest < MiniTest::Spec
-  module XML
-    class Band
-      include Roar::Representer::XML
-      
-      property :name
-      property :label
-      
-      include Roar::Representer::Feature::HttpVerbs
-      
-      
-      link :search do
-        search_url
-      end
-      
-      link :self do
-        order_url(represented)
-      end
+class IntegrationTest < MiniTest::Spec
+  class Beer
+    include Roar::Representer::JSON
+    include Roar::Representer::Feature::Hypermedia
+    
+    property :name
+    
+    link :self do
+      "http://beers/#{name.downcase}"
     end
   end
   
-  # TODO: inherit properly.
-  module JSON
-    class Band
-      include Roar::Representer::JSON
-      
-      property :name
-      property :label
-      
-      include Roar::Representer::Feature::HttpVerbs
-      include Roar::Representer::Feature::Hypermedia
-      
-      
-      link :search do
-        search_url
-      end
-      
-      link :self do
-        order_url(represented)
-      end
-    end
+  class Beers
+    include Roar::Representer::JSON
+    include Roar::Representer::Feature::Hypermedia
+    
+    collection :items, :as => Beer
   end
   
-  
-  require 'order_representers'
-  describe "Representer as client" do
-    describe "JSON" do
-      it "allows a POST workflow" do
-        # create representation with initial values:
-        @r = JSON::Band.from_attributes(:name => "Bigwig")
-        assert_equal "Bigwig", @r.name
-        
-        @r = @r.post("http://localhost:9999/band", "application/band+json")
-        assert_equal "n/a", @r.label
-        
-        # check HATEOAS:
-        #@r.extend Roar::Representer::Feature::Hypermedia
-        assert_equal "http://search",         @r.links[:search]
-        assert_equal "http://band/strungout", @r.links[:self]
+  describe "Beer service" do
+    it "provides a document for a particular beer" do
+      assert_equal "{\"beer\":{\"name\":\"Eisenbahn\",\"links\":[{\"rel\":\"self\",\"href\":\"http://beers/eisenbahn\"}]}}", Beer.from_attributes(name: "Eisenbahn").to_json
+    end
+    
+    it "provides a detailed beers list" do
+      beers = ["Jever", "Becks", "Eisenbahn", "Colorado"].collect do |name|
+        Beer.from_attributes(name: name)
       end
       
-      # TODO: implement me.
-      it "allows an ordering workflow" do
-        # create representation with initial values:
-        @o = ::JSON::Order.from_attributes(:client_id => 1)
-        assert_equal 1, @o.client_id
-        
-        @o.post!("http://localhost:9999/orders", "application/order+json")
-        # check HATEOAS:
-        #@r.extend Roar::Representer::Feature::Hypermedia
-        
-        assert_equal "http://localhost:9999/orders/1/items",     @o.links[:items]
-        assert_equal "http://localhost:9999/orders/1",           @o.links[:self]
-        
-        
-        # manually POST item:
-        @i = ::JSON::Item.from_attributes(:article_id => "666-S", :amount => 1)
-        @i.post!(@o.links[:items], "application/item+json")
-        @o.get!(@o.links[:self], "application/order+json")
-        
-        # check if item is included in order:
-        assert_equal 1, @o.items.size
-        assert_equal @i.to_attributes, @o.items.first.to_attributes
-        
-        
-        ###@@o.delete!(@o.links[:self])
-        
-        # use the DSL to add items:
-        #@o.links[:items].post(:article_id => "666-S", :amount => 1)
-        
-        #@o.items.post(:article_id => "666-S", :amount => 1)
-        
-      end
+      
+      list = Beers.new
+      list.items = beers
+      
+      assert_equal "{\"beers\":{\"items\":[{\"name\":\"Jever\",\"links\":[{\"rel\":\"self\",\"href\":\"http://beers/jever\"}]},{\"name\":\"Becks\",\"links\":[{\"rel\":\"self\",\"href\":\"http://beers/becks\"}]},{\"name\":\"Eisenbahn\",\"links\":[{\"rel\":\"self\",\"href\":\"http://beers/eisenbahn\"}]},{\"name\":\"Colorado\",\"links\":[{\"rel\":\"self\",\"href\":\"http://beers/colorado\"}]}]}}", list.to_json
     end
     
-    describe "XML" do
-      it "allows a POST workflow" do
-        # create representation with initial values:
-        @r = XML::Band.from_attributes(:name => "Bigwig")
-        assert_equal "Bigwig", @r.name
+    it "provides a pageable beers list without details" do
+      class BeerCollection
+        include Roar::Representer::JSON
+        include Roar::Representer::Feature::Hypermedia
         
-        @r = @r.post("http://localhost:9999/band", "application/band+xml")
-        assert_equal "n/a", @r.label
+        attr_accessor :per_page, :current_page, :all_items
         
-        # check HATEOAS:
-        #@r.extend Roar::Representer::Feature::Hypermedia
-        assert_equal "http://search",         @r.links[:search]
-        assert_equal "http://band/strungout", @r.links[:self]
+        collection :beers, :as => Beer
+        property :total
+        
+        def total
+          all_items.size
+        end
+        
+        def beers
+          all_items[(current_page-1)*per_page..current_page*per_page-1]
+        end
+        
+        link :next do
+          "http://beers/all?page=#{current_page+1}" if current_page < total / per_page
+        end
+        
+        link :prev do
+          "http://beers/all?page=#{current_page-1}" if current_page > 1
+        end
       end
+  
+      beers = ["Jever", "Becks", "Eisenbahn", "Colorado"].collect do |name|
+        Beer.from_attributes(name: name)
+      end
+      
+      
+      list = BeerCollection.new
+      list.all_items    = beers # this would be a AR collection from a #find.
+      list.current_page = 1
+      list.per_page     = 2
+      
+      assert_equal "{\"beer_collection\":{\"beers\":[{\"name\":\"Jever\",\"links\":[{\"rel\":\"self\",\"href\":\"http://beers/jever\"}]},{\"name\":\"Becks\",\"links\":[{\"rel\":\"self\",\"href\":\"http://beers/becks\"}]}],\"total\":4,\"links\":[{\"rel\":\"next\",\"href\":\"http://beers/all?page=2\"},{\"rel\":\"prev\"}]}}", list.to_json
+      
+      
+      list.current_page = 2
+      assert_equal "{\"beer_collection\":{\"beers\":[{\"name\":\"Eisenbahn\",\"links\":[{\"rel\":\"self\",\"href\":\"http://beers/eisenbahn\"}]},{\"name\":\"Colorado\",\"links\":[{\"rel\":\"self\",\"href\":\"http://beers/colorado\"}]}],\"total\":4,\"links\":[{\"rel\":\"next\"},{\"rel\":\"prev\",\"href\":\"http://beers/all?page=1\"}]}}", list.to_json
     end
-    
-    
   end
 end
