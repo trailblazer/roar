@@ -9,7 +9,7 @@ class HypermediaTest
         include Roar::Representer::XML
         include Roar::Representer::Feature::Hypermedia
         
-        self.representation_name = "bookmarks"
+        self.representation_wrap = "bookmarks"
       end
       
       @bookmarks_with_links = Class.new(@bookmarks)
@@ -60,7 +60,7 @@ class HypermediaTest
           property :note, :as => Note
         end
         
-        assert_equal "{\"page\":{\"note\":{\"links\":[{\"rel\":\"self\",\"href\":\"http://me\"}]}}}", Page.from_attributes(note: Note.new).to_json
+        assert_equal "{\"note\":{\"links\":[{\"rel\":\"self\",\"href\":\"http://me\"}]}}", Page.from_attributes(note: Note.new).to_json
       end
     end
     

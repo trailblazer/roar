@@ -44,11 +44,10 @@ class RepresenterTest < MiniTest::Spec
     it "properly inherits properties" do
       base = Class.new do
         include Roar::Representer::JSON
-        self.representation_name= "collection"
         property :name
       end
       
-      assert_equal "{\"collection\":{\"name\":\"Paulo\"}}", Class.new(base).from_attributes(:name => "Paulo").to_json
+      assert_equal "{\"name\":\"Paulo\"}", Class.new(base).from_attributes(:name => "Paulo").to_json
     end
     
   end

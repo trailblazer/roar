@@ -27,7 +27,7 @@ module Roar
         
         def to_xml(*args)
           before_serialize(*args)
-          super.serialize
+          super
         end
         
         # Generic entry-point for rendering.
@@ -56,7 +56,7 @@ module Roar
         # TODO: make XML a module to include in Hyperlink < Base.
         include XML
         
-        self.representation_name = :link
+        self.representation_wrap = :link
         
         property :rel,  :from => "@rel"
         property :href, :from => "@href"

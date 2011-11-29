@@ -52,7 +52,6 @@ module Roar
       # Encapsulates a hypermedia link.
       class Hyperlink
         include JSON
-        self.representation_name = :link
         
         property :rel
         property :href

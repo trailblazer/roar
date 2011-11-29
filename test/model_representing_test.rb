@@ -6,14 +6,14 @@ class ModelRepresentingTest < MiniTest::Spec
     class ItemRepresenter
       include Roar::Representer::XML
       include Roar::Representer::Feature::ModelRepresenting
-      self.representation_name= :item
+      self.representation_wrap= :item
       property :value
     end
     
     class PositionRepresenter
       include Roar::Representer::XML
       include Roar::Representer::Feature::ModelRepresenting
-      self.representation_name= :position
+      self.representation_wrap= :position
       property :id
       property :item, :as => ItemRepresenter
     end
@@ -21,7 +21,7 @@ class ModelRepresentingTest < MiniTest::Spec
     class OrderRepresenter
       include Roar::Representer::XML
       include Roar::Representer::Feature::ModelRepresenting
-      self.representation_name= :order
+      self.representation_wrap= :order
       property :id
       collection :items, :as => ItemRepresenter
     end
