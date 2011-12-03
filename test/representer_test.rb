@@ -41,13 +41,18 @@ class RepresenterTest < MiniTest::Spec
   end
   
   describe "Inheritance" do
-    it "properly inherits properties" do
-      base = Class.new do
+    it "properly inherits properties from modules" do
+      module PersonRepresentation
         include Roar::Representer::JSON
         property :name
       end
       
-      assert_equal "{\"name\":\"Paulo\"}", Class.new(base).from_attributes(:name => "Paulo").to_json
+      class Person
+        include Roar::Representer::JSON
+        include PersonRepresentation
+      end
+      
+      assert_equal "{\"name\":\"Paulo\"}", Person.from_attributes(:name => "Paulo").to_json
     end
     
   end

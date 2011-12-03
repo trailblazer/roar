@@ -14,6 +14,8 @@ class HypermediaTest
       
       @bookmarks_with_links = Class.new(@bookmarks)
       @bookmarks_with_links.class_eval do
+        self.representation_wrap = "bookmarks"
+        
         property :id
         link :self do "http://bookmarks" end
         link :all do "http://bookmarks/all" end

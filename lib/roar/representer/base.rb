@@ -52,10 +52,9 @@ module Roar
       # This method is subject to change and might be removed, soon.
       def deserialize_block_for_options(options)
         return unless props = options[:except] || options[:include]
-        props.collect!{ |name| name.to_s }
         
-        lambda do |bind| 
-          res = props.include?(bind.definition.name)
+        lambda do |name| 
+          res = props.include?(name)
           options[:include] ? res : !res
         end
       end
