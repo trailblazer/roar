@@ -34,7 +34,7 @@ module Roar
       protected
         # Setup hypermedia links by invoking their blocks. Usually called by #serialize.
         def prepare_links!
-          links_def       = self.class.find_links_definition or return
+          links_def       = find_links_definition or return
           hyperlink_class = links_def.sought_type
           
           links_def.rel2block.each do |link|
@@ -47,6 +47,10 @@ module Roar
         
         def run_link_block(block)
           instance_exec(&block)
+        end
+        
+        def find_links_definition
+          representable_attrs.find { |d| d.is_a?(LinksDefinition) }
         end
         
         
