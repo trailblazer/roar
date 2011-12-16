@@ -17,14 +17,6 @@ module Roar
       end
       
       module InstanceMethods
-        def from_xml(document, options={})
-          if block = deserialize_block_for_options(options)
-            return super(document, &block)
-          end
-          
-          super
-        end
-        
         def to_xml(*args)
           before_serialize(*args)
           super

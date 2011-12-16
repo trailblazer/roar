@@ -7,11 +7,6 @@ module Roar
         base.class_eval do
           include Representable
           extend ClassMethods
-          
-          class << self
-            alias_method :property, :representable_property
-            alias_method :collection, :representable_collection
-          end
         end
       end
       
@@ -47,18 +42,6 @@ module Roar
     private
       def before_serialize(*)
       end
-      
-      # Returns block used in #from_json and #from_xml to filter incoming arguments.
-      # This method is subject to change and might be removed, soon.
-      def deserialize_block_for_options(options)
-        return unless props = options[:except] || options[:include]
-        
-        lambda do |name| 
-          res = props.include?(name)
-          options[:include] ? res : !res
-        end
-      end
-      
     end
   end
 end
