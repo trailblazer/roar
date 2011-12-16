@@ -29,18 +29,6 @@ class JsonRepresenterTest < MiniTest::Spec
         assert_equal 1, @m.id
       end
       
-      it "accepts :except option" do
-        order = Order.from_json({id: 1, pending: 1}.to_json, :except => [:id])
-        assert_equal nil, order.id
-        assert_equal 1, order.pending
-      end
-      
-      it "accepts :include option" do
-        order = Order.from_json({id: 1, pending: 1}.to_json, :include => [:id])
-        assert_equal 1, order.id
-        assert_equal nil, order.pending
-      end
-      
       it "works with a nil document" do
         assert Order.from_json(nil)
       end
