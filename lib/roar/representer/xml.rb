@@ -1,4 +1,4 @@
-require 'roar/representer/base'
+require 'roar/representer'
 require 'representable/xml'
 
 module Roar
@@ -8,7 +8,7 @@ module Roar
     module XML
       def self.included(base)
         base.class_eval do
-          include Base
+          include Representer
           include Representable::XML
 
           extend ClassMethods

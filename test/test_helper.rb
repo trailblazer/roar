@@ -4,7 +4,7 @@ Bundler.setup
 require 'test/unit'
 require 'minitest/spec'
 
-require 'roar/representer/base'
+require 'roar/representer'
 require 'roar/representer/feature/hypermedia'
 require 'roar/representer/feature/http_verbs'
 

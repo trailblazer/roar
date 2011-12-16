@@ -1,10 +1,10 @@
 require 'test_helper'
 
 class RepresenterTest < MiniTest::Spec
-  describe "Representer::Base" do
+  describe "Representer" do
     before do
       @c = Class.new do
-        include Roar::Representer::Base
+        include Roar::Representer
       end
     end
     
