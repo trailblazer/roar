@@ -192,8 +192,8 @@ class XmlHyperlinkRepresenterTest < MiniTest::Spec
       @l = Roar::Representer::XML::Hyperlink.from_xml(%{<link rel="self" href="http://roar.apotomo.de"/>})
     end
     
-    it "responds to #representation_name" do
-      assert_equal :link, @l.class.representation_wrap
+    it "responds to #to_xml" do
+      assert_xml_equal %{<link rel=\"self\" href=\"http://roar.apotomo.de\"/>}, @l.to_xml
     end
     
     
