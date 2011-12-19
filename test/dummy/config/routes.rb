@@ -3,5 +3,5 @@ Dummy::Application.routes.draw do
   root :to => 'musician#index'
   resources :albums
   resources :songs
-  get "articles/starts_with/{query}", :to => "albums#search",:as => :album_search
+  get "articles/starts_with/{query}", :to => "albums#search",:class => :album_search
 end

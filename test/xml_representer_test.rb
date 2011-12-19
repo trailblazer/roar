@@ -10,7 +10,7 @@ class PositionRepresenter
   include Roar::Representer::XML
   self.representation_wrap= :position
   property :id
-  property :item, :as => ItemRepresenter
+  property :item, :class => ItemRepresenter
 end
 
 
@@ -170,7 +170,7 @@ class XMLRepresenterFunctionalTest < MiniTest::Spec
           
           self.representation_wrap= :order
           property :id
-          collection :items, :as => ItemRepresenter, :from => :item
+          collection :items, :class => ItemRepresenter, :from => :item
         end
         
         @r = @c.from_attributes("id" => 1)

@@ -18,7 +18,7 @@ module JSON
   class Order
     include Roar::Representer::JSON
     property :client_id
-    collection :items, :as => Item
+    collection :items, :class => Item
     
     
     include Roar::Representer::Feature::HttpVerbs

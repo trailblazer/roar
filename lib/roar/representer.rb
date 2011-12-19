@@ -12,6 +12,7 @@ module Roar
       
     module ClassMethods
       # Creates a representer instance and fills it with +attributes+.
+      # DISCUSS: remove.
       def from_attributes(attributes) # DISCUSS: better move to #new? how do we handle the original #new then?
         new.tap do |representer|
           yield representer if block_given?

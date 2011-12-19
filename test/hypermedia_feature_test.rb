@@ -59,7 +59,7 @@ class HypermediaTest
       it "sets up links even when nested" do
         class Page
           include Roar::Representer::JSON
-          property :note, :as => Note
+          property :note, :class => Note
         end
         
         assert_equal "{\"note\":{\"links\":[{\"rel\":\"self\",\"href\":\"http://me\"}]}}", Page.from_attributes(note: Note.new).to_json

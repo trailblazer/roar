@@ -15,7 +15,7 @@ class ModelRepresentingTest < MiniTest::Spec
       include Roar::Representer::Feature::ModelRepresenting
       self.representation_wrap= :position
       property :id
-      property :item, :as => ItemRepresenter
+      property :item, :class => ItemRepresenter
     end
     
     class OrderRepresenter
@@ -23,7 +23,7 @@ class ModelRepresentingTest < MiniTest::Spec
       include Roar::Representer::Feature::ModelRepresenting
       self.representation_wrap= :order
       property :id
-      collection :items, :as => ItemRepresenter
+      collection :items, :class => ItemRepresenter
     end
     
     describe "#definition_class" do

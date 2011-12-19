@@ -18,7 +18,7 @@ class IntegrationTest < MiniTest::Spec
     include Roar::Representer::JSON
     include Roar::Representer::Feature::Hypermedia
     
-    collection :items, :as => Beer
+    collection :items, :class => Beer
   end
   
   describe "Beer service" do
@@ -45,7 +45,7 @@ class IntegrationTest < MiniTest::Spec
         
         attr_accessor :per_page, :current_page, :all_items
         
-        collection :beers, :as => Beer
+        collection :beers, :class => Beer
         property :total
         
         def total

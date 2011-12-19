@@ -44,7 +44,7 @@ module Roar
         
         # TODO: move to instance method, or remove?
         def links_definition_options
-          {:as => Hyperlink , :collection => true}
+          {:class => Hyperlink , :collection => true}
         end
       end
       
