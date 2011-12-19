@@ -24,7 +24,7 @@ class FakeServer < Sinatra::Base
   #  "<method>patch</method>"
   #end
   
-  post "/band" do
+  post "/bands" do
     if request.content_type =~ /xml/
       %{<band><label>n/a</label><name>Strung Out</name>
         <link href="http://search" rel="search" />
@@ -35,10 +35,13 @@ class FakeServer < Sinatra::Base
     end
   end
   
-  put "/band/strungout" do
+  put "/bands/strungout" do
     %{<band><label>Fat Wreck</label><name>Strung Out</name></band>}
   end
   
+  get "/bands/slayer" do
+    %{<band><label>Canadian Maple</label><name>Slayer</name></band>}
+  end
   
   
   require Dir.pwd + '/order_representers'

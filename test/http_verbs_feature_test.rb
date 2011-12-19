@@ -13,34 +13,37 @@ class HttpVerbsTest < MiniTest::Spec
   
   describe "HttpVerbs" do
     before do
-      @r = Band.new
+      @band = Band.new
     end
     
-    # TODO: assert that Restfulie#post receives the correct document.
-    
-    it "#post deserializes the incoming representation and returns it" do
-      @r.name = "Strung Out"
-      rep = @r.post("http://localhost:9999/band", "application/xml")
-      assert_equal "Strung Out", rep.name
-      assert_equal "n/a", rep.label
+    describe "#get" do
+      it "updates instance with incoming representation" do
+        @band.name = "Strung Out"
+        @band.get("http://localhost:9999/bands/slayer", "application/xml")
+        assert_equal "Slayer", @band.name
+        assert_equal "Canadian Maple", @band.label
+      end
     end
     
-    it "#post! deserializes the incoming representation and replaces attributes" do
-      @r.name = "Strung Out"
-      assert_equal nil, @r.label
-      @r.post!("http://localhost:9999/band", "application/xml")
-      assert_equal "Strung Out", @r.name
-      assert_equal "n/a", @r.label
+    describe "#post" do
+      it "updates instance with incoming representation" do
+        @band.name = "Strung Out"
+        assert_equal nil, @band.label
+        
+        @band.post("http://localhost:9999/bands", "application/xml")
+        assert_equal "Strung Out", @band.name
+        assert_equal "n/a", @band.label
+      end
     end
     
-    
-    
-    it "#put deserializes the incoming representation and returns it" do
-      @r.name   = "Strung Out"
-      @r.label  = "Fat Wreck"
-      rep = @r.put("http://localhost:9999/band/strungout", "application/xml")
-      assert_equal "Strung Out", rep.name
-      assert_equal "Fat Wreck", rep.label
+    describe "#put" do
+      it "updates instance with incoming representation" do
+        @band.name   = "Strung Out"
+        @band.label  = "Fat Wreck"
+        @band.put("http://localhost:9999/bands/strungout", "application/xml")
+        assert_equal "Strung Out", @band.name
+        assert_equal "Fat Wreck", @band.label
+      end
     end
   end
 end

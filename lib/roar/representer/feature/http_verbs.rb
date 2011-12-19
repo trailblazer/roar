@@ -18,44 +18,34 @@ module Roar
             representation = get_uri(url, format).body
             deserialize(representation)
           end
-          
-          def post(url, body, format)
-            representation = post_uri(url, body, format).body
-            deserialize(representation)
-          end
-          
-          
-          def put(url, body, format)
-            representation = put_uri(url, body, format).body
-            deserialize(representation)
-          end
         end
         
+        # Serializes the object, POSTs it to +url+ with +format+, deserializes the returned document
+        # and updates properties accordingly.
         def post(url, format)
-          self.class.post(url, serialize, format)
-        end
-        def post!(*args)
-          rep = post(*args) # TODO: make this better.
-          
-          self.class.representable_attrs.each do |definition|
-
-            send(definition.setter, rep.public_send(definition.getter))
-          end # TODO: this sucks. do this with #properties and #replace_properties.
+          # DISCUSS: what if a redirect happens here?
+          document = http.post_uri(url, serialize, format).body
+          deserialize(document)
         end
         
-        def get!(url, format) # FIXME: abstract to #replace_properties
-          rep = self.class.get(url, format) # TODO: where's the format? why do we need class here?
-          
-          self.class.representable_attrs.each do |definition|
-            send(definition.setter, rep.public_send(definition.getter))
-          end # TODO: this sucks. do this with #properties and #replace_properties.
+        # GETs +url+ with +format+, deserializes the returned document and updates properties accordingly.
+        def get(url, format)
+          document = http.get_uri(url, format).body
+          deserialize(document)
         end
         
+        # Serializes the object, PUTs it to +url+ with +format+, deserializes the returned document
+        # and updates properties accordingly.
         def put(url, format)
-          self.class.put(url, serialize, format)
+          document = http.put_uri(url, serialize, format).body
+          deserialize(document)
         end
         
         # TODO: implement delete, patch.
+      private
+        def http
+          self.class  # DISCUSS: might be refering to separate http object soon.
+        end
       end
     end
   end
