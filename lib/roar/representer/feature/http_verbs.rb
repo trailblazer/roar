@@ -1,7 +1,7 @@
 require 'roar/representer/feature/transport'
 
 module Roar
-  # Gives HTTP-power to representers where those can automatically serialize, send, process and deserialize HTTP-requests.
+  # Gives HTTP-power to representers. They can serialize, send, process and deserialize HTTP-requests.
   module Representer
     module Feature
       module HttpVerbs
@@ -11,14 +11,17 @@ module Roar
         
         
         module ClassMethods
-          include Transport
+          # GETs +url+ with +format+ and returns deserialized representer.
+          def get(url, format)
+            document = http.get_uri(url, format).body
+            deserialize(document)
+          end
           
-          def get(url, format)  # TODO: test me!
-            #url = resource_base + variable_path.to_s
-            representation = get_uri(url, format).body
-            deserialize(representation)
+          def http
+            Transport
           end
         end
+        
         
         # Serializes the object, POSTs it to +url+ with +format+, deserializes the returned document
         # and updates properties accordingly.
@@ -44,7 +47,7 @@ module Roar
         # TODO: implement delete, patch.
       private
         def http
-          self.class  # DISCUSS: might be refering to separate http object soon.
+          Transport  # DISCUSS: might be refering to separate http object soon.
         end
       end
     end

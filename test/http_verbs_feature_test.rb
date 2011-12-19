@@ -1,25 +1,38 @@
 require 'test_helper'
 require 'roar/representer/feature/http_verbs'
+require 'roar/representer/json'
 
 class HttpVerbsTest < MiniTest::Spec
-  class Band
-    include Roar::Representer::XML
+  module BandRepresenter
+    include Roar::Representer::JSON
     
     property :name
     property :label
-    
-    include Roar::Representer::Feature::HttpVerbs
   end
   
   describe "HttpVerbs" do
     before do
-      @band = Band.new
+      @band = Object.new
+      @band.extend(BandRepresenter)
+      @band.extend(Roar::Representer::Feature::HttpVerbs)
+    end
+    
+    describe "HttpVerbs.get" do
+      it "returns instance from incoming representation" do
+        @Band = Class.new do
+          include Roar::Representer::JSON
+          include BandRepresenter
+          include Roar::Representer::Feature::HttpVerbs
+        end
+        @band = @Band.get("http://localhost:9999/bands/slayer", "application/json")
+        assert_equal "Slayer", @band.name
+        assert_equal "Canadian Maple", @band.label
+      end
     end
     
     describe "#get" do
       it "updates instance with incoming representation" do
-        @band.name = "Strung Out"
-        @band.get("http://localhost:9999/bands/slayer", "application/xml")
+        @band.get("http://localhost:9999/bands/slayer", "application/json")
         assert_equal "Slayer", @band.name
         assert_equal "Canadian Maple", @band.label
       end
@@ -44,6 +57,14 @@ class HttpVerbsTest < MiniTest::Spec
         assert_equal "Strung Out", @band.name
         assert_equal "Fat Wreck", @band.label
       end
+    end
+    
+    describe "#delete" do
+      
+    end
+    
+    describe "#patch" do
+      
     end
   end
 end
