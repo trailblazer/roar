@@ -16,6 +16,7 @@ class JsonRepresenterTest < MiniTest::Spec
       @order = Order.new
     end
     
+    
     describe "#to_json" do
       before do
         @order.id = 1
@@ -43,6 +44,13 @@ class JsonRepresenterTest < MiniTest::Spec
       
       it "works with a nil document" do
         assert @order.from_json(nil)
+      end
+    end
+    
+    describe "JSON.from_json" do
+      it "is aliased by #deserialize" do
+        @order = Order.deserialize('{"id":1}')
+        assert_equal 1, @order.id
       end
     end
   end

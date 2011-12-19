@@ -25,22 +25,16 @@ class FakeServer < Sinatra::Base
   #end
   
   post "/bands" do
-    if request.content_type =~ /xml/
-      %{<band><label>n/a</label><name>Strung Out</name>
-        <link href="http://search" rel="search" />
-        <link href="http://band/strungout" rel="self" />
-      </band>}
-    else
-      '{"band": {"label": "n/a", "name": "Strung Out", "links": [{"href":"http://search", "rel": "search"}, {"href":"http://band/strungout", "rel": "self"}]}}'
-    end
+    #if request.content_type =~ /xml/
+      '{"label": "n/a", "name": "Strung Out", "links": [{"href":"http://search", "rel": "search"}, {"href":"http://band/strungout", "rel": "self"}]}'
   end
   
   put "/bands/strungout" do
-    %{<band><label>Fat Wreck</label><name>Strung Out</name></band>}
+    {:name => "Strung Out", :label => "Fat Wreck"}.to_json
   end
   
   get "/bands/slayer" do
-    %{<band><label>Canadian Maple</label><name>Slayer</name></band>}
+    {:name => "Slayer", :label => "Canadian Maple"}.to_json
   end
   
   

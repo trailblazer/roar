@@ -86,7 +86,7 @@ class XMLRepresenterFunctionalTest < MiniTest::Spec
       end
     end
     
-    describe "#from_xmllk" do
+    describe "#from_xml" do
       it "deserializes object" do
         @order = Order.new.from_xml("<order><id>1</id></order>")
         assert_equal "1", @order.id
@@ -99,7 +99,7 @@ class XMLRepresenterFunctionalTest < MiniTest::Spec
     end
     
     
-    describe ".from_xml" do
+    describe "XML.from_xml" do
       class Order
         include Roar::Representer::XML
         property :id
@@ -125,9 +125,6 @@ class XMLRepresenterFunctionalTest < MiniTest::Spec
     
     
     describe "without options" do
-      
-      
-      
       it ".from_xml returns the deserialized model" do
         @m = TestXmlRepresenter.from_xml("<order><id>1</id></order>")
         assert_equal "1", @m.id
