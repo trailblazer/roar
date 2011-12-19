@@ -26,6 +26,10 @@ module Roar
         def serialize(*args)
           to_xml(*args)
         end
+        
+        def deserialize(*args)
+          from_xml(*args)
+        end
       end
       
       

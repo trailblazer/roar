@@ -30,6 +30,10 @@ module Roar
         def serialize(*args)
           to_json(*args)
         end
+        
+        def deserialize(*args)
+          from_json(*args)
+        end
       end
       
       

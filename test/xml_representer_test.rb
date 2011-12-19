@@ -48,7 +48,7 @@ class XMLRepresenterFunctionalTest < MiniTest::Spec
   
   class TestXmlRepresenter
     include Roar::Representer::XML
-    self.representation_wrap= :order  # FIXME: get from represented?
+    self.representation_wrap= :order
     property :id
   end
   
@@ -71,19 +71,35 @@ class XMLRepresenterFunctionalTest < MiniTest::Spec
     
     
     describe "#to_xml" do
-      it "serializes the current model" do
+      it "serializes the model" do
         assert_xml_equal "<order/>", @r.to_xml
         
+        @r.id = 1
+        assert_xml_equal "<order><id>1</id></order>", @r.to_xml
+        
         @r.id = 2
-        assert_xml_equal "<rap><id>2</id></rap>", @r.to_xml(:name => :rap)
+        assert_xml_equal "<rap><id>2</id></rap>", @r.to_xml(:wrap => :rap)
       end
       
-      it "is aliased to #serialize" do
+      it "is aliased by #serialize" do
         assert_equal @r.to_xml, @r.serialize
       end
     end
     
-    describe "#from_xml" do
+    describe "#from_xmllk" do
+      it "deserializes object" do
+        @order = Order.new.from_xml("<order><id>1</id></order>")
+        assert_equal "1", @order.id
+      end
+      
+      it "is aliased by #deserialize" do
+        @order = Order.new.deserialize("<order><id>1</id></order>")
+        assert_equal "1", @order.id
+      end
+    end
+    
+    
+    describe ".from_xml" do
       class Order
         include Roar::Representer::XML
         property :id
@@ -109,10 +125,7 @@ class XMLRepresenterFunctionalTest < MiniTest::Spec
     
     
     describe "without options" do
-      it "#to_xml returns the serialized model" do
-        @r.id = 1
-        assert_xml_equal "<order><id>1</id></order>", @r.to_xml
-      end
+      
       
       
       it ".from_xml returns the deserialized model" do

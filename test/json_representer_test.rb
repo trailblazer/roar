@@ -13,24 +13,36 @@ class JsonRepresenterTest < MiniTest::Spec
   
   describe "JsonRepresenter" do
     before do
-      @r = Order.new
+      @order = Order.new
     end
     
     describe "#to_json" do
-      it "#serialize returns the serialized model" do
-        @r.id = 1
-        assert_equal '{"id":1}', @r.to_json
+      before do
+        @order.id = 1
+      end
+      
+      it "returns the serialized model" do
+        assert_equal '{"id":1}', @order.to_json
+      end
+      
+      it "is aliased by #serialize" do
+        assert_equal '{"id":1}', @order.serialize
       end
     end
     
-    describe ".from_json" do
+    describe "#from_json" do
       it "returns the deserialized model" do
-        @m = Order.from_json('{"id":1}')
-        assert_equal 1, @m.id
+        @order.from_json('{"id":1}')
+        assert_equal 1, @order.id
+      end
+      
+      it "is aliased by #deserialize" do
+        @order.deserialize('{"id":1}')
+        assert_equal 1, @order.id
       end
       
       it "works with a nil document" do
-        assert Order.from_json(nil)
+        assert @order.from_json(nil)
       end
     end
   end
