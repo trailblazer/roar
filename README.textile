@@ -175,7 +175,7 @@ To create a new order, the frontend needs to POST to the REST backend. Here's ho
 
 <pre>
   order = Order.new(:client_id => current_user.id)
-  order.post!("http://orders/")
+  order.post("http://orders/")
 </pre>
 
 A couple of noteworthy steps happen here.
@@ -184,7 +184,7 @@ A couple of noteworthy steps happen here.
 # Initial values like the client's id are passed as arguments and placed in the document.
 # The filled-out document is POSTed to the given URL.
 # The backend service creates an actual order record and sends back the representation.
-# In the @#post!@ call, the returned document is parsed and attributes in the representer instance are updated accordingly,
+# In the @#post@ call, the returned document is parsed and attributes in the representer instance are updated accordingly,
 
 After the HTTP roundtrip, the order instance keeps all the information we need for proceeding the ordering workflow.
 
@@ -267,7 +267,7 @@ Here's what could happen in the frontend.
 <pre>
 beer = Article.new(:title => "Lonestar Beer")
 order.items << beer
-order.post!(order.links[:self])
+order.post(order.links[:self])
 </pre>
 
 This was dead simple since representations can be composed of different documents in Roar.
