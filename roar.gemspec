@@ -20,7 +20,6 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
   
   s.add_runtime_dependency "representable", "~> 0.12"
-  s.add_runtime_dependency "hooks",         "~> 0.1.4"
   
   s.add_development_dependency "test_xml"
   s.add_development_dependency "minitest",         "~> 1.6.0"
