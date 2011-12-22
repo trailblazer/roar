@@ -1,12 +1,14 @@
 require 'test_helper'
 
 class ItemRepresenter
+  include AttributesContructor
   include Roar::Representer::XML
   self.representation_wrap= :item
   property :value
 end
 
 class PositionRepresenter
+  include AttributesContructor
   include Roar::Representer::XML
   self.representation_wrap= :position
   property :id
@@ -64,7 +66,7 @@ class XMLRepresenterFunctionalTest < MiniTest::Spec
     
     describe "#to_attributes" do
       it "returns a nested attributes hash" do
-        @r = PositionRepresenter.from_attributes("id" => 1, "item" => @i)
+        @r = PositionRepresenter.new("id" => 1, "item" => @i)
         assert_equal({"id" => 1, "item" => {"value" => "Beer"}}, @r.to_attributes)
       end
     end
@@ -139,7 +141,7 @@ class XMLRepresenterFunctionalTest < MiniTest::Spec
     
     describe "with a typed attribute" do
       before do
-        @r = PositionRepresenter.from_attributes("id" => "1")
+        @r = PositionRepresenter.new("id" => "1")
       end
       
       it "#serialize skips empty :item" do
@@ -163,6 +165,7 @@ class XMLRepresenterFunctionalTest < MiniTest::Spec
     describe "with a typed list" do
       before do
         @c = Class.new do
+          include AttributesContructor
           include Roar::Representer::XML
           
           self.representation_wrap= :order
@@ -170,7 +173,7 @@ class XMLRepresenterFunctionalTest < MiniTest::Spec
           collection :items, :class => ItemRepresenter, :from => :item
         end
         
-        @r = @c.from_attributes("id" => 1)
+        @r = @c.new("id" => 1)
       end
       
       it "#serialize_model skips empty :item" do
@@ -178,7 +181,7 @@ class XMLRepresenterFunctionalTest < MiniTest::Spec
       end
       
       it "#serialize delegates to ItemXmlRepresenter#to_xml in list" do
-        @r.items = [ItemRepresenter.from_attributes("value" => "Bier")]
+        @r.items = [ItemRepresenter.new("value" => "Bier")]
         
         assert_xml_equal "<order><id>1</id><item><value>Bier</value></item></order>", 
           @r.to_xml

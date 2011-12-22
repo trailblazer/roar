@@ -17,27 +17,6 @@ class RepresenterTest < MiniTest::Spec
       @c.collection :songs
       assert_equal "songs", @c.representable_attrs.first.name
     end
-    
-    
-    describe "#from_attributes" do
-      it "accepts a block yielding the created representer instance" do
-        @c.class_eval { attr_accessor :name }
-        
-        assert_equal("Conan", @c.from_attributes({}) { |rep| rep.name = "Conan" }.name)
-      end
-      
-      it "copies known properties, only, but doesn't complain" do
-        @c.class_eval { property :id }
-        
-        assert_equal 1, @c.from_attributes("id" => 1, "unknown" => "don't use me").id
-      end
-      
-      it "accepts symbols and strings as property name" do
-        @c.class_eval { property :id }
-        
-        assert_equal @c.from_attributes(:id => 1).id, @c.from_attributes("id" => 1).id
-      end
-    end
   end
   
   describe "Inheritance" do
@@ -48,11 +27,12 @@ class RepresenterTest < MiniTest::Spec
       end
       
       class Person
+        include AttributesContructor
         include Roar::Representer::JSON
         include PersonRepresentation
       end
       
-      assert_equal "{\"name\":\"Paulo\"}", Person.from_attributes(:name => "Paulo").to_json
+      assert_equal "{\"name\":\"Paulo\"}", Person.new(:name => "Paulo").to_json
     end
     
   end

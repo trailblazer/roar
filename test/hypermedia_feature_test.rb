@@ -6,6 +6,7 @@ class HypermediaTest
   describe "Hypermedia Feature" do
     before do
       @bookmarks = Class.new do
+        include AttributesContructor
         include Roar::Representer::XML
         include Roar::Representer::Feature::Hypermedia
         
@@ -29,7 +30,7 @@ class HypermediaTest
                             <id>1</id>
                             <link rel="self" href="http://bookmarks"/>
                             <link rel="all" href="http://bookmarks/all"/>
-                          </bookmarks>', @bookmarks_with_links.from_attributes(:id => 1).to_xml
+                          </bookmarks>', @bookmarks_with_links.new(:id => 1).to_xml
       end
       
       it "still works even if there are no links defined" do
@@ -40,7 +41,7 @@ class HypermediaTest
         assert_xml_equal '<bookmarks>
                             <id>1</id>
                           </bookmarks>', 
-          @bookmarks_with_links.from_attributes(:id => 1).to_xml(:links => false)
+          @bookmarks_with_links.new(:id => 1).to_xml(:links => false)
       end
     end
     
@@ -58,11 +59,12 @@ class HypermediaTest
       
       it "sets up links even when nested" do
         class Page
+          include AttributesContructor
           include Roar::Representer::JSON
           property :note, :class => Note
         end
         
-        assert_equal "{\"note\":{\"links\":[{\"rel\":\"self\",\"href\":\"http://me\"}]}}", Page.from_attributes(note: Note.new).to_json
+        assert_equal "{\"note\":{\"links\":[{\"rel\":\"self\",\"href\":\"http://me\"}]}}", Page.new(note: Note.new).to_json
       end
     end
     
@@ -92,8 +94,14 @@ class HypermediaTest
         @set  = @bookmarks.new
         hyper = Roar::Representer::XML::Hyperlink
         
-        @set.links = [hyper.from_attributes({"rel" => "self", "href" => "http://self"}),
-                      hyper.from_attributes({"rel" => "next", "href" => "http://next"})]
+        @set.links = [
+          {:rel => "self", :href => "http://self"}, 
+          {:rel => "next", :href => "http://next"}].collect do |config|
+            link = hyper.new
+            link.rel  = config[:rel]
+            link.href = config[:href]
+            link
+          end
       end
       
       describe "#links=" do
@@ -160,7 +168,7 @@ class LinkCollectionTest < MiniTest::Spec
   describe "LinkCollection" do
     it "provides #update_link" do
       collection  = Roar::Representer::Feature::Hypermedia::LinkCollection.new
-      link        = Roar::Representer::XML::Hyperlink.from_attributes(rel: "self", href: "http://self")
+      link        = Roar::Representer::XML::Hyperlink.new(rel: "self", href: "http://self")
       
       collection.update_link(link)
       assert_equal 1, collection.size

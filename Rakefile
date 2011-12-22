@@ -3,7 +3,7 @@ Bundler::GemHelper.install_tasks
 
 require 'rake/testtask'
 
-task :default => [:test, :testrails]
+task :default => [:test]
 
 Rake::TestTask.new(:test) do |test|
   test.libs << 'test'

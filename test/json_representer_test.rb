@@ -76,6 +76,7 @@ class JsonHypermediaTest
   describe "Hypermedia API" do
     before do
       @c = Class.new do
+        include AttributesContructor
         include Roar::Representer::JSON
         include Roar::Representer::Feature::Hypermedia
         
@@ -100,7 +101,7 @@ class JsonHypermediaTest
     end
     
     it "renders link: correctly in JSON" do
-      assert_equal "{\"id\":1,\"links\":[{\"rel\":\"self\",\"href\":\"http://self\"},{\"rel\":\"next\",\"href\":\"http://next/1\"}]}", @c.from_attributes(:id => 1).to_json
+      assert_equal "{\"id\":1,\"links\":[{\"rel\":\"self\",\"href\":\"http://self\"},{\"rel\":\"next\",\"href\":\"http://next/1\"}]}", @c.new(:id => 1).to_json
     end
   end
 end

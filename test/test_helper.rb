@@ -8,6 +8,7 @@ require 'roar/representer'
 require 'roar/representer/feature/hypermedia'
 require 'roar/representer/feature/http_verbs'
 
+# TODO: 2BRM.
   module TestModel
     def self.included(base)
       base.extend ClassMethods
@@ -30,6 +31,15 @@ require 'roar/representer/feature/http_verbs'
       end
     end
   end
+
+module AttributesContructor
+  def initialize(attrs={})
+    attrs.each do |k,v|
+      instance_variable_set("@#{k}", v)
+    end
+  end
+end
+
 
 
 class Item
