@@ -97,7 +97,7 @@ class JsonHypermediaTest
       @r = @c.from_json({:links => [{:rel => "self", :href => "http://self"}]}.to_json)
       
       assert_equal 1, @r.links.size
-      assert_equal({"rel"=>"self", "href"=>"http://self"}, @r.links.first.to_attributes) 
+      assert_equal(["self", "http://self"], [@r.links.first.rel, @r.links.first.href]) 
     end
     
     it "renders link: correctly in JSON" do

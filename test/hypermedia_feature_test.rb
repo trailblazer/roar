@@ -80,7 +80,7 @@ class HypermediaTest
         
         assert_kind_of Roar::Representer::Feature::Hypermedia::LinkCollection, doc.links
         assert_equal 1, doc.links.size
-        assert_equal({"rel"=>"self", "href"=>"http://bookmarks"}, doc.links.first.to_attributes) 
+        assert_equal(["self", "http://bookmarks"], [doc.links.first.rel, doc.links.first.href]) 
       end
       
       it "sets up an empty link list if no links found in the document" do

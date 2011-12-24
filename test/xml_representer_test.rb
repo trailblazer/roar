@@ -64,14 +64,6 @@ class XMLRepresenterFunctionalTest < MiniTest::Spec
       @i.value = "Beer"
     end
     
-    describe "#to_attributes" do
-      it "returns a nested attributes hash" do
-        @r = PositionRepresenter.new("id" => 1, "item" => @i)
-        assert_equal({"id" => 1, "item" => {"value" => "Beer"}}, @r.to_attributes)
-      end
-    end
-    
-    
     describe "#to_xml" do
       it "serializes the model" do
         assert_xml_equal "<order/>", @r.to_xml
@@ -109,7 +101,7 @@ class XMLRepresenterFunctionalTest < MiniTest::Spec
       end
     
       it "is aliased to #deserialize" do
-        assert_equal TestXmlRepresenter.from_xml("<order/>").to_attributes, TestXmlRepresenter.deserialize("<order/>").to_attributes
+        assert_equal TestXmlRepresenter.from_xml("<order/>").id, TestXmlRepresenter.deserialize("<order/>").id
       end
       
       it "accepts :except option" do
