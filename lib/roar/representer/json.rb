@@ -52,6 +52,7 @@ module Roar
       # Encapsulates a hypermedia link.
       class Hyperlink
         include JSON
+        attr_accessor :rel, :href
         
         property :rel
         property :href

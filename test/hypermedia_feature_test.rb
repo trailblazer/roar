@@ -20,6 +20,8 @@ class HypermediaTest
         property :id
         link :self do "http://bookmarks" end
         link :all do "http://bookmarks/all" end
+        
+        attr_accessor :id, :self, :all
       end
     end
     
@@ -62,6 +64,7 @@ class HypermediaTest
           include AttributesContructor
           include Roar::Representer::JSON
           property :note, :class => Note
+          attr_accessor :note
         end
         
         assert_equal "{\"note\":{\"links\":[{\"rel\":\"self\",\"href\":\"http://me\"}]}}", Page.new(note: Note.new).to_json

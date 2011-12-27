@@ -5,6 +5,7 @@ class ItemRepresenter
   include Roar::Representer::XML
   self.representation_wrap= :item
   property :value
+  attr_accessor :value
 end
 
 class PositionRepresenter
@@ -13,6 +14,7 @@ class PositionRepresenter
   self.representation_wrap= :position
   property :id
   property :item, :class => ItemRepresenter
+  attr_accessor :id, :item
 end
 
 
@@ -52,6 +54,7 @@ class XMLRepresenterFunctionalTest < MiniTest::Spec
     include Roar::Representer::XML
     self.representation_wrap= :order
     property :id
+    attr_accessor :id
   end
   
   
@@ -98,6 +101,7 @@ class XMLRepresenterFunctionalTest < MiniTest::Spec
         include Roar::Representer::XML
         property :id
         property :pending
+        attr_accessor :id, :pending
       end
     
       it "is aliased to #deserialize" do
@@ -163,6 +167,7 @@ class XMLRepresenterFunctionalTest < MiniTest::Spec
           self.representation_wrap= :order
           property :id
           collection :items, :class => ItemRepresenter, :from => :item
+          attr_accessor :id, :items
         end
         
         @r = @c.new("id" => 1)

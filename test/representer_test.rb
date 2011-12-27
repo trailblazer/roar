@@ -30,6 +30,7 @@ class RepresenterTest < MiniTest::Spec
         include AttributesContructor
         include Roar::Representer::JSON
         include PersonRepresentation
+        attr_accessor :name
       end
       
       assert_equal "{\"name\":\"Paulo\"}", Person.new(:name => "Paulo").to_json

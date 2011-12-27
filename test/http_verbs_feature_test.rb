@@ -10,19 +10,27 @@ class HttpVerbsTest < MiniTest::Spec
     property :label
   end
   
+  # keep this class clear of Roar modules.
+  class Band
+    attr_accessor :name, :label
+  end
+  
+  
   describe "HttpVerbs" do
     before do
-      @band = Object.new
+      @band = Band.new
       @band.extend(BandRepresenter)
       @band.extend(Roar::Representer::Feature::HttpVerbs)
     end
     
     describe "HttpVerbs.get" do
       it "returns instance from incoming representation" do
+        # let's pretend the user wants Roar class methods.
         @Band = Class.new do
           include Roar::Representer::JSON
           include BandRepresenter
           include Roar::Representer::Feature::HttpVerbs
+          attr_accessor :name, :label
         end
         @band = @Band.get("http://localhost:9999/bands/slayer", "application/json")
         assert_equal "Slayer", @band.name

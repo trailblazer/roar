@@ -50,12 +50,13 @@ module Roar
       # Encapsulates a hypermedia <link ...>.
       class Hyperlink
         # TODO: make XML a module to include in Hyperlink < Base.
+        attr_accessor :rel, :href
         include XML
         
         self.representation_wrap = :link
         
-        property :rel,  :from => "@rel"
-        property :href, :from => "@href"
+        property :rel,  :from => "rel", :attribute => true
+        property :href, :from => "href", :attribute => true
       end
       
     end

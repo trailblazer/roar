@@ -8,6 +8,7 @@ class JsonRepresenterTest < MiniTest::Spec
     include Roar::Representer::JSON
     property :id
     property :pending
+    attr_accessor :id, :pending
   end
   
   
@@ -79,6 +80,7 @@ class JsonHypermediaTest
         include AttributesContructor
         include Roar::Representer::JSON
         include Roar::Representer::Feature::Hypermedia
+        attr_accessor :id, :self, :next
         
         property :id
         
