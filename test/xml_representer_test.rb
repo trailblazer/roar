@@ -42,12 +42,8 @@ end
 
 class XMLRepresenterFunctionalTest < MiniTest::Spec
   class GreedyOrder
-    include TestModel
-    accessors :id, :items
-    
-    def self.model_name
-      :order
-    end
+    include AttributesContructor
+    attr_accessor :id, :items
   end
   
   class TestXmlRepresenter
