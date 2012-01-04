@@ -22,6 +22,6 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "representable", "~> 1.0.1"
   
   s.add_development_dependency "test_xml"
-  s.add_development_dependency "minitest",         "~> 1.6.0"
-  s.add_development_dependency "sinatra",          "~> 1.2.6"
+  s.add_development_dependency "minitest",	">= 2.8.1"
+  s.add_development_dependency "sinatra",   "~> 1.2.6"
 end

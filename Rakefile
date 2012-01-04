@@ -10,9 +10,3 @@ Rake::TestTask.new(:test) do |test|
   test.test_files = FileList['test/*_test.rb'] - ['test/integration_test.rb', 'test/active_record_integration_test.rb']
   test.verbose = true
 end
-
-Rake::TestTask.new(:testrails) do |test|
-  test.libs << 'test'
-  test.test_files = FileList['test/rails/*_test.rb']
-  test.verbose = true
-end
