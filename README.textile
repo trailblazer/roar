@@ -4,6 +4,7 @@ _Resource-Oriented Architectures in Ruby._
 
 "Lets make documents suit our models and not models fit to documents."
 
+Questions? Need help? Free 1st Level Support on irc.freenode.org#roar !
 
 h2. Introduction
 
