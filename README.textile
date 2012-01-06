@@ -62,13 +62,22 @@ Representers are the key ingredience in Roar, so let's check them out!
 
 h2. Representers
 
-To render a representational document, the backend service has to define a representer.
+Representers are most usable when defined in a module, and then mixed into a host class. In our example, the host class is the article.
+
+<pre>
+class Article
+  attr_accessor :title, :id
+end
+</pre>
+
+To render a representational document from the article, the backend service has to define a representer.
 
 <pre>
 require 'roar/representer/json'
 require 'roar/representer/feature/hypermedia'
 
-class Article
+
+module ArticleRepresenter
   include Roar::Representer::JSON
   include Roar::Representer::Feature::Hypermedia
   
@@ -81,17 +90,17 @@ class Article
 end
 </pre>
 
-Hooray, we can define plain properties and embedd links easily - and we can even use URL helpers (in Rails). There's even more, nesting, collections, but more on that later!
+Hooray, we can define plain properties and embedd links easily - and we can even use URL helpers (in Rails, using the "roar-rails gem":https://github.com/apotonick/roar-rails). There's even more, nesting, collections, but more on that later!
 
 
 h3. Rendering Representations in the Service
 
 In order to *render* an actual document, the backend service would have to do a few steps: creating a representer, filling in data, and then serialize it.
 
-<pre>Article.new(
-  title: "Lonestar",
-  id:    666).
-  to_json # => "{\"article\":{\"id\":666, ...
+<pre>loney = Article.new.extend(ArticleRepresenter)
+  loney.title = "Lonestar"
+  loney.id    = 666
+  loney.to_json # => "{\"article\":{\"id\":666, ...
 </pre>
 
 Articles itself are useless, so they may be placed into orders. This is the next example.
@@ -121,10 +130,18 @@ What if we wanted to check an existing order? We'd @GET http://orders/1@, right?
 }
 </pre>
 
+The order model is simple.
+
+<pre>
+class Order
+  attr_accessor :id, :client_id, :articles
+end
+</pre>
+
 Since orders may contain a composition of articles, how would the order service define its representer?
 
 <pre>
-class Order 
+module OrderRepresenter
   include Roar::Representer::JSON
   include Roar::Representer::Feature::Hypermedia
 
@@ -143,6 +160,8 @@ class Order
 end
 </pre>
 
+Representers don't have to be in modules, but can be 
+
 The declarative @#collection@ method lets us define compositions of representers.
 
 
@@ -154,12 +173,13 @@ If we were to implement an endpoint for creating new orders, we'd allow POST to 
 
 <pre>
   post "/orders" do
-    incoming = Order.deserialize(request.body.string)
-    puts incoming.to_attributes #=> {:client_id => 815}
+    order = Order.new.extend(OrderRepresenter)
+    order.from_json(request.body.string)
+    order.to_json
   end
 </pre>
  
-Look how the @#to_attributes@ method helps extracting data from the incoming document and, again, @#to_json@ returns the freshly created order's representation. Roar's representers are truely working in both directions, rendering and parsing and thus prevent you from redundant knowledge sharing.
+Look how the @#from_json@ method helps extracting data from the incoming document and, again, @#to_json@ returns the freshly created order's representation. Roar's representers are truely working in both directions, rendering and parsing and thus prevent you from redundant knowledge sharing.
 
 
 h2. Representers in the Client
