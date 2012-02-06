@@ -85,7 +85,7 @@ module ArticleRepresenter
   property :id
   
   link :self do
-    article_url(represented)
+    article_url(self)
   end 
 end
 </pre>
