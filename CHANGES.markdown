@@ -1,3 +1,7 @@
+h2. 0.9.2
+
+* Using representable-1.1.
+
 h2. 0.9.1
 
 * Removed @Representer#to_attributes@ and @#from_attributes@.
