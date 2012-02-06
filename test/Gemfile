@@ -1,7 +1,4 @@
 source "http://rubygems.org"
 
 gem "sinatra"
-gem "sinatra-contrib", :path => "./sinatra-contrib"
-gem "sinatra-activerecord"
 gem "roar", :path => ".."
-gem "representable", :path => "../../representable"

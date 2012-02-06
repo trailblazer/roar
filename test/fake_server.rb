@@ -1,7 +1,5 @@
 require "bundler/setup"
 require 'sinatra/base'
-require 'sinatra/reloader'
-
 
 class FakeServer < Sinatra::Base
   get "/method" do
