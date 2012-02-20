@@ -165,6 +165,42 @@ Representers don't have to be in modules, but can be
 The declarative @#collection@ method lets us define compositions of representers.
 
 
+h3. Wrapped and Unwrapped Representations
+
+You can decide if you would like wrapped or unwrapped representations.  Simply set the representation_wrap variable to true or false.
+
+<pre>
+module OrderRepresenter
+  include Roar::Representer::JSON
+
+  self.representation_wrap = true
+
+  property :id
+  property :client_id
+  ...
+end
+</pre>
+
+When the representation_wrap variable is true, the representation is:
+
+<pre>
+{ "order": {
+    "id":         1,
+    "client_id":  815
+  }
+}
+</pre>
+
+When the representation_wrap variable is false, the representation is:
+
+<pre>
+{ 
+  "id":         1,
+  "client_id":  815
+}
+</pre>
+
+
 h3. Parsing Documents in the Service
 
 Rendering stuff is easy: Representers allow defining the layout and serializing documents for us. However, representers can do more. They work _bi-directional_ in terms of rendering outgoing _and_ parsing incoming representation documents.
