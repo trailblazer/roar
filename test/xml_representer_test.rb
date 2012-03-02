@@ -41,9 +41,12 @@ end
 
 
 class XMLRepresenterFunctionalTest < MiniTest::Spec
-  class GreedyOrder
+  class Order
     include AttributesContructor
     attr_accessor :id, :items
+  end
+  
+  class GreedyOrder < Order
   end
   
   class TestXmlRepresenter
@@ -58,6 +61,7 @@ class XMLRepresenterFunctionalTest < MiniTest::Spec
     before do
       @m = {"id" => "1"}
       @o = Order.new(@m)
+      
       @r = TestXmlRepresenter.new
       @i = ItemRepresenter.new
       @i.value = "Beer"

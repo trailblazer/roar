@@ -171,7 +171,9 @@ class LinkCollectionTest < MiniTest::Spec
   describe "LinkCollection" do
     it "provides #update_link" do
       collection  = Roar::Representer::Feature::Hypermedia::LinkCollection.new
-      link        = Roar::Representer::XML::Hyperlink.new(rel: "self", href: "http://self")
+      link        = Roar::Representer::XML::Hyperlink.new
+      link.rel  = "self"
+      link.href = "http://self"
       
       collection.update_link(link)
       assert_equal 1, collection.size
