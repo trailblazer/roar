@@ -102,6 +102,16 @@ module Roar
             @rel2block ||= []
           end
         end
+        
+        
+        # An abstract hypermedia link with +rel+ and +href+ attributes.
+        class Hyperlink
+          attr_accessor :rel, :href
+          
+          def initialize(opts={})
+            @rel, @href  = opts[:rel], opts[:href]
+          end
+        end
       end
     end
   end

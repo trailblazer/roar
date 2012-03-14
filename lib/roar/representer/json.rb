@@ -44,16 +44,14 @@ module Roar
         
         # TODO: move to instance method, or remove?
         def links_definition_options
-          {:class => Hyperlink , :collection => true}
+          {:class => Feature::Hypermedia::Hyperlink, :extend => HyperlinkRepresenter, :collection => true}
         end
       end
       
       
-      # Encapsulates a hypermedia link.
-      class Hyperlink
+      # Represents a hyperlink in standard roar+json. 
+      module HyperlinkRepresenter
         include JSON
-        attr_accessor :rel, :href
-        
         property :rel
         property :href
       end

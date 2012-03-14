@@ -57,10 +57,12 @@ class JsonRepresenterTest < MiniTest::Spec
   end
 end
 
+# test the generic roar+json HyperlinkRepresenter
 class JsonHyperlinkRepresenterTest
   describe "API" do
     before do
-      @l = Roar::Representer::JSON::Hyperlink.from_json({:rel => :self, :href => "http://roar.apotomo.de"}.to_json)
+      # TODO: ehm... hello?
+      @l = Roar::Representer::Feature::Hypermedia::Hyperlink.new.extend(Roar::Representer::JSON::HyperlinkRepresenter).from_json({:rel => :self, :href => "http://roar.apotomo.de"}.to_json)
     end
     
     it "responds to #rel" do
