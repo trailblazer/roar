@@ -37,11 +37,13 @@ module Roar
           links_def       = find_links_definition or return
           hyperlink_class = links_def.sought_type
           
-          links_def.rel2block.each do |link|
-            links.update_link(hyperlink_class.new.tap do |hyperlink|  # create Hyperlink representer.
+          links_def.rel2block.each do |link|          
+            hyperlink_representer = hyperlink_class.new.tap do |hyperlink|  # create Hyperlink representer.
               hyperlink.rel   = link[:rel]
               hyperlink.href  = run_link_block(link[:block])
-            end)
+            end
+            # Only include link if href not nil
+            links.update_link(hyperlink_representer) if hyperlink_representer.href
           end
         end
         
