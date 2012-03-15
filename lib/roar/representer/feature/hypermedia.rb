@@ -35,10 +35,9 @@ module Roar
         # Setup hypermedia links by invoking their blocks. Usually called by #serialize.
         def prepare_links!
           links_def       = find_links_definition or return
-          hyperlink_class = links_def.sought_type
           
           links_def.rel2block.each do |link|
-            links.update_link(hyperlink_class.new.tap do |hyperlink|  # create Hyperlink representer.
+            links.update_link(Feature::Hypermedia::Hyperlink.new.tap do |hyperlink|  # create Hyperlink representer.
               hyperlink.rel   = link[:rel]
               hyperlink.href  = run_link_block(link[:block])
             end)
@@ -83,7 +82,7 @@ module Roar
           # Note that you're free to put decider logic into #link blocks, too.
           def link(rel, &block)
             unless links = find_links_definition
-              links = LinksDefinition.new(:links, links_definition_options)
+              links = LinksDefinition.new(*links_definition_options)
               representable_attrs << links
             end
             
