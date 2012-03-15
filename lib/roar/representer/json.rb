@@ -21,8 +21,8 @@ module Roar
         end
         
         def from_json(document, options={})
-          document ||= "{}" # DISCUSS: provide this for convenience, or better not?
-          
+          document = '{}' if document.nil? or document.empty?
+
           super
         end
         
