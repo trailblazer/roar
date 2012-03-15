@@ -46,6 +46,10 @@ class JsonRepresenterTest < MiniTest::Spec
       it "works with a nil document" do
         assert @order.from_json(nil)
       end
+
+      it "works with an empty document" do
+        assert @order.from_json('')
+      end
     end
     
     describe "JSON.from_json" do
