@@ -19,26 +19,35 @@ class HalJsonTest < MiniTest::Spec
       @song = Object.new.extend(SongRepresenter)
     end
     
-    it "render links" do
-      assert_equal "{\"_links\":{\"self\":\"http://self\",\"next\":\"http://hit\"}}", @song.to_json
+    it "renders links plain with the links key" do
+      assert_equal "{\"links\":{\"self\":\"http://self\",\"next\":\"http://hit\"}}", @song.to_json
     end
     
     it "parses incoming JSON links correctly" do
-      @song.from_json "{\"_links\":{\"self\":\"http://self\"}}"
+      @song.from_json "{\"links\":{\"self\":\"http://self\"}}"
       assert_equal "http://self", @song.links[:self]
       assert_equal nil, @song.links[:next]
     end
   end
   
+  module OrderRepresenter
+    include Roar::Representer::JSON::HAL
+    
+    property :id
+    collection :items, :class => Item, :extend => SongRepresenter, :embedded => true
+    
+    link :self do
+      "http://orders/#{id}"
+    end
+  end
   
   describe "HAL/JSON" do
     before do
-      @song = Object.new.extend(SongRepresenter)
+      @order = Order.new(:items => [Item.new], :id => 1).extend(OrderRepresenter)
     end
     
-    
+    it "render links" do
+      assert_equal "{\"id\":1,\"_links\":{\"self\":\"http://orders/1\"}}", Order.new(:id => 1).extend(OrderRepresenter).to_json
+    end
   end
-  
-  
-  
 end

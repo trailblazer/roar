@@ -4,8 +4,15 @@ module Roar::Representer
       def self.included(base)
         base.class_eval do
           include Roar::Representer::JSON
-          include Roar::Representer::Feature::Hypermedia
-          extend Links::ClassMethods
+          include Links       # overwrites #links_definition_options.
+          extend ClassMethods # overwrites #links_definition_options, again.
+        end
+      end
+      
+      
+      module ClassMethods
+        def links_definition_options
+          super.tap { |options| options[1].merge!({:from => :_links}) }
         end
       end
       
@@ -21,7 +28,9 @@ module Roar::Representer
       #
       # Renders to
       #
-      #   {"_links":{"self":"http://self"}}
+      #   {"links":{"self":"http://self"}}
+      #
+      # Note that the HAL::Links module alone doesn't prepend an underscore to +links+. Use the JSON::HAL module for that.
       module Links
         def self.included(base)
           base.class_eval do
@@ -52,9 +61,7 @@ module Roar::Representer
         
         module ClassMethods
           def links_definition_options
-            options = super
-            options[1] = {:class => Feature::Hypermedia::LinkCollection, :from => :_links, :extend => LinkCollectionRepresenter}
-            options
+            super.tap { |options| options[1] = {:class => Feature::Hypermedia::LinkCollection, :extend => LinkCollectionRepresenter} }
           end
         end
       end
