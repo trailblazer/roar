@@ -95,7 +95,7 @@ class HypermediaTest
     describe "#links" do
       before do
         @set  = @bookmarks.new
-        hyper = Roar::Representer::XML::Hyperlink
+        hyper = Roar::Representer::Feature::Hypermedia::Hyperlink
         
         @set.links = [
           {:rel => "self", :href => "http://self"}, 
@@ -171,7 +171,7 @@ class LinkCollectionTest < MiniTest::Spec
   describe "LinkCollection" do
     it "provides #update_link" do
       collection  = Roar::Representer::Feature::Hypermedia::LinkCollection.new
-      link        = Roar::Representer::XML::Hyperlink.new
+      link        = Roar::Representer::Feature::Hypermedia::Hyperlink.new
       link.rel  = "self"
       link.href = "http://self"
       

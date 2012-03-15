@@ -37,7 +37,7 @@ module Roar
         include Representable::XML::ClassMethods
         
         def links_definition_options
-          {:from => :link, :class => Hyperlink, :collection => true}
+          [:links, :from => :link, :class => Feature::Hypermedia::Hyperlink, :collection => true, :extend => XML::HyperlinkRepresenter]
         end
         
         # Generic entry-point for parsing.
@@ -46,11 +46,7 @@ module Roar
         end
       end
       
-            
-      # Encapsulates a hypermedia <link ...>.
-      class Hyperlink
-        # TODO: make XML a module to include in Hyperlink < Base.
-        attr_accessor :rel, :href
+      module HyperlinkRepresenter
         include XML
         
         self.representation_wrap = :link
@@ -58,7 +54,6 @@ module Roar
         property :rel,  :from => "rel", :attribute => true
         property :href, :from => "href", :attribute => true
       end
-      
     end
   end
 end

@@ -199,7 +199,7 @@ end
 class XmlHyperlinkRepresenterTest < MiniTest::Spec
   describe "API" do
     before do
-      @l = Roar::Representer::XML::Hyperlink.from_xml(%{<link rel="self" href="http://roar.apotomo.de"/>})
+      @l = Roar::Representer::Feature::Hypermedia::Hyperlink.new.extend(Roar::Representer::XML::HyperlinkRepresenter).from_xml(%{<link rel="self" href="http://roar.apotomo.de"/>})
     end
     
     it "responds to #to_xml" do
