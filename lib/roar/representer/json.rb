@@ -1,4 +1,5 @@
 require 'roar/representer'
+require 'roar/representer/feature/hypermedia'
 require 'representable/json'
 
 module Roar
