@@ -1,7 +1,7 @@
 module Roar
   module Representer
     module Feature
-      # Adds #link to the representer to define hypermedia links in the representation.
+      # Define hypermedia links in your representations.
       #
       # Example:
       #
@@ -11,6 +11,12 @@ module Roar
       #     property :id
       #
       #     link :self do
+      #       "http://orders/#{id}"
+      #     end
+      #
+      # If you want more attributes, just pass a hash to #link.
+      #
+      #     link :rel => :next, :title => "Next, please!" do
       #       "http://orders/#{id}"
       #     end
       module Hypermedia
