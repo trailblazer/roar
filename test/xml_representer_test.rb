@@ -18,28 +18,6 @@ class PositionRepresenter
 end
 
 
-
-
-class XMLRepresenterUnitTest < MiniTest::Spec
-  describe "XmlRepresenter" do
-    describe "#link" do
-      class Rapper
-        include Roar::Representer::XML
-        include Roar::Representer::Feature::Hypermedia
-        
-        link :self
-        link :next
-      end
-      
-      it "creates a LinksDefinition" do
-        assert_equal 1, Rapper.representable_attrs.size
-        assert_equal [{:rel=>:self, :block=>nil}, {:rel=>:next, :block=>nil}], Rapper.representable_attrs.first.rel2block
-      end
-    end
-  end
-end
-
-
 class XMLRepresenterFunctionalTest < MiniTest::Spec
   class Order
     include AttributesContructor
