@@ -55,7 +55,7 @@ module Roar
         
         class LinkCollection < Array
           def [](rel)
-            link = find { |l| l.rel.to_s == rel.to_s } and return link.href
+            link = find { |l| l.rel.to_s == rel.to_s } and return link
           end
           
           # Checks if the link is already contained by querying for its +rel+.
@@ -104,6 +104,7 @@ module Roar
         
         
         # An abstract hypermedia link with +rel+, +href+ and other attributes.
+        # Overwrite the Hyperlink.params method if you need more link attributes.
         class Hyperlink
           def self.params
             [:rel, :href, :media, :title, :hreflang]

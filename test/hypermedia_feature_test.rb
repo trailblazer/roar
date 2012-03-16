@@ -115,10 +115,10 @@ class HypermediaTest
       end
       
       describe "#link[]" do
-        it "provides shorthand accessor for rels" do
-          assert_equal "http://self", @set.links["self"]
-          assert_equal "http://self", @set.links[:self]
-          assert_equal "http://next", @set.links[:next]
+        it "returns link object" do
+          assert_equal "http://self", @set.links["self"].href
+          assert_equal "http://self", @set.links[:self].href
+          assert_equal "http://next", @set.links[:next].href
           assert_equal nil, @set.links[:prev]
         end
       end
