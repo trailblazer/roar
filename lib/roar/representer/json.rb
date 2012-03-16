@@ -22,7 +22,7 @@ module Roar
         
         def from_json(document, options={})
           document = '{}' if document.nil? or document.empty?
-
+          
           super
         end
         
@@ -52,8 +52,9 @@ module Roar
       # Represents a hyperlink in standard roar+json. 
       module HyperlinkRepresenter
         include JSON
-        property :rel
-        property :href
+        Feature::Hypermedia::Hyperlink.params.each do |attr|
+          property attr
+        end
       end
     end
   end

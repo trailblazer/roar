@@ -34,13 +34,13 @@ module Roar
       protected
         # Setup hypermedia links by invoking their blocks. Usually called by #serialize.
         def prepare_links!
-          links_def       = find_links_definition or return
+          links_def = find_links_definition or return
           
-          links_def.rel2block.each do |link|
-            links.update_link(Feature::Hypermedia::Hyperlink.new.tap do |hyperlink|  # create Hyperlink representer.
-              hyperlink.rel   = link[:rel]
-              hyperlink.href  = run_link_block(link[:block])
-            end)
+          links_def.rel2block.each do |config|  # config is [{..}, block]
+            options = config.first
+            options[:href] = run_link_block(config.last)
+            
+            links.update_link(Feature::Hypermedia::Hyperlink.new(options))
           end
         end
         
@@ -80,17 +80,22 @@ module Roar
           #
           # The block is executed in instance context, so you may call properties or other accessors.
           # Note that you're free to put decider logic into #link blocks, too.
-          def link(rel, &block)
-            unless links = find_links_definition
-              links = LinksDefinition.new(*links_definition_options)
-              representable_attrs << links
-            end
+          def link(options, &block)
+            links = find_links_definition || create_links
             
-            links.rel2block << {:rel => rel, :block => block}
+            options = {:rel => options} if options.is_a?(Symbol)
+            links.rel2block << [options, block]
           end
           
           def find_links_definition
             representable_attrs.find { |d| d.is_a?(LinksDefinition) }
+          end
+          
+        private
+          def create_links
+            LinksDefinition.new(*links_definition_options).tap do |links|
+              representable_attrs << links
+            end
           end
         end
         

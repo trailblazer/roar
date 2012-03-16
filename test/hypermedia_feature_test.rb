@@ -4,6 +4,36 @@ require 'roar/representer/json'
 
 class HypermediaTest
   describe "Hypermedia Feature" do
+    describe "Hypermedia.link" do
+      before do
+        @mod = Module.new do
+          include Roar::Representer::JSON
+          include Roar::Representer::Feature::Hypermedia
+        end
+      end
+      
+      it "accepts rel symbol, only" do
+        @mod.class_eval do
+          link :self do
+            "http://self"
+          end
+        end
+        
+        assert_equal "{\"links\":[{\"rel\":\"self\",\"href\":\"http://self\"}]}", Object.new.extend(@mod).to_json
+      end
+      
+      it "accepts any options" do
+        @mod.class_eval do
+          link :rel => :self, :title => "Hey, @myabc" do
+            "http://self"
+          end
+        end
+        
+        assert_equal "{\"links\":[{\"rel\":\"self\",\"href\":\"http://self\",\"title\":\"Hey, @myabc\"}]}", Object.new.extend(@mod).to_json
+      end
+    end
+    
+    
     before do
       @bookmarks = Class.new do
         include AttributesContructor
@@ -67,7 +97,7 @@ class HypermediaTest
           attr_accessor :note
         end
         
-        assert_equal "{\"note\":{\"links\":[{\"rel\":\"self\",\"href\":\"http://me\"}]}}", Page.new(note: Note.new).to_json
+        assert_equal "{\"note\":{\"links\":[{\"rel\":\"self\",\"href\":\"http://me\"}]}}", Page.new(:note => Note.new).to_json
       end
     end
     
