@@ -28,7 +28,7 @@ module Roar::Representer
       #
       # Renders to
       #
-      #   {"links":{"self":"http://self"}}
+      #   {"links":{"self":{"href":"http://self"}}}
       #
       # Note that the HAL::Links module alone doesn't prepend an underscore to +links+. Use the JSON::HAL module for that.
       module Links
@@ -45,14 +45,14 @@ module Roar::Representer
           def to_hash(*)
             {}.tap do |hash|
               each do |link|
-                hash[link.rel] = link.href
+                hash[link.rel] = {"href" => link.href}
               end
             end
           end
           
           def from_hash(json, *)
             json.each do |k, v|
-              self << Feature::Hypermedia::Hyperlink.new(:rel => k, :href => v)
+              self << Feature::Hypermedia::Hyperlink.new(:rel => k, :href => v['href'])
             end
             self
           end

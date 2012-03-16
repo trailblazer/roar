@@ -20,11 +20,11 @@ class HalJsonTest < MiniTest::Spec
     end
     
     it "renders links plain with the links key" do
-      assert_equal "{\"links\":{\"self\":\"http://self\",\"next\":\"http://hit\"}}", @song.to_json
+      assert_equal "{\"links\":{\"self\":{\"href\":\"http://self\"},\"next\":{\"href\":\"http://hit\"}}}", @song.to_json
     end
     
     it "parses incoming JSON links correctly" do
-      @song.from_json "{\"links\":{\"self\":\"http://self\"}}"
+      @song.from_json "{\"links\":{\"self\":{\"href\":\"http://self\"}}}"
       assert_equal "http://self", @song.links[:self]
       assert_equal nil, @song.links[:next]
     end
