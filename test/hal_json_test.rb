@@ -1,3 +1,6 @@
+require 'test_helper'
+
+require "roar/representer/json"
 require 'roar/representer/json/hal'
 
 class HalJsonTest < MiniTest::Spec
@@ -47,7 +50,7 @@ class HalJsonTest < MiniTest::Spec
     end
     
     it "render links" do
-      assert_equal "{\"id\":1,\"_links\":{\"self\":\"http://orders/1\"}}", Order.new(:id => 1).extend(OrderRepresenter).to_json
+      assert_equal "{\"id\":1,\"items\":[],\"_links\":{\"self\":\"http://orders/1\"}}", Order.new(:id => 1).extend(OrderRepresenter).to_json
     end
   end
 end
