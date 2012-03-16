@@ -191,6 +191,10 @@ class HyperlinkTest < MiniTest::Spec
       @link = Hyperlink.new(:rel => "self", :href => "http://self")
     end
     
+    it "accepts string keys in constructor" do
+      assert_equal "Hey, @myabc", Hyperlink.new("title" => "Hey, @myabc").title
+    end
+    
     it "responds to #media" do
       assert_equal nil, @link.media
     end

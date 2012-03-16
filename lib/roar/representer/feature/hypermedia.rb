@@ -113,8 +113,9 @@ module Roar
           attr_accessor *params
           
           def initialize(options={})
-            self.class.params.each do |param|
-              instance_variable_set("@#{param}", options[param])
+            options.each do |k,v|
+              next unless self.class.params.include?(k.to_sym)
+              instance_variable_set("@#{k}", v)
             end
           end
         end
