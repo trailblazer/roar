@@ -32,6 +32,7 @@ module Roar::Representer
       #
       # Note that the HAL::Links module alone doesn't prepend an underscore to +links+. Use the JSON::HAL module for that.
       module Links
+        # TODO: allow more attributes besides :href in Hyperlink.
         def self.included(base)
           base.class_eval do
             include Roar::Representer::Feature::Hypermedia
@@ -39,20 +40,22 @@ module Roar::Representer
           end
         end
         
+        
         module LinkCollectionRepresenter
           include JSON
           
           def to_hash(*)
             {}.tap do |hash|
               each do |link|
-                hash[link.rel] = {"href" => link.href}
+                # TODO: we statically use JSON::HyperlinkRepresenter here.
+                hash[link.rel] = link.extend(JSON::HyperlinkRepresenter).to_hash(:except => [:rel])
               end
             end
           end
           
           def from_hash(json, *)
             json.each do |k, v|
-              self << Feature::Hypermedia::Hyperlink.new(:rel => k, :href => v['href'])
+              self << Feature::Hypermedia::Hyperlink.new(v.merge :rel => k)
             end
             self
           end

@@ -9,7 +9,7 @@ class HalJsonTest < MiniTest::Spec
       "http://self"
     end
     
-    link :next do
+    link :rel => :next, :title => "Hey, @myabc" do
       "http://hit"
     end
   end
@@ -19,13 +19,14 @@ class HalJsonTest < MiniTest::Spec
       @song = Object.new.extend(SongRepresenter)
     end
     
-    it "renders links plain with the links key" do
-      assert_equal "{\"links\":{\"self\":{\"href\":\"http://self\"},\"next\":{\"href\":\"http://hit\"}}}", @song.to_json
+    it "renders links according to the HAL spec" do
+      assert_equal "{\"links\":{\"self\":{\"href\":\"http://self\"},\"next\":{\"href\":\"http://hit\",\"title\":\"Hey, @myabc\"}}}", @song.to_json
     end
     
     it "parses incoming JSON links correctly" do
-      @song.from_json "{\"links\":{\"self\":{\"href\":\"http://self\"}}}"
-      assert_equal "http://self", @song.links[:self]
+      @song.from_json "{\"links\":{\"self\":{\"href\":\"http://self\",\"title\":\"Hey, @myabc\"}}}"
+      assert_equal "http://self", @song.links[:self].href
+      assert_equal "Hey, @myabc", @song.links[:self].title
       assert_equal nil, @song.links[:next]
     end
   end
