@@ -103,12 +103,18 @@ module Roar
         end
         
         
-        # An abstract hypermedia link with +rel+ and +href+ attributes.
+        # An abstract hypermedia link with +rel+, +href+ and other attributes.
         class Hyperlink
-          attr_accessor :rel, :href
+          def self.params
+            [:rel, :href, :media, :title, :hreflang]
+          end
           
-          def initialize(opts={})
-            @rel, @href  = opts[:rel], opts[:href]
+          attr_accessor *params
+          
+          def initialize(options={})
+            self.class.params.each do |param|
+              instance_variable_set("@#{param}", options[param])
+            end
           end
         end
       end

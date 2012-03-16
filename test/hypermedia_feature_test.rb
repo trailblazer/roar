@@ -185,15 +185,19 @@ class LinkCollectionTest < MiniTest::Spec
 end
 
 class HyperlinkTest < MiniTest::Spec
+  Hyperlink = Roar::Representer::Feature::Hypermedia::Hyperlink
   describe "Hyperlink" do
     before do
-      @link = Roar::Representer::Feature::Hypermedia::Hyperlink.new(:rel => "self", :href => "http://self")
+      @link = Hyperlink.new(:rel => "self", :href => "http://self")
+    end
+    
+    it "responds to #media" do
+      assert_equal nil, @link.media
     end
     
     it "responds to #rel" do
       assert_equal "self", @link.rel
     end
-    
     
     it "responds to #href" do
       assert_equal "http://self", @link.href
