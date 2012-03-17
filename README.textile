@@ -2,28 +2,14 @@ h1. ROAR
 
 _Resource-Oriented Architectures in Ruby._
 
-"Lets make documents suit our models and not models fit to documents."
-
-Questions? Need help? Free 1st Level Support on irc.freenode.org#roar !
-
 h2. Introduction
 
-REST is about representations. Representations are documents. Documents are pushed back and forth between clients and REST services. Roar focuses on providing object-oriented representations.
+Roar is a framework for parsing and rendering REST documents. Nothing more. With Roar, REST documents - also known as representations - are defined using a new concept called representers. Both syntax and semantics are declared in Ruby modules that can be mixed into your domain models, following clean OOP patterns.
 
-Most REST gems provide a neat HTTP interface, automatic parsing of documents and a more or less convenient way for rendering representations. Roar is different. The central concept of Roar are *representers* - object-oriented documents suitable for parsing _and_ rendering, extendable at runtime and with hypermedia support. The Representer concept is the answer to the missing REST abstraction layer in most frameworks.
+Roar comes with built-in JSON, JSON::HAL and XML support. It exposes a highly modular architecture and makes it very simple to add new media types and functionality where needed. Additional features include client HTTP support, coercion, client-side caching, awesome hypermedia support and more. Representers feel pretty well in DCI environments, too.
 
-
-h2. Features
-
-* OOP access to documents.
-* Parsing _and_ rendering of representations in one place.
-* Declaratively define document syntax and semantics.
-* Hypermedia support.
-* ActiveResource-like client support.
-* Useable in both client _and_ server.
-* Framework agnostic, runs with sinatra, Rails, webmachine and friends.
-
-
+Roar is completely framework-agnostic and loves being used in web kits like Rails, Webmachine, Sinatra, Padrino, etc. Actually, Roar makes it fun designing real, hypermedia-driven, and resource-oriented systems that will even make Steve sleep happily at night so he finally gets some REST! 
+ 
 h2. Example
 
 Say your webshop consists of two completely separated apps. The REST backend, a Sinatra app, serves articles and processes orders. The frontend, being browsed by your clients, is a rich Rails application. It queries the services for articles, renders them nicely and reads or writes orders with REST calls. That being said, the frontend turns out to be a pure REST client.
@@ -307,3 +293,6 @@ Making that system RESTful basically means
 # Do _not_ let the frontend compute any URLs to further actions.
 # Showing articles, creating a new order, adding articles to it and finally placing the order - this all requires further URLs. These URLs are embedded as _hypermedia_ in the representations sent by the REST backend.
 
+h2. Support
+
+Questions? Need help? Free 1st Level Support on irc.freenode.org#roar !
