@@ -33,3 +33,10 @@ end
 
 require "test_xml/mini_test"
 require "roar/representer/xml"
+
+require 'sham_rack'
+require './test/fake_server'
+
+ShamRack.at('roar.example.com').rackup do
+  run FakeServer
+end
