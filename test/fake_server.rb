@@ -36,13 +36,13 @@ class FakeServer < Sinatra::Base
   end
   
   
-  require Dir.pwd + '/order_representers'
+  require './test/order_representers'
   JSON::Order.class_eval do
     def items_url
-      "http://localhost:9999/orders/1/items"
+      "http://roar.example.com/orders/1/items"
     end
     def order_url(order)
-      "http://localhost:9999/orders/#{order}"
+      "http://roar.example.com/orders/#{order}"
     end
     def represented
       1
@@ -72,4 +72,3 @@ class FakeServer < Sinatra::Base
   
 end
 
-FakeServer.run! :host => 'localhost', :port => 9999
