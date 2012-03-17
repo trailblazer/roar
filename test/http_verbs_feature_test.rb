@@ -32,7 +32,7 @@ class HttpVerbsTest < MiniTest::Spec
           include Roar::Representer::Feature::HttpVerbs
           attr_accessor :name, :label
         end
-        @band = @Band.get("http://localhost:9999/bands/slayer", "application/json")
+        @band = @Band.get("http://roar.example.com/bands/slayer", "application/json")
         assert_equal "Slayer", @band.name
         assert_equal "Canadian Maple", @band.label
       end
@@ -40,7 +40,7 @@ class HttpVerbsTest < MiniTest::Spec
     
     describe "#get" do
       it "updates instance with incoming representation" do
-        @band.get("http://localhost:9999/bands/slayer", "application/json")
+        @band.get("http://roar.example.com/bands/slayer", "application/json")
         assert_equal "Slayer", @band.name
         assert_equal "Canadian Maple", @band.label
       end
@@ -51,7 +51,7 @@ class HttpVerbsTest < MiniTest::Spec
         @band.name = "Strung Out"
         assert_equal nil, @band.label
         
-        @band.post("http://localhost:9999/bands", "application/xml")
+        @band.post("http://roar.example.com/bands", "application/xml")
         assert_equal "Strung Out", @band.name
         assert_equal "n/a", @band.label
       end
@@ -61,7 +61,7 @@ class HttpVerbsTest < MiniTest::Spec
       it "updates instance with incoming representation" do
         @band.name   = "Strung Out"
         @band.label  = "Fat Wreck"
-        @band.put("http://localhost:9999/bands/strungout", "application/xml")
+        @band.put("http://roar.example.com/bands/strungout", "application/xml")
         assert_equal "Strung Out", @band.name
         assert_equal "Fat Wreck", @band.label
       end
