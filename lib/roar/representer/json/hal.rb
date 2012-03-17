@@ -1,14 +1,50 @@
 module Roar::Representer
   module JSON
+    # Including the JSON::HAL module in your representer will render and parse documents
+    # following the HAL specification: http://stateless.co/hal_specification.html
+    # Links will be embedded using the +_links+ key, nested resources with the +_embedded+ key.
+    #
+    # Embedded resources can be specified when calling #property or +collection using the
+    # :embedded => true option.
+    #
+    # Example:
+    # 
+    #   module OrderRepresenter
+    #     include Roar::Representer::JSON::HAL
+    #     
+    #     property :id
+    #     collection :items, :class => Item, :extend => ItemRepresenter, :embedded => true
+    #
+    #     link :self do
+    #       "http://orders/#{id}"
+    #     end
+    #   end
+    #
+    # Renders to
+    #
+    #   "{\"id\":1,\"_embedded\":{\"items\":[{\"value\":\"Beer\",\"_links\":{\"self\":{\"href\":\"http://items/Beer\"}}}]},\"_links\":{\"self\":{\"href\":\"http://orders/1\"}}}"
     module HAL
       def self.included(base)
         base.class_eval do
           include Roar::Representer::JSON
           include Links       # overwrites #links_definition_options.
           extend ClassMethods # overwrites #links_definition_options, again.
+          include Resources
         end
       end
       
+      module Resources
+        # Write the property to the +_embedded+ hash when it's a resource.
+        def compile_fragment(bin, doc)
+          return super unless bin.definition.options[:embedded]
+          super(bin, doc[:_embedded] ||= {})
+        end
+        
+        def uncompile_fragment(bin, doc)
+          return super unless bin.definition.options[:embedded]
+          super(bin, doc["_embedded"])
+        end
+      end
       
       module ClassMethods
         def links_definition_options

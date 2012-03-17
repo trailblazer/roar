@@ -31,24 +31,39 @@ class HalJsonTest < MiniTest::Spec
     end
   end
   
-  module OrderRepresenter
-    include Roar::Representer::JSON::HAL
-    
-    property :id
-    collection :items, :class => Item, :extend => SongRepresenter, :embedded => true
-    
-    link :self do
-      "http://orders/#{id}"
-    end
-  end
   
   describe "HAL/JSON" do
     before do
-      @order = Order.new(:items => [Item.new], :id => 1).extend(OrderRepresenter)
+      Bla = Module.new do
+        include Roar::Representer::JSON::HAL
+        property :value
+        link :self do
+          "http://items/#{value}"
+        end
+      end
+      
+      @order_rep = Module.new do
+        include Roar::Representer::JSON::HAL
+        property :id
+        collection :items, :class => Item, :extend => Bla, :embedded => true
+        link :self do
+          "http://orders/#{id}"
+        end
+      end
+      
+      @order = Order.new(:items => [Item.new(:value => "Beer")], :id => 1).extend(@order_rep)
     end
     
-    it "render links" do
-      assert_equal "{\"id\":1,\"_links\":{\"self\":\"http://orders/1\"}}", Order.new(:id => 1).extend(OrderRepresenter).to_json
+    it "render links and embedded resources according to HAL" do
+      assert_equal "{\"id\":1,\"_embedded\":{\"items\":[{\"value\":\"Beer\",\"_links\":{\"self\":{\"href\":\"http://items/Beer\"}}}]},\"_links\":{\"self\":{\"href\":\"http://orders/1\"}}}", @order.to_json
+    end
+    
+    it "parses links and resources following the mighty HAL" do
+      @order.from_json("{\"id\":2,\"_embedded\":{\"items\":[{\"value\":\"Coffee\",\"_links\":{\"self\":{\"href\":\"http://items/Coffee\"}}}]},\"_links\":{\"self\":{\"href\":\"http://orders/2\"}}}")
+      assert_equal 2, @order.id
+      assert_equal "Coffee", @order.items.first.value
+      assert_equal "http://items/Coffee", @order.items.first.links[:self].href
+      assert_equal "http://orders/2", @order.links[:self].href
     end
   end
 end
