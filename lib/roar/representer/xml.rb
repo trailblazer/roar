@@ -38,7 +38,7 @@ module Roar
         include Representable::XML::ClassMethods
         
         def links_definition_options
-          [:links, :from => :link, :class => Feature::Hypermedia::Hyperlink, :collection => true, :extend => XML::HyperlinkRepresenter]
+          [:links, {:from => :link, :class => Feature::Hypermedia::Hyperlink, :collection => true, :extend => XML::HyperlinkRepresenter}]
         end
         
         # Generic entry-point for parsing.

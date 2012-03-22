@@ -45,7 +45,7 @@ module Roar
         
         # TODO: move to instance method, or remove?
         def links_definition_options
-          [:links, :class => Feature::Hypermedia::Hyperlink, :extend => HyperlinkRepresenter, :collection => true]
+          [:links, {:class => Feature::Hypermedia::Hyperlink, :extend => HyperlinkRepresenter, :collection => true}]
         end
       end
       
