@@ -186,20 +186,23 @@ end
 class XmlHyperlinkRepresenterTest < MiniTest::Spec
   describe "API" do
     before do
-      @l = Roar::Representer::Feature::Hypermedia::Hyperlink.new.extend(Roar::Representer::XML::HyperlinkRepresenter).from_xml(%{<link rel="self" href="http://roar.apotomo.de"/>})
+      @link = Roar::Representer::Feature::Hypermedia::Hyperlink.new.extend(Roar::Representer::XML::HyperlinkRepresenter).from_xml(%{<link rel="self" href="http://roar.apotomo.de" media="web"/>})
     end
-    
-    it "responds to #to_xml" do
-      assert_xml_equal %{<link rel=\"self\" href=\"http://roar.apotomo.de\"/>}, @l.to_xml
-    end
-    
     
     it "responds to #rel" do
-      assert_equal "self", @l.rel
+      assert_equal "self", @link.rel
     end
     
     it "responds to #href" do
-      assert_equal "http://roar.apotomo.de", @l.href
+      assert_equal "http://roar.apotomo.de", @link.href
+    end
+    
+    it "responds to #media" do
+      assert_equal "web", @link.media
+    end
+    
+    it "responds to #to_xml" do
+      assert_xml_equal %{<link rel=\"self\" href=\"http://roar.apotomo.de\" media="web"/>}, @link.to_xml
     end
   end
 end

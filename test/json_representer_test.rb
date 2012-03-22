@@ -74,16 +74,23 @@ end
 class JsonHyperlinkRepresenterTest
   describe "API" do
     before do
-      # TODO: ehm... hello?
-      @l = Roar::Representer::Feature::Hypermedia::Hyperlink.new.extend(Roar::Representer::JSON::HyperlinkRepresenter).from_json({:rel => :self, :href => "http://roar.apotomo.de"}.to_json)
+      @link = Roar::Representer::Feature::Hypermedia::Hyperlink.new.extend(Roar::Representer::JSON::HyperlinkRepresenter).from_json({:rel => :self, :href => "http://roar.apotomo.de", :media => "web"}.to_json)
     end
     
     it "responds to #rel" do
-      assert_equal "self", @l.rel
+      assert_equal "self", @link.rel
     end
     
     it "responds to #href" do
-      assert_equal "http://roar.apotomo.de", @l.href
+      assert_equal "http://roar.apotomo.de", @link.href
+    end
+    
+    it "responds to #media" do
+      assert_equal "web", @link.media
+    end
+    
+    it "responds to #to_json" do
+      assert_equal "{\"rel\":\"self\",\"href\":\"http://roar.apotomo.de\",\"media\":\"web\"}", @link.to_json
     end
   end
 end

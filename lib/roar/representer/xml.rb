@@ -52,8 +52,9 @@ module Roar
         
         self.representation_wrap = :link
         
-        property :rel,  :from => "rel", :attribute => true
-        property :href, :from => "href", :attribute => true
+        Feature::Hypermedia::Hyperlink.params.each do |attr|
+          property attr, :attribute => true
+        end
       end
     end
   end

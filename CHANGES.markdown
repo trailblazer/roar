@@ -1,3 +1,12 @@
+## 0.10.0
+
+* Requiring representable-0.1.3.
+* Added JSON-HAL support.
+* Links are no longer rendered when `href` is `nil` or `false`.
+* `Representer.link` class method now accepts either the `rel` value, only, or a hash of link attributes (defined in `Hypermedia::Hyperlink.params`), like `link :rel => :self, :title => "You're good" do..`
+* API CHANGE: `Representer#links` no longer returns the `href` value but the link object. Use it like `object.links[:self].href` to retrieve the URL.
+* `#from_json` won't throw an exception anymore when passed an empty json document.
+
 ## 0.9.2
 
 * Using representable-1.1.
