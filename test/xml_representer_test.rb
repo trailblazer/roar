@@ -59,6 +59,10 @@ class XMLRepresenterFunctionalTest < MiniTest::Spec
       it "is aliased by #serialize" do
         assert_equal @r.to_xml, @r.serialize
       end
+      
+      it "accepts :include and :except" do
+        assert_equal '<order/>', @r.to_xml(:except => [:id])
+      end
     end
     
     describe "#from_xml" do
@@ -70,6 +74,11 @@ class XMLRepresenterFunctionalTest < MiniTest::Spec
       it "is aliased by #deserialize" do
         @order = Order.new.deserialize("<order><id>1</id></order>")
         assert_equal "1", @order.id
+      end
+      
+      it "accepts :include and :except" do
+        @order = Order.new.deserialize("<order><id>1</id></order>", :except => [:id])
+        assert_equal nil, @order.id
       end
     end
     

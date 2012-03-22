@@ -30,6 +30,10 @@ class JsonRepresenterTest < MiniTest::Spec
       it "is aliased by #serialize" do
         assert_equal '{"id":1}', @order.serialize
       end
+      
+      it "accepts :include and :except" do
+        assert_equal '{}', @order.to_json(:except => [:id])
+      end
     end
     
     describe "#from_json" do
@@ -49,6 +53,11 @@ class JsonRepresenterTest < MiniTest::Spec
 
       it "works with an empty document" do
         assert @order.from_json('')
+      end
+      
+      it "accepts :include and :except" do
+        @order.from_json('{"id":1}', :except => [:id])
+        assert_equal nil, @order.id
       end
     end
     
