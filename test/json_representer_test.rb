@@ -120,6 +120,17 @@ class JsonHypermediaTest
     it "renders link: correctly in JSON" do
       assert_equal "{\"id\":1,\"links\":[{\"rel\":\"self\",\"href\":\"http://self\"},{\"rel\":\"next\",\"href\":\"http://next/1\"}]}", @c.new(:id => 1).to_json
     end
+    
+    it "doesn't render links when empty" do
+      assert_equal("{\"links\":[]}", Class.new do
+        include Roar::Representer::JSON
+        include Roar::Representer::Feature::Hypermedia
+        
+        link :self do nil end
+        link :next do false end
+      end.new.to_json)
+    end
+    
   end
 end
 

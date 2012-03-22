@@ -44,7 +44,7 @@ module Roar
           
           links_def.rel2block.each do |config|  # config is [{..}, block]
             options = config.first
-            options[:href] = run_link_block(config.last)
+            options[:href] = run_link_block(config.last) or next
             
             links.update_link(Feature::Hypermedia::Hyperlink.new(options))
           end
