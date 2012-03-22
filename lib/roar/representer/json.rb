@@ -39,8 +39,8 @@ module Roar
       
       
       module ClassMethods
-        def deserialize(json)
-          from_json(json)
+        def deserialize(*args)
+          from_json(*args)
         end
         
         # TODO: move to instance method, or remove?
