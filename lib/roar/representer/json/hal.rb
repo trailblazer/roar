@@ -42,7 +42,7 @@ module Roar::Representer
         
         def uncompile_fragment(bin, doc)
           return super unless bin.definition.options[:embedded]
-          super(bin, doc["_embedded"])
+          super(bin, doc["_embedded"] || {})
         end
       end
       
@@ -90,6 +90,7 @@ module Roar::Representer
           end
           
           def from_hash(json, *)
+            json ||= {} # since we override #from_hash we're responsible for this.
             json.each do |k, v|
               self << Feature::Hypermedia::Hyperlink.new(v.merge :rel => k)
             end

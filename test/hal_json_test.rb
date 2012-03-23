@@ -65,5 +65,12 @@ class HalJsonTest < MiniTest::Spec
       assert_equal "http://items/Coffee", @order.items.first.links[:self].href
       assert_equal "http://orders/2", @order.links[:self].href
     end
+    
+    it "doesn't require _links and _embedded to be present" do
+      @order.from_json("{\"id\":2}")
+      assert_equal 2, @order.id
+      assert_equal [], @order.items
+      assert_equal [], @order.links
+    end
   end
 end
