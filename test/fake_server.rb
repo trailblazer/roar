@@ -5,7 +5,7 @@ class FakeServer < Sinatra::Base
   get "/method" do
     "<method>get</method>"
   end
-  
+
   post "/method" do
     "<method>post</method>"
   end
@@ -21,7 +21,11 @@ class FakeServer < Sinatra::Base
   #patch "/method" do
   #  "<method>patch</method>"
   #end
-  
+
+  get '/deliberate-error' do
+    raise 'this error was deliberate'
+  end
+
   post "/bands" do
     #if request.content_type =~ /xml/
       '{"label": "n/a", "name": "Strung Out", "links": [{"href":"http://search", "rel": "search"}, {"href":"http://band/strungout", "rel": "self"}]}'
