@@ -4,3 +4,5 @@ source "http://rubygems.org"
 gemspec
 
 #gem "representable", :path => "../representable"
+
+gem 'faraday'
