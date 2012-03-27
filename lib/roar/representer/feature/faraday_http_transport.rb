@@ -8,9 +8,15 @@ require 'logger'
 module Roar
   module Representer
     module Feature
-      # Implements the HTTP verbs with Faraday (which can use adapters
-      # based on Net::HTTP or libcurl)
-      module FaradayTransport
+      # Advanced implementation of the HTTP verbs with the Faraday HTTP library
+      # (which can, in turn, use adapters based on Net::HTTP or libcurl)
+      #
+      # Depending on how the Faraday middleware stack is configured, this
+      # Transport can support features such as HTTP error code handling,
+      # redirects, etc.
+      #
+      # @see http://rubydoc.info/gems/faraday/file/README.md Faraday README
+      module FaradayHttpTransport
         class << self
 
           def get_uri(uri, as)

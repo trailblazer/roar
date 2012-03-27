@@ -1,5 +1,5 @@
-require 'roar/representer/feature/transport'
-require 'roar/representer/feature/faraday_transport' # Do not require here
+require 'roar/representer/feature/basic_http_transport'
+require 'roar/representer/feature/faraday_http_transport' # Do not require here
 
 module Roar
   # Gives HTTP-power to representers. They can serialize, send, process and deserialize HTTP-requests.
@@ -19,7 +19,7 @@ module Roar
           end
           
           def http
-            FaradayTransport
+            FaradayHttpTransport
           end
         end
         
@@ -48,7 +48,7 @@ module Roar
         # TODO: implement delete, patch.
       private
         def http
-          FaradayTransport  # DISCUSS: might be refering to separate http object soon.
+          FaradayHttpTransport  # DISCUSS: might be refering to separate http object soon.
         end
       end
     end

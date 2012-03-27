@@ -4,8 +4,8 @@ require "uri"
 module Roar
   module Representer
     module Feature
-      # Implements the HTTP verbs with Net::HTTP.
-      module Transport
+      # Basic implementation of the HTTP verbs built on Net::HTTP.
+      module BasicHttpTransport
         class << self
           # TODO: generically handle return codes/let Restfulie do it.
           def get_uri(uri, as)

@@ -1,10 +1,10 @@
 require 'test_helper'
-require 'roar/representer/feature/faraday_transport'
+require 'roar/representer/feature/faraday_http_transport'
 
-class FaradayTransportTest < MiniTest::Spec
-  describe "Transport" do
+class FaradayHttpTransportTest < MiniTest::Spec
+  describe 'FaradayHttpTransport' do
     before do
-      @transport = Roar::Representer::Feature::FaradayTransport
+      @transport = Roar::Representer::Feature::FaradayHttpTransport
     end
 
     it "#get_uri returns response" do
