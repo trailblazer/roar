@@ -6,20 +6,29 @@ module Roar
   module Representer
     module Feature
       module HttpVerbs
+
+        class << self
+          attr_accessor :http_transport
+        end
+        self.http_transport = BasicHttpTransport
+
         def self.included(base)
           base.extend ClassMethods
         end
-        
-        
+
+        def self.extended(base)
+          base.class.extend(ClassMethods)
+        end
+
         module ClassMethods
           # GETs +url+ with +format+ and returns deserialized representer.
           def get(url, format)
             document = http.get_uri(url, format).body
             deserialize(document)
           end
-          
+
           def http
-            FaradayHttpTransport
+            Roar::Representer::Feature::HttpVerbs.http_transport
           end
         end
         
@@ -48,7 +57,7 @@ module Roar
         # TODO: implement delete, patch.
       private
         def http
-          FaradayHttpTransport  # DISCUSS: might be refering to separate http object soon.
+          self.class.http
         end
       end
     end
