@@ -28,18 +28,28 @@ class FakeServer < Sinatra::Base
 
   post "/bands" do
     #if request.content_type =~ /xml/
-      '{"label": "n/a", "name": "Strung Out", "links": [{"href":"http://search", "rel": "search"}, {"href":"http://band/strungout", "rel": "self"}]}'
+    body  '{"label": "n/a", "name": "Strung Out", "links": [{"href":"http://search", "rel": "search"}, {"href":"http://band/strungout", "rel": "self"}]}'
+    status 201
   end
   
   put "/bands/strungout" do
-    {:name => "Strung Out", :label => "Fat Wreck"}.to_json
+    #{:name => "Strung Out", :label => "Fat Wreck"}.to_json
+    status 204
   end
-  
+
+  patch '/bands/strungout' do
+    #{:name => 'Strung Out', :label => 'Fat Mike'}.to_json
+    status 204
+  end
+
   get "/bands/slayer" do
     {:name => "Slayer", :label => "Canadian Maple"}.to_json
   end
-  
-  
+
+  delete '/banks/metallica' do
+    status 204
+  end
+
   require './test/order_representers'
   JSON::Order.class_eval do
     def items_url

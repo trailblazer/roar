@@ -86,12 +86,21 @@ class HttpVerbsTest < MiniTest::Spec
       end
     end
     
-    describe "#delete" do
-      
-    end
-    
     describe "#patch" do
-      
+      it 'does something' do
+        @band.label  = 'Fat Mike'
+        @band.patch("http://roar.example.com/bands/strungout", "application/xml")
+        assert_equal 'Fat Mike', @band.label
+      end
     end
+
+    describe "#delete" do
+      it 'does something' do
+        @band.delete("http://roar.example.com/bands/metallica", "application/xml")
+      end
+    end
+
+    # HEAD, OPTIONs?
+
   end
 end
