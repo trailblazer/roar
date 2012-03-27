@@ -6,3 +6,7 @@ gemspec
 #gem "representable", :path => "../representable"
 
 gem 'faraday'
+
+group :test do
+  gem 'turn'
+end
