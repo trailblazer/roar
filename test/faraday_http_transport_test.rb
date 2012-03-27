@@ -23,7 +23,7 @@ class FaradayHttpTransportTest < MiniTest::Spec
       assert_equal "<method>delete</method>",  @transport.delete_uri("http://roar.example.com/method", "application/xml").body
     end
 
-    it "#patch_uri returns Restfulie response" do
+    it "#patch_uri returns response" do
       assert_equal "<method>patch</method>",  @transport.patch_uri("http://roar.example.com/method", "booty", "application/xml").body
     end
 
