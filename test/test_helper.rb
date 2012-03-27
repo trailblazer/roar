@@ -12,7 +12,7 @@ begin
 
   Turn.config do |config|
     config.format  = :dotted
-    config.trace   = true
+    # config.trace   = true
   end
 rescue LoadError
 end
