@@ -18,9 +18,9 @@ class FakeServer < Sinatra::Base
     "<method>delete</method>"
   end
   
-  #patch "/method" do
-  #  "<method>patch</method>"
-  #end
+  patch "/method" do
+    "<method>patch</method>"
+  end
 
   get '/deliberate-error' do
     raise 'this error was deliberate'
