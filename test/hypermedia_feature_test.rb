@@ -190,7 +190,13 @@ class LinksDefinitionTest < MiniTest::Spec
       @d.rel2block << {:rel => :self}
       assert_equal [{:rel=>:self}], @d.rel2block
     end
-
+    
+    it "responds to #clone" do
+      @d.rel2block << {:rel => :self}
+      assert @d.clone.rel2block.object_id != @d.rel2block.object_id
+    end
+    
+    
     it "responds to #each to iterate rel2block" do
     end
 
@@ -240,7 +246,7 @@ class HyperlinkTest < MiniTest::Spec
 end
 
 class HyperlinkInheritanceTest < MiniTest::Spec
-  describe "when the base representer has an link" do
+  describe "when the base representer has a link" do
     before do
       module BaseRepresenter
         include Roar::Representer::JSON
@@ -267,10 +273,9 @@ class HyperlinkInheritanceTest < MiniTest::Spec
     end
 
     it "should inherit parent links" do
-      Object.new.extend(Foo)
-      bar = Object.new.extend(Bar)
-
-      assert_equal "{\"links\":[{\"rel\":\"base\",\"href\":\"http://base\"},{\"rel\":\"bar\",\"href\":\"http://bar\"}]}", bar.to_json
+      foo = Object.new.extend(Foo)
+      
+      assert_equal "{\"links\":[{\"rel\":\"base\",\"href\":\"http://base\"},{\"rel\":\"foo\",\"href\":\"http://foo\"}]}", foo.to_json
     end
 
   end

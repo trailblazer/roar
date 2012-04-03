@@ -108,8 +108,14 @@ module Roar
         
         class LinksDefinition < Representable::Definition
           # TODO: hide rel2block in interface.
+          attr_writer :rel2block
+          
           def rel2block
             @rel2block ||= []
+          end
+          
+          def clone
+            super.tap { |d| d.rel2block = rel2block.clone }
           end
         end
         
