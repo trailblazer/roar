@@ -1,10 +1,10 @@
 require 'test_helper'
-require 'roar/representer/feature/transport'
+require 'roar/representer/transport/net_http'
 
-class TransportTest < MiniTest::Spec
+class NetHTTPTransportTest < MiniTest::Spec
   describe "Transport" do
     before do
-      @transport = Roar::Representer::Feature::Transport
+      @transport = Roar::Representer::Transport::NetHTTP.new
     end
     
     it "#get_uri returns response" do

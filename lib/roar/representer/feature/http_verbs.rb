@@ -1,4 +1,4 @@
-require 'roar/representer/feature/transport'
+require 'roar/representer/transport/net_http'
 
 module Roar
   # Gives HTTP-power to representers. They can serialize, send, process and deserialize HTTP-requests.
@@ -42,7 +42,7 @@ module Roar
         # TODO: implement delete, patch.
       private
         def http
-          Transport  # DISCUSS: might be refering to separate http object soon.
+          Transport::NetHTTP.new
         end
       end
     end
