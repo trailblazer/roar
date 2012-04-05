@@ -1,5 +1,5 @@
-require 'roar/representer/feature/basic_http_transport'
-require 'roar/representer/feature/faraday_http_transport' # Do not require here
+require 'roar/representer/transport/net_http'
+require 'roar/representer/transport/faraday'  # Do not require here
 
 module Roar
   # Gives HTTP-power to representers. They can serialize, send, process and deserialize HTTP-requests.
@@ -10,7 +10,7 @@ module Roar
         class << self
           attr_accessor :http_transport
         end
-        self.http_transport = BasicHttpTransport
+        self.http_transport = ::Roar::Representer::Transport::NetHTTP
 
         def self.included(base)
           base.extend ClassMethods
@@ -21,14 +21,9 @@ module Roar
         end
 
         module ClassMethods
-          # GETs +url+ with +format+ and returns deserialized representer.
-          def get(url, format)
-            document = http.get_uri(url, format).body
-            deserialize(document)
-          end
-
-          def http
-            Roar::Representer::Feature::HttpVerbs.http_transport
+          # GETs +url+ with +format+ and returns deserialized represented object.
+          def get(*args)
+            new.get(*args)
           end
         end
         
@@ -87,7 +82,7 @@ module Roar
         end
 
         def http
-          self.class.http
+          Roar::Representer::Feature::HttpVerbs.http_transport.new
         end
       end
     end

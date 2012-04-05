@@ -42,14 +42,14 @@ class HttpVerbsTest < MiniTest::Spec
 
       describe 'a non-existent resource' do
         it 'handles HTTP errors and raises a ResourceNotFound error with FaradayHttpTransport' do
-          Roar::Representer::Feature::HttpVerbs.http_transport = Roar::Representer::Feature::FaradayHttpTransport
-          assert_raises(Faraday::Error::ResourceNotFound) do
+          Roar::Representer::Feature::HttpVerbs.http_transport = Roar::Representer::Transport::Faraday
+          assert_raises(::Faraday::Error::ResourceNotFound) do
             @Band.get('http://roar.example.com/bands/anthrax', "application/json")
           end
         end
 
         it 'performs no HTTP error handling with BasicHttpTransport' do
-          Roar::Representer::Feature::HttpVerbs.http_transport = Roar::Representer::Feature::BasicHttpTransport
+          Roar::Representer::Feature::HttpVerbs.http_transport = Roar::Representer::Transport::NetHTTP
           assert_raises(JSON::ParserError) do
             @Band.get('http://roar.example.com/bands/anthrax', "application/json")
           end
