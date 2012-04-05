@@ -7,6 +7,15 @@ require 'minitest/spec'
 require 'roar/representer'
 require 'roar/representer/feature/http_verbs'
 
+begin
+  require 'turn'
+
+  Turn.config do |config|
+    config.format  = :dotted
+    # config.trace   = true
+  end
+rescue LoadError
+end
 
 module AttributesContructor
   def initialize(attrs={})

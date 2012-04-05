@@ -24,7 +24,7 @@ class HttpVerbsTest < MiniTest::Spec
     end
     
     describe "HttpVerbs.get" do
-      it "returns instance from incoming representation" do
+      before do
         # let's pretend the user wants Roar class methods.
         @Band = Class.new do
           include Roar::Representer::JSON
@@ -32,12 +32,31 @@ class HttpVerbsTest < MiniTest::Spec
           include Roar::Representer::Feature::HttpVerbs
           attr_accessor :name, :label
         end
+      end
+
+      it "returns instance from incoming representation" do
         @band = @Band.get("http://roar.example.com/bands/slayer", "application/json")
         assert_equal "Slayer", @band.name
         assert_equal "Canadian Maple", @band.label
       end
+
+      describe 'a non-existent resource' do
+        it 'handles HTTP errors and raises a ResourceNotFound error with FaradayHttpTransport' do
+          Roar::Representer::Feature::HttpVerbs.http_transport = Roar::Representer::Transport::Faraday
+          assert_raises(::Faraday::Error::ResourceNotFound) do
+            @Band.get('http://roar.example.com/bands/anthrax', "application/json")
+          end
+        end
+
+        it 'performs no HTTP error handling with BasicHttpTransport' do
+          Roar::Representer::Feature::HttpVerbs.http_transport = Roar::Representer::Transport::NetHTTP
+          assert_raises(JSON::ParserError) do
+            @Band.get('http://roar.example.com/bands/anthrax', "application/json")
+          end
+        end
+      end
     end
-    
+
     describe "#get" do
       it "updates instance with incoming representation" do
         @band.get("http://roar.example.com/bands/slayer", "application/json")
@@ -67,12 +86,21 @@ class HttpVerbsTest < MiniTest::Spec
       end
     end
     
-    describe "#delete" do
-      
-    end
-    
     describe "#patch" do
-      
+      it 'does something' do
+        @band.label  = 'Fat Mike'
+        @band.patch("http://roar.example.com/bands/strungout", "application/xml")
+        assert_equal 'Fat Mike', @band.label
+      end
     end
+
+    describe "#delete" do
+      it 'does something' do
+        @band.delete("http://roar.example.com/bands/metallica", "application/xml")
+      end
+    end
+
+    # HEAD, OPTIONs?
+
   end
 end
