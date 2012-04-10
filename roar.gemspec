@@ -24,6 +24,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency "rake"
   s.add_development_dependency "test_xml"
   s.add_development_dependency "minitest",	">= 2.8.1"
-  s.add_development_dependency "sinatra",   "~> 1.2.6"
+  s.add_development_dependency "sinatra",   "~> 1.3.2"
   s.add_development_dependency "sham_rack", "~> 1.3.0"
 end

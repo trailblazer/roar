@@ -23,9 +23,8 @@ class NetHTTPTransportTest < MiniTest::Spec
       assert_equal "<method>delete</method>",  @transport.delete_uri("http://roar.example.com/method", "application/xml").body
     end
     
-    # TODO: how to get PATCH into Sinatra?
-    #it "#patch_uri returns Restfulie response" do
-    #  assert_equal "<method>patch</method>",  @o.patch_uri("http://roar.example.com/method", "booty", "application/xml").body
-    #end
+    it "#patch_uri returns response" do
+      assert_equal "<method>patch</method>",  @transport.patch_uri("http://roar.example.com/method", "booty", "application/xml").body
+    end
   end
 end
