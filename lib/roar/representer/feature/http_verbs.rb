@@ -60,25 +60,10 @@ module Roar
           self
         end
 
-        private
-
+      private
         def handle_response(response)
-          return if response_code_bodyless?(response.code) || response_empty?(response)
-
           document = response.body
           deserialize(document)
-        end
-
-        # Determine whether the response is allowed to have a body
-        #
-        # @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.3 HTTP 1.1 spec section 4.4.1
-        def response_code_bodyless?(code)
-          (100..199) === code || [204,304].include?(code)
-        end
-
-        def response_empty?(response)
-          !((response['Content-Length'].nil? || response['Content-Length'] != '0') &&
-          !response.body.nil? && response.body.strip.size > 0)
         end
 
         def http

@@ -33,13 +33,15 @@ class FakeServer < Sinatra::Base
   end
   
   put "/bands/strungout" do
-    #{:name => "Strung Out", :label => "Fat Wreck"}.to_json
-    status 204
+    # DISCUSS: as long as we don't agree on what to return in PUT/PATCH, let's return an updated document.
+    {:name => "Strung Out", :label => "Fat Wreck"}.to_json
+    #status 204
   end
 
   patch '/bands/strungout' do
-    #{:name => 'Strung Out', :label => 'Fat Mike'}.to_json
-    status 204
+    # DISCUSS: as long as we don't agree on what to return in PUT/PATCH, let's return an updated document.
+    {:name => 'Strung Out', :label => 'Fat Mike'}.to_json
+    #status 204
   end
 
   get "/bands/slayer" do
