@@ -9,16 +9,13 @@ module Roar
 
         class << self
           attr_accessor :http_transport
+          
+          def included(base)
+            base.extend ClassMethods
+          end
         end
         self.http_transport = ::Roar::Representer::Transport::NetHTTP
-
-        def self.included(base)
-          base.extend ClassMethods
-        end
-
-        def self.extended(base)
-          base.class.extend(ClassMethods)
-        end
+        
 
         module ClassMethods
           # GETs +url+ with +format+ and returns deserialized represented object.
