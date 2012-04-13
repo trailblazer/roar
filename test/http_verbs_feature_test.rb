@@ -23,35 +23,44 @@ class HttpVerbsTest < MiniTest::Spec
       @band.extend(Roar::Representer::Feature::HttpVerbs)
     end
     
-    describe "HttpVerbs.get" do
+    describe "transport_engine" do
       before do
-        # let's pretend the user wants Roar class methods.
-        @Band = Class.new do
-          include Roar::Representer::JSON
-          include BandRepresenter
-          include Roar::Representer::Feature::HttpVerbs
-          attr_accessor :name, :label
-        end
+        @http_verbs = Roar::Representer::Feature::HttpVerbs
+        @net_http   = Roar::Representer::Transport::NetHTTP
       end
-
+      
+      it "has a default set in the transport module level" do
+        assert_equal @net_http, @band.transport_engine
+      end
+      
+      it "allows changing on instance level" do
+        @band.transport_engine = :soap
+        assert_equal @net_http, @http_verbs.transport_engine
+        assert_equal :soap, @band.transport_engine
+      end
+    end
+    
+    
+    describe "HttpVerbs.get" do
       it "returns instance from incoming representation" do
-        @band = @Band.get("http://roar.example.com/bands/slayer", "application/json")
-        assert_equal "Slayer", @band.name
-        assert_equal "Canadian Maple", @band.label
+        band = @band.get("http://roar.example.com/bands/slayer", "application/json")
+        assert_equal "Slayer", band.name
+        assert_equal "Canadian Maple", band.label
       end
 
+      # FIXME: move to faraday test.
       describe 'a non-existent resource' do
         it 'handles HTTP errors and raises a ResourceNotFound error with FaradayHttpTransport' do
-          Roar::Representer::Feature::HttpVerbs.http_transport = Roar::Representer::Transport::Faraday
+          @band.transport_engine = Roar::Representer::Transport::Faraday
           assert_raises(::Faraday::Error::ResourceNotFound) do
-            @Band.get('http://roar.example.com/bands/anthrax', "application/json")
+            @band.get('http://roar.example.com/bands/anthrax', "application/json")
           end
         end
 
-        it 'performs no HTTP error handling with BasicHttpTransport' do
-          Roar::Representer::Feature::HttpVerbs.http_transport = Roar::Representer::Transport::NetHTTP
+        it 'performs no HTTP error handling with NetHttpTransport' do
+          @band.transport_engine = Roar::Representer::Transport::NetHTTP
           assert_raises(JSON::ParserError) do
-            @Band.get('http://roar.example.com/bands/anthrax', "application/json")
+            @band.get('http://roar.example.com/bands/anthrax', "application/json")
           end
         end
       end

@@ -8,13 +8,13 @@ module Roar
       module HttpVerbs
 
         class << self
-          attr_accessor :http_transport
+          attr_accessor :transport_engine
           
           def included(base)
             base.extend ClassMethods
           end
         end
-        self.http_transport = ::Roar::Representer::Transport::NetHTTP
+        self.transport_engine = ::Roar::Representer::Transport::NetHTTP
         
 
         module ClassMethods
@@ -24,6 +24,11 @@ module Roar
           end
         end
         
+        
+        attr_writer :transport_engine
+        def transport_engine
+          @transport_engine || HttpVerbs.transport_engine
+        end
         
         # Serializes the object, POSTs it to +url+ with +format+, deserializes the returned document
         # and updates properties accordingly.
@@ -64,7 +69,7 @@ module Roar
         end
 
         def http
-          Roar::Representer::Feature::HttpVerbs.http_transport.new
+          transport_engine.new
         end
       end
     end
