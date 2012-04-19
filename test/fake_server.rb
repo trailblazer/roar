@@ -2,6 +2,9 @@ require "bundler/setup"
 require 'sinatra/base'
 
 class FakeServer < Sinatra::Base
+
+  set :raise_errors, false
+
   get "/method" do
     "<method>get</method>"
   end
