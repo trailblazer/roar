@@ -35,6 +35,5 @@ class RepresenterTest < MiniTest::Spec
       
       assert_equal "{\"name\":\"Paulo\"}", Person.new(:name => "Paulo").to_json
     end
-    
   end
 end

@@ -279,11 +279,11 @@ order.post(order.links[:self])
 
 This was dead simple since representations can be composed of different documents in Roar.
 
+h2. More Features
 
-h2. Current Status
+Be sure to check out the bundled features.
 
-Please note that Roar is still in conception, the API might change as well as concepts do.
- 
+# *Coercion* transforms values to typed objects when parsing a document. Uses virtus. 
 
 h2. What is REST about?
 
