@@ -1,3 +1,7 @@
+## 0.10.1
+
+* Adding the Coercion feature.
+
 ## 0.10.0
 
 * Requiring representable-0.1.3.
