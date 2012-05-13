@@ -134,7 +134,7 @@ module OrderRepresenter
   property :id
   property :client_id
   
-  collection :articles, :as => Article
+  collection :articles, :class => Article
   
   link :self do
     order_url(represented)
