@@ -53,8 +53,16 @@ module Roar
       # Represents a hyperlink in standard roar+json. 
       module HyperlinkRepresenter
         include JSON
-        Feature::Hypermedia::Hyperlink.params.each do |attr|
-          property attr
+
+        class << self
+          alias_method :representable_extended, :extended
+          def extended( base )
+            representable_extended base
+
+            base.marshal_dump.keys.each do |attributes|
+              property attributes
+            end
+          end
         end
       end
     end
