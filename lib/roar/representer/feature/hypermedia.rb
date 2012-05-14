@@ -1,3 +1,5 @@
+require 'ostruct'
+
 module Roar
   module Representer
     module Feature
@@ -122,18 +124,19 @@ module Roar
         
         # An abstract hypermedia link with +rel+, +href+ and other attributes.
         # Overwrite the Hyperlink.params method if you need more link attributes.
-        class Hyperlink
+        class Hyperlink < OpenStruct
           def self.params
             [:rel, :href, :media, :title, :hreflang]
           end
-          
-          attr_accessor *params
-          
+
+          # Default link attributes. These are required for parsing links from
+          # XML documents.
+          def self.defaults
+            self.params.each_with_object({}) { |p, defaults| defaults[p] = nil }
+          end
+
           def initialize(options={})
-            options.each do |k,v|
-              next unless self.class.params.include?(k.to_sym)
-              instance_variable_set("@#{k}", v)
-            end
+            super self.class.defaults.merge options
           end
         end
       end
