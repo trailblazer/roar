@@ -19,13 +19,22 @@ module Roar
       #     link :rel => :next, :title => "Next, please!" do
       #       "http://orders/#{id}"
       #     end
+      #
+      # Sometimes you need values from outside when the representation links are rendered. Just pass them
+      # to the render method, they will be available as block parameters.
+      #
+      #   link :self do |opts|
+      #     "http://orders/#{opts[:id]}"
+      #   end
+      #
+      #   model.to_json(:id => 1) 
       module Hypermedia
         def self.included(base)
           base.extend ClassMethods
         end
         
         def before_serialize(options={})
-          prepare_links! unless options[:links] == false  # DISCUSS: doesn't work when links are already setup (e.g. from #deserialize).
+          prepare_links!(options) unless options[:links] == false  # DISCUSS: doesn't work when links are already setup (e.g. from #deserialize).
           super # Representer::Base
         end
         
@@ -39,19 +48,19 @@ module Roar
         
       protected
         # Setup hypermedia links by invoking their blocks. Usually called by #serialize.
-        def prepare_links!
+        def prepare_links!(*args)
           links_def = find_links_definition or return
           
           links_def.rel2block.each do |config|  # config is [{..}, block]
             options = config.first
-            options[:href] = run_link_block(config.last) or next
+            options[:href] = run_link_block(config.last, *args) or next
             
             links.update_link(Feature::Hypermedia::Hyperlink.new(options))
           end
         end
         
-        def run_link_block(block)
-          instance_exec(&block)
+        def run_link_block(block, *args)
+          instance_exec(*args, &block)
         end
         
         def find_links_definition

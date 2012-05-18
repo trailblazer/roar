@@ -1,3 +1,7 @@
+## 0.10.2
+
+* You can now pass values from outside to the render method (e.g. `#to_json`), they will be available as block parameters inside `#link`.
+
 ## 0.10.1
 
 * Adding the Coercion feature.

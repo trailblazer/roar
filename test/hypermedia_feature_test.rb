@@ -31,6 +31,16 @@ class HypermediaTest
 
         assert_equal "{\"links\":[{\"rel\":\"self\",\"href\":\"http://self\",\"title\":\"Hey, @myabc\"}]}", Object.new.extend(@mod).to_json
       end
+      
+      it "receives options from to_*" do
+        @mod.class_eval do
+          link :self do |opts|
+            "http://self/#{opts[:id]}"
+          end
+        end
+
+        assert_equal "{\"links\":[{\"rel\":\"self\",\"href\":\"http://self/1\"}]}", Object.new.extend(@mod).to_json(:id => 1)
+      end
     end
 
 
