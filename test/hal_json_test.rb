@@ -72,5 +72,22 @@ class HalJsonTest < MiniTest::Spec
       assert_equal [], @order.items
       assert_equal [], @order.links
     end
+
+    it "doesn't require single_item to be present" do
+      @order_rep = Module.new do
+        include Roar::Representer::JSON::HAL
+        property :id
+        property :single_item, :class => Item, :extend => Bla, :embedded => true
+        collection :items, :class => Item, :extend => Bla, :embedded => true
+        link :self do
+          "http://orders/#{id}"
+        end
+      end
+
+      @order = Order.new(:items => [Item.new(:value => "Beer")], :id => 1).extend(@order_rep)
+      @order.from_json("{\"id\":2,\"_embedded\":{\"items\":[{\"value\":\"Coffee\",\"_links\":{\"self\":{\"href\":\"http://items/Coffee\"}}}]},\"_links\":{\"self\":{\"href\":\"http://orders/2\"}}}")
+      assert_equal 2, @order.id
+      assert_equal nil, @order.single_item
+    end
   end
 end

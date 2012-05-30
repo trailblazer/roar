@@ -42,6 +42,8 @@ module Roar::Representer
         
         def uncompile_fragment(bin, doc)
           return super unless bin.definition.options[:embedded]
+
+          return if doc && doc["_embedded"] && !doc["_embedded"].has_key?(bin.definition.name)
           super(bin, doc["_embedded"] || {})
         end
       end
