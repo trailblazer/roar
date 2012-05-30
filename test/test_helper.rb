@@ -37,7 +37,7 @@ end
 
 class Order
   include AttributesContructor
-  attr_accessor :id, :items
+  attr_accessor :id, :items, :single_item
 end
 
 require "test_xml/mini_test"
