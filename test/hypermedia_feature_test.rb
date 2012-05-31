@@ -24,12 +24,12 @@ class HypermediaTest
 
       it "accepts any options" do
         @mod.class_eval do
-          link :rel => :self, :title => "Hey, @myabc" do
+          link :rel => :self, :title => "Hey, @myabc", 'data-foo' => 'bar' do
             "http://self"
           end
         end
 
-        assert_equal "{\"links\":[{\"rel\":\"self\",\"href\":\"http://self\",\"title\":\"Hey, @myabc\"}]}", Object.new.extend(@mod).to_json
+        assert_equal "{\"links\":[{\"rel\":\"self\",\"href\":\"http://self\",\"title\":\"Hey, @myabc\",\"data-foo\":\"bar\"}]}", Object.new.extend(@mod).to_json
       end
       
       it "receives options from to_*" do

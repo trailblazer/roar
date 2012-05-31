@@ -52,8 +52,15 @@ module Roar
         
         self.representation_wrap = :link
         
-        Feature::Hypermedia::Hyperlink.params.each do |attr|
-          property attr, :attribute => true
+        class << self
+          alias_method :representable_extended, :extended
+          def extended( base )
+            representable_extended base
+
+            base.marshal_dump.keys.each do |attributes|
+              property attributes, :attribute => true
+            end
+          end
         end
       end
     end
