@@ -1,4 +1,6 @@
 pkg/*
 *.gem
 .bundle
+.idea
+.rvmrc
 Gemfile.lock

@@ -1,3 +1,5 @@
+require 'ostruct'
+
 module Roar
   module Representer
     module Feature
@@ -32,47 +34,47 @@ module Roar
         def self.included(base)
           base.extend ClassMethods
         end
-        
+
         def before_serialize(options={})
-          prepare_links!(options) unless options[:links] == false  # DISCUSS: doesn't work when links are already setup (e.g. from #deserialize).
+          prepare_links!(options) unless options[:links] == false # DISCUSS: doesn't work when links are already setup (e.g. from #deserialize).
           super # Representer::Base
         end
-        
+
         def links=(link_list)
           links.replace(link_list)
         end
-        
+
         def links
           @links ||= LinkCollection.new
         end
-        
-      protected
+
+        protected
         # Setup hypermedia links by invoking their blocks. Usually called by #serialize.
         def prepare_links!(*args)
           links_def = find_links_definition or return
-          
-          links_def.rel2block.each do |config|  # config is [{..}, block]
+
+          links_def.rel2block.each do |config| # config is [{..}, block]
             options = config.first
             options[:href] = run_link_block(config.last, *args) or next
-            
+
             links.update_link(Feature::Hypermedia::Hyperlink.new(options))
           end
         end
-        
+
         def run_link_block(block, *args)
           instance_exec(*args, &block)
         end
-        
+
         def find_links_definition
           representable_attrs.find { |d| d.is_a?(LinksDefinition) }
         end
-        
-        
+
+
         class LinkCollection < Array
           def [](rel)
             link = find { |l| l.rel.to_s == rel.to_s } and return link
           end
-          
+
           # Checks if the link is already contained by querying for its +rel+.
           # If so, it gets replaced. Otherwise, the new link gets appended.
           def update_link(link)
@@ -82,8 +84,8 @@ module Roar
             self << link
           end
         end
-        
-        
+
+
         module ClassMethods
           # Declares a hypermedia link in the document.
           #
@@ -97,52 +99,58 @@ module Roar
           # Note that you're free to put decider logic into #link blocks, too.
           def link(options, &block)
             links = find_links_definition || create_links
-            
+
             options = {:rel => options} if options.is_a?(Symbol)
             links.rel2block << [options, block]
           end
-          
+
           def find_links_definition
             representable_attrs.find { |d| d.is_a?(LinksDefinition) }
           end
-          
-        private
+
+          private
           def create_links
             LinksDefinition.new(*links_definition_options).tap do |links|
               representable_attrs << links
             end
           end
         end
-        
-        
+
+
         class LinksDefinition < Representable::Definition
           # TODO: hide rel2block in interface.
           attr_writer :rel2block
-          
+
           def rel2block
             @rel2block ||= []
           end
-          
+
           def clone
             super.tap { |d| d.rel2block = rel2block.clone }
           end
         end
-        
-        
+
+
         # An abstract hypermedia link with +rel+, +href+ and other attributes.
         # Overwrite the Hyperlink.params method if you need more link attributes.
-        class Hyperlink
+        class Hyperlink < OpenStruct
           def self.params
             [:rel, :href, :media, :title, :hreflang]
           end
-          
-          attr_accessor *params
-          
+
+          def marshal_load(options={})
+            options = options.inject({}) { |memo, (k, v)| memo[k.to_sym] = v; memo }
+            super self.class.defaults.merge options
+          end
+
+          # Default link attributes. These are required for parsing links from
+          # XML documents.
+          def self.defaults
+            self.params.each_with_object({}) { |p, defaults| defaults[p] = nil }
+          end
+
           def initialize(options={})
-            options.each do |k,v|
-              next unless self.class.params.include?(k.to_sym)
-              instance_variable_set("@#{k}", v)
-            end
+            super self.class.defaults.merge options
           end
         end
       end
