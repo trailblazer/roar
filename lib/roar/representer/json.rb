@@ -49,13 +49,10 @@ module Roar
         end
       end
       
-      
-      # Represents a hyperlink in standard roar+json. 
+      require "representable/json/hash"
+      # Represents a hyperlink in standard roar+json hash representation. 
       module HyperlinkRepresenter
-        include JSON
-        Feature::Hypermedia::Hyperlink.params.each do |attr|
-          property attr
-        end
+        include Representable::JSON::Hash
       end
     end
   end

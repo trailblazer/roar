@@ -51,10 +51,6 @@ module Roar
         include XML
         
         self.representation_wrap = :link
-        
-        Feature::Hypermedia::Hyperlink.params.each do |attr|
-          property attr, :attribute => true
-        end
       end
     end
   end

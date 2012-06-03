@@ -129,20 +129,16 @@ module Roar
         end
         
         
-        # An abstract hypermedia link with +rel+, +href+ and other attributes.
-        # Overwrite the Hyperlink.params method if you need more link attributes.
-        class Hyperlink
-          def self.params
-            [:rel, :href, :media, :title, :hreflang]
+        require "ostruct"
+        # An abstract hypermedia link with arbitrary attributes.
+        class Hyperlink < OpenStruct
+          def each(*args, &block)
+            marshal_dump.each(*args, &block)
           end
           
-          attr_accessor *params
-          
-          def initialize(options={})
-            options.each do |k,v|
-              next unless self.class.params.include?(k.to_sym)
-              instance_variable_set("@#{k}", v)
-            end
+          def replace(hash)
+            # #marshal_load requires symbol keys: http://apidock.com/ruby/v1_9_3_125/OpenStruct/marshal_load
+            marshal_load(hash.inject({}) { |h, (k,v)| h[k.to_sym] = v; h })
           end
         end
       end

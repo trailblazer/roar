@@ -29,7 +29,7 @@ class HypermediaTest
           end
         end
 
-        assert_equal "{\"links\":[{\"rel\":\"self\",\"href\":\"http://self\",\"title\":\"Hey, @myabc\"}]}", Object.new.extend(@mod).to_json
+        assert_equal "{\"links\":[{\"rel\":\"self\",\"title\":\"Hey, @myabc\",\"href\":\"http://self\"}]}", Object.new.extend(@mod).to_json
       end
       
       it "receives options from to_*" do
@@ -234,15 +234,11 @@ class HyperlinkTest < MiniTest::Spec
   Hyperlink = Roar::Representer::Feature::Hypermedia::Hyperlink
   describe "Hyperlink" do
     before do
-      @link = Hyperlink.new(:rel => "self", :href => "http://self")
+      @link = Hyperlink.new(:rel => "self", "href" => "http://self", "data-whatever" => "Hey, @myabc")
     end
 
     it "accepts string keys in constructor" do
-      assert_equal "Hey, @myabc", Hyperlink.new("title" => "Hey, @myabc").title
-    end
-
-    it "responds to #media" do
-      assert_equal nil, @link.media
+      assert_equal "Hey, @myabc", @link.send("data-whatever")
     end
 
     it "responds to #rel" do
@@ -253,27 +249,23 @@ class HyperlinkTest < MiniTest::Spec
       assert_equal "http://self", @link.href
     end
     
+    it "responds to #replace with string keys" do
+      @link.replace("rel" => "next")
+      assert_equal nil, @link.href
+      assert_equal "next", @link.rel
+    end
     
     
     it "allows adding any number of attributes" do
-      class OpenHyperlink < OpenStruct
-        def each(*args, &block)
-          marshal_dump.each(*args, &block)
-        end
-        
-        alias_method :replace, :marshal_load
-      end
+      link = Roar::Representer::Feature::Hypermedia::Hyperlink.new("rel" => "self", :href => "http://self", "data-whatever" => "yo")
+      assert_equal "self", link.rel
+      assert_equal "{\"rel\":\"self\",\"href\":\"http://self\",\"data-whatever\":\"yo\"}", link.extend(Roar::Representer::JSON::HyperlinkRepresenter).to_json
       
-      require "representable/json/hash"
-      module Roar::Representer::JSON::OpenHyperlinkRepresenter
-        include Representable::JSON::Hash
-      end
+      puts "from json"
+      link=Roar::Representer::Feature::Hypermedia::Hyperlink.new.extend(Roar::Representer::JSON::HyperlinkRepresenter).from_json("{\"rel\":\"self\",\"href\":\"http://self\",\"data-whatever\":\"yo\"}")
+      #assert_equal({"rel"=>"self", "href"=>"http://self", "data-whatever"=>"yo"}, link.marshal_dump)
       
-      
-      link = OpenHyperlink.new(:rel => "self", :href => "http://self", "data-whatever" => "yo")
-      assert_equal "{\"rel\":\"self\",\"href\":\"http://self\",\"data-whatever\":\"yo\"}", link.extend(Roar::Representer::JSON::OpenHyperlinkRepresenter).to_json
-      
-      assert_equal({"rel"=>"self", "href"=>"http://self", "data-whatever"=>"yo"}, OpenHyperlink.new.extend(Roar::Representer::JSON::OpenHyperlinkRepresenter).from_json("{\"rel\":\"self\",\"href\":\"http://self\",\"data-whatever\":\"yo\"}").marshal_dump)
+      assert_equal "self", link.rel
     end
     
   end

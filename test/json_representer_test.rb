@@ -118,10 +118,11 @@ class JsonHypermediaTest
     end
     
     it "extracts links from JSON" do
-      @r = @c.from_json({:links => [{:rel => "self", :href => "http://self"}]}.to_json)
+      r = @c.from_json({:links => [{:rel => "self", :href => "http://self"}]}.to_json)
       
-      assert_equal 1, @r.links.size
-      assert_equal(["self", "http://self"], [@r.links.first.rel, @r.links.first.href]) 
+      assert_equal 1, r.links.size
+      link = r.links.first
+      assert_equal(["self", "http://self"], [link.rel, link.href]) 
     end
     
     it "renders link: correctly in JSON" do
