@@ -257,20 +257,16 @@ class HyperlinkTest < MiniTest::Spec
     
     it "allows adding any number of attributes" do
       class OpenHyperlink < OpenStruct
+        def each(*args, &block)
+          marshal_dump.each(*args, &block)
+        end
         
+        alias_method :replace, :marshal_load
       end
       
+      require "representable/json/hash"
       module Roar::Representer::JSON::OpenHyperlinkRepresenter
-        include Roar::Representer::JSON
-        
-        def create_representation_with(doc, options, format)
-          Representable::JSON::HashBinding.new(Representable::Definition.new(:liiink)).serialize_for(marshal_dump)
-        end
-        def update_properties_from(doc, options, format)
-          marshal_load Representable::JSON::HashBinding.new(Representable::Definition.new(:liiink)).deserialize_from(doc)
-          self
-        end
-        
+        include Representable::JSON::Hash
       end
       
       
