@@ -254,20 +254,6 @@ class HyperlinkTest < MiniTest::Spec
       assert_equal nil, @link.href
       assert_equal "next", @link.rel
     end
-    
-    
-    it "allows adding any number of attributes" do
-      link = Roar::Representer::Feature::Hypermedia::Hyperlink.new("rel" => "self", :href => "http://self", "data-whatever" => "yo")
-      assert_equal "self", link.rel
-      assert_equal "{\"rel\":\"self\",\"href\":\"http://self\",\"data-whatever\":\"yo\"}", link.extend(Roar::Representer::JSON::HyperlinkRepresenter).to_json
-      
-      puts "from json"
-      link=Roar::Representer::Feature::Hypermedia::Hyperlink.new.extend(Roar::Representer::JSON::HyperlinkRepresenter).from_json("{\"rel\":\"self\",\"href\":\"http://self\",\"data-whatever\":\"yo\"}")
-      #assert_equal({"rel"=>"self", "href"=>"http://self", "data-whatever"=>"yo"}, link.marshal_dump)
-      
-      assert_equal "self", link.rel
-    end
-    
   end
 end
 
