@@ -252,6 +252,34 @@ class HyperlinkTest < MiniTest::Spec
     it "responds to #href" do
       assert_equal "http://self", @link.href
     end
+    
+    
+    
+    it "allows adding any number of attributes" do
+      class OpenHyperlink < OpenStruct
+        
+      end
+      
+      module Roar::Representer::JSON::OpenHyperlinkRepresenter
+        include Roar::Representer::JSON
+        
+        def create_representation_with(doc, options, format)
+          Representable::JSON::HashBinding.new(Representable::Definition.new(:liiink)).serialize_for(marshal_dump)
+        end
+        def update_properties_from(doc, options, format)
+          marshal_load Representable::JSON::HashBinding.new(Representable::Definition.new(:liiink)).deserialize_from(doc)
+          self
+        end
+        
+      end
+      
+      
+      link = OpenHyperlink.new(:rel => "self", :href => "http://self", "data-whatever" => "yo")
+      assert_equal "{\"rel\":\"self\",\"href\":\"http://self\",\"data-whatever\":\"yo\"}", link.extend(Roar::Representer::JSON::OpenHyperlinkRepresenter).to_json
+      
+      assert_equal({"rel"=>"self", "href"=>"http://self", "data-whatever"=>"yo"}, OpenHyperlink.new.extend(Roar::Representer::JSON::OpenHyperlinkRepresenter).from_json("{\"rel\":\"self\",\"href\":\"http://self\",\"data-whatever\":\"yo\"}").marshal_dump)
+    end
+    
   end
 end
 
