@@ -1,3 +1,18 @@
+## 0.11.0
+
+* Using representable-1.2.2 now. Be warned that in 1.2 parsing and rendering slightly changed. When a property is not found in the incoming document, it is ignored and thus might not be initialised in your represented model (empty collections are still set to an empty array). Also, the way `false` and `nil` values are rendered changed. Quoted from the representable CHANGES file:
+* A property with false value will now be included in the rendered representation. Same applies to parsing, false values will now be included. That particularly means properties that used to be unset (i.e. nil) after parsing might be false now.
+* You can include nil values now in your representations since #property respects :represent_nil => true.
+
+* The `:except` option got deprecated in favor of `:exclude`.
+* Hyperlinks can now have arbitrary attributes. To render, just provide `#link` with the options 
+<code>link :self, :title => "Mee!", "data-remote" => true</code>
+When parsing, the options are avaible via `OpenStruct` compliant readers.
+<code>link = Hyperlink.from_json({\"rel\":\"self\",\"data-url\":\"http://self\"} )
+link.rel #=> "self"
+link.send("data-url") #=> "http://self"
+</code>
+
 ## 0.10.2
 
 * You can now pass values from outside to the render method (e.g. `#to_json`), they will be available as block parameters inside `#link`.
