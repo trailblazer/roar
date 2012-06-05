@@ -47,8 +47,10 @@ module Roar
         end
       end
       
+      
+      require 'representable/xml/hash'
       module HyperlinkRepresenter
-        include XML
+        include Representable::XML::AttributeHash
         
         self.representation_wrap = :link
       end
