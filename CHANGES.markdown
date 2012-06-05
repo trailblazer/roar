@@ -1,3 +1,7 @@
+## 0.11.1
+
+* Since some users don't have access to my local hard-drive we now really require representable-1.2.2.
+
 ## 0.11.0
 
 * Using representable-1.2.2 now. Be warned that in 1.2 parsing and rendering slightly changed. When a property is not found in the incoming document, it is ignored and thus might not be initialised in your represented model (empty collections are still set to an empty array). Also, the way `false` and `nil` values are rendered changed. Quoted from the representable CHANGES file:
