@@ -84,7 +84,7 @@ module Roar::Representer
             {}.tap do |hash|
               each do |link|
                 # TODO: we statically use JSON::HyperlinkRepresenter here.
-                hash[link.rel] = link.extend(JSON::HyperlinkRepresenter).to_hash(:except => [:rel])
+                hash[link.rel] = link.extend(JSON::HyperlinkRepresenter).to_hash(:exclude => [:rel])
               end
             end
           end
