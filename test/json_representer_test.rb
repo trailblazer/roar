@@ -31,8 +31,8 @@ class JsonRepresenterTest < MiniTest::Spec
         assert_equal '{"id":1}', @order.serialize
       end
       
-      it "accepts :include and :except" do
-        assert_equal '{}', @order.to_json(:except => [:id])
+      it "accepts :include and :exclude" do
+        assert_equal '{}', @order.to_json(:exclude => [:id])
       end
     end
     
@@ -55,8 +55,8 @@ class JsonRepresenterTest < MiniTest::Spec
         assert @order.from_json('')
       end
       
-      it "accepts :include and :except" do
-        @order.from_json('{"id":1}', :except => [:id])
+      it "accepts :include and :exclude" do
+        @order.from_json('{"id":1}', :exclude => [:id])
         assert_equal nil, @order.id
       end
     end

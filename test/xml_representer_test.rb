@@ -60,8 +60,8 @@ class XMLRepresenterFunctionalTest < MiniTest::Spec
         assert_equal @r.to_xml, @r.serialize
       end
       
-      it "accepts :include and :except" do
-        assert_equal '<order/>', @r.to_xml(:except => [:id])
+      it "accepts :include and :exclude" do
+        assert_equal '<order/>', @r.to_xml(:exclude => [:id])
       end
     end
     
@@ -76,8 +76,8 @@ class XMLRepresenterFunctionalTest < MiniTest::Spec
         assert_equal "1", @order.id
       end
       
-      it "accepts :include and :except" do
-        @order = Order.new.deserialize("<order><id>1</id></order>", :except => [:id])
+      it "accepts :include and :exclude" do
+        @order = Order.new.deserialize("<order><id>1</id></order>", :exclude => [:id])
         assert_equal nil, @order.id
       end
     end
@@ -95,8 +95,8 @@ class XMLRepresenterFunctionalTest < MiniTest::Spec
         assert_equal TestXmlRepresenter.from_xml("<order/>").id, TestXmlRepresenter.deserialize("<order/>").id
       end
       
-      it "accepts :except option" do
-        order = Order.from_xml(%{<order><id>1</id><pending>1</pending></order>}, :except => [:id])
+      it "accepts :exclude option" do
+        order = Order.from_xml(%{<order><id>1</id><pending>1</pending></order>}, :exclude => [:id])
         assert_equal nil, order.id
         assert_equal "1", order.pending
       end
