@@ -254,6 +254,10 @@ class HyperlinkTest < MiniTest::Spec
       assert_equal nil, @link.href
       assert_equal "next", @link.rel
     end
+    
+    it "responds to #each and implements Enumerable" do
+      assert_equal ["rel:self", "href:http://self", "data-whatever:Hey, @myabc"], @link.collect { |k,v| "#{k}:#{v}" }
+    end
   end
 end
 

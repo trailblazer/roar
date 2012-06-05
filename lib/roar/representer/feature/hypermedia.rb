@@ -132,6 +132,8 @@ module Roar
         require "ostruct"
         # An abstract hypermedia link with arbitrary attributes.
         class Hyperlink < OpenStruct
+          include Enumerable
+          
           def each(*args, &block)
             marshal_dump.each(*args, &block)
           end

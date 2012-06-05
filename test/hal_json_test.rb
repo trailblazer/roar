@@ -1,3 +1,4 @@
+require 'test_helper'
 require 'roar/representer/json/hal'
 
 class HalJsonTest < MiniTest::Spec
@@ -20,7 +21,7 @@ class HalJsonTest < MiniTest::Spec
     end
     
     it "renders links according to the HAL spec" do
-      assert_equal "{\"links\":{\"self\":{\"href\":\"http://self\"},\"next\":{\"href\":\"http://hit\",\"title\":\"Hey, @myabc\"}}}", @song.to_json
+      assert_equal "{\"links\":{\"self\":{\"href\":\"http://self\"},\"next\":{\"title\":\"Hey, @myabc\",\"href\":\"http://hit\"}}}", @song.to_json
     end
     
     it "parses incoming JSON links correctly" do
