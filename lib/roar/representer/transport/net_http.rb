@@ -13,15 +13,15 @@ module Roar
         end
         
         def post_uri(uri, body, as)
-          do_request(Net::HTTP::Post, uri, as)
+          do_request(Net::HTTP::Post, uri, as, body)
         end
         
         def put_uri(uri, body, as)
-          do_request(Net::HTTP::Put, uri, as)
+          do_request(Net::HTTP::Put, uri, as, body)
         end
         
         def patch_uri(uri, body, as)
-          do_request(Net::HTTP::Patch, uri, as)
+          do_request(Net::HTTP::Patch, uri, as, body)
         end
         
         def delete_uri(uri, as)
