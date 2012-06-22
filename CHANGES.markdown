@@ -1,3 +1,7 @@
+## 0.11.2
+
+* The request body in POST, PUT and PATCH is now actually sent in HttpVerbs. Thanks to @nleguen for finding this embarrassing bug. That's what happens when you don't have proper tests, kids!
+
 ## 0.11.1
 
 * Since some users don't have access to my local hard-drive we now really require representable-1.2.2.
