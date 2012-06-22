@@ -1,10 +1,34 @@
 require "bundler/setup"
-require 'sinatra/base'
+require "sinatra/base"
+require "roar/representer/json"
 
 class FakeServer < Sinatra::Base
-
   set :raise_errors, false
 
+  module BandRepresenter
+    include Roar::Representer::JSON
+    
+    property :name
+    property :label
+  end
+  
+  class Band
+    attr_reader :name, :label
+    
+    def name=(value)
+      @name = value.upcase
+    end
+    
+    def label=(value)
+      @label = value.upcase
+    end
+  end
+  
+  def consume_band
+    Band.new.extend(BandRepresenter).from_json(request.body.string)
+  end
+  
+  
   get "/method" do
     "<method>get</method>"
   end
@@ -31,19 +55,20 @@ class FakeServer < Sinatra::Base
 
   post "/bands" do
     #if request.content_type =~ /xml/
-    body  '{"label": "n/a", "name": "Strung Out", "links": [{"href":"http://search", "rel": "search"}, {"href":"http://band/strungout", "rel": "self"}]}'
+    body consume_band.to_json
+    
     status 201
   end
   
   put "/bands/strungout" do
     # DISCUSS: as long as we don't agree on what to return in PUT/PATCH, let's return an updated document.
-    {:name => "Strung Out", :label => "Fat Wreck"}.to_json
+    body consume_band.to_json
     #status 204
   end
 
   patch '/bands/strungout' do
     # DISCUSS: as long as we don't agree on what to return in PUT/PATCH, let's return an updated document.
-    {:name => 'Strung Out', :label => 'Fat Mike'}.to_json
+    body consume_band.to_json
     #status 204
   end
 

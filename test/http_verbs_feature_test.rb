@@ -3,12 +3,7 @@ require 'roar/representer/feature/http_verbs'
 require 'roar/representer/json'
 
 class HttpVerbsTest < MiniTest::Spec
-  module BandRepresenter
-    include Roar::Representer::JSON
-    
-    property :name
-    property :label
-  end
+  BandRepresenter = FakeServer::BandRepresenter
   
   # keep this class clear of Roar modules.
   class Band
@@ -80,8 +75,8 @@ class HttpVerbsTest < MiniTest::Spec
         assert_equal nil, @band.label
         
         @band.post("http://roar.example.com/bands", "application/xml")
-        assert_equal "Strung Out", @band.name
-        assert_equal "n/a", @band.label
+        assert_equal "STRUNG OUT", @band.name
+        assert_equal nil, @band.label
       end
     end
     
@@ -90,8 +85,8 @@ class HttpVerbsTest < MiniTest::Spec
         @band.name   = "Strung Out"
         @band.label  = "Fat Wreck"
         @band.put("http://roar.example.com/bands/strungout", "application/xml")
-        assert_equal "Strung Out", @band.name
-        assert_equal "Fat Wreck", @band.label
+        assert_equal "STRUNG OUT", @band.name
+        assert_equal "FAT WRECK", @band.label
       end
     end
     
@@ -99,7 +94,7 @@ class HttpVerbsTest < MiniTest::Spec
       it 'does something' do
         @band.label  = 'Fat Mike'
         @band.patch("http://roar.example.com/bands/strungout", "application/xml")
-        assert_equal 'Fat Mike', @band.label
+        assert_equal 'FAT MIKE', @band.label
       end
     end
 
