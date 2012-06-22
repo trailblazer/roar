@@ -79,40 +79,4 @@ class FakeServer < Sinatra::Base
   delete '/banks/metallica' do
     status 204
   end
-
-  require './test/order_representers'
-  JSON::Order.class_eval do
-    def items_url
-      "http://roar.example.com/orders/1/items"
-    end
-    def order_url(order)
-      "http://roar.example.com/orders/#{order}"
-    end
-    def represented
-      1
-    end
-    
-  end
-  
-  
-  post "/orders" do
-    incoming = JSON::Order.deserialize(request.body.string)
-    # create new record
-    
-    # render new record
-    
-    JSON::Order.from_attributes(incoming.to_attributes).serialize
-  end
-  
-  post "/orders/1/items" do
-    incoming = JSON::Item.deserialize(request.body.string)
-    
-    JSON::Item.from_attributes(incoming.to_attributes).serialize
-  end
-  
-  get "/orders/1" do
-    JSON::Order.new(:client_id => 1, :items => [JSON::Item.new(:article_id => "666-S", :amount => 1)]).serialize
-  end
-  
 end
-
