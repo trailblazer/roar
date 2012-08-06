@@ -89,7 +89,7 @@ module Roar::Representer
                 if link.href.is_a? Array
                   urls = []
                   link.href.each do |item|
-                    definitions = item.send(:representable_attrs).select { |definition| definition.options[:from] == :href }
+                    definitions = item.send(:representable_attrs).select { |definition| definition.options[:from] }
                     definitions.each do |definition|
                       template = definition.options[:as]
                       attr = definition.name
