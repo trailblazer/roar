@@ -17,7 +17,7 @@ begin
 rescue LoadError
 end
 
-module AttributesContructor
+module AttributesConstructor
   def initialize(attrs={})
     attrs.each do |k,v|
       instance_variable_set("@#{k}", v)
@@ -26,18 +26,23 @@ module AttributesContructor
 end
 
 class Item
-  include AttributesContructor
+  include AttributesConstructor
   attr_accessor :value
 end
 
-class Position
-  include AttributesContructor
-  attr_accessor :id, :item
+class Product
+  include AttributesConstructor
+  attr_accessor :id, :name, :title
 end
 
 class Order
-  include AttributesContructor
-  attr_accessor :id, :items
+  include AttributesConstructor
+  attr_accessor :id, :items, :total, :currency, :status, :upsells
+end
+
+class Factory
+  include AttributesConstructor
+  attr_accessor :orders, :currentlyProcessing, :shippedToday
 end
 
 require "test_xml/mini_test"
