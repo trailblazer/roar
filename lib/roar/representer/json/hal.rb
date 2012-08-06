@@ -8,10 +8,10 @@ module Roar::Representer
     # :embedded => true option.
     #
     # Example:
-    # 
+    #
     #   module OrderRepresenter
     #     include Roar::Representer::JSON::HAL
-    #     
+    #
     #     property :id
     #     collection :items, :class => Item, :extend => ItemRepresenter, :embedded => true
     #
@@ -32,33 +32,33 @@ module Roar::Representer
           include Resources
         end
       end
-      
+
       module Resources
         # Write the property to the +_embedded+ hash when it's a resource.
         def compile_fragment(bin, doc)
           return super unless bin.definition.options[:embedded]
           super(bin, doc[:_embedded] ||= {})
         end
-        
+
         def uncompile_fragment(bin, doc)
           return super unless bin.definition.options[:embedded]
           super(bin, doc["_embedded"] || {})
         end
       end
-      
+
       module ClassMethods
         def links_definition_options
           super.tap { |options| options[1].merge!({:from => :_links}) }
         end
       end
-      
+
       # Including this module in your representer will render and parse your embedded hyperlinks
       # following the HAL specification: http://stateless.co/hal_specification.html
       #
       #   module SongRepresenter
       #     include Roar::Representer::JSON
       #     include Roar::Representer::JSON::HAL::Links
-      #     
+      #
       #     link :self { "http://self" }
       #   end
       #
@@ -75,20 +75,37 @@ module Roar::Representer
             extend Links::ClassMethods
           end
         end
-        
-        
+
         module LinkCollectionRepresenter
           include JSON
-          
+
+          # [_links] is an object whose property names are link
+          # relation types (as defined by [RFC5988]) and values are
+          # either a Link Object or an array of Link Objects.
           def to_hash(*)
             {}.tap do |hash|
               each do |link|
                 # TODO: we statically use JSON::HyperlinkRepresenter here.
-                hash[link.rel] = link.extend(JSON::HyperlinkRepresenter).to_hash(:exclude => [:rel])
+                if link.href.is_a? Array
+                  urls = []
+                  link.href.each do |item|
+                    definitions = item.send(:representable_attrs).select { |definition| definition.options[:from] == :href }
+                    definitions.each do |definition|
+                      template = definition.options[:as]
+                      attr = definition.name
+                      val = template.gsub(/\?/, item.public_send(attr.to_sym).to_s)
+                      item.public_send("#{attr}=",val)
+                    end
+                    urls << item
+                  end
+                  hash[link.rel] = urls
+                else
+                  hash[link.rel] = link.extend(JSON::HyperlinkRepresenter).to_hash(:exclude => [:rel])
+                end
               end
             end
           end
-          
+
           def from_hash(json, *)
             json ||= {} # since we override #from_hash we're responsible for this.
             json.each do |k, v|
@@ -97,8 +114,8 @@ module Roar::Representer
             self
           end
         end
-        
-        
+
+
         module ClassMethods
           def links_definition_options
             super.tap { |options| options[1] = {:class => Feature::Hypermedia::LinkCollection, :extend => LinkCollectionRepresenter} }

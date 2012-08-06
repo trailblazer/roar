@@ -2,76 +2,70 @@ require 'test_helper'
 require 'roar/representer/json/hal'
 
 class HalJsonTest < MiniTest::Spec
-  module SongRepresenter
-    include Roar::Representer::JSON
-    include Roar::Representer::JSON::HAL::Links
-    
-    link :self do
-      "http://self"
-    end
-    
-    link :rel => :next, :title => "Hey, @myabc" do
-      "http://hit"
-    end
-  end
-  
-  describe "JSON::HAL::Links" do
-    before do
-      @song = Object.new.extend(SongRepresenter)
-    end
-    
-    it "renders links according to the HAL spec" do
-      assert_equal "{\"links\":{\"self\":{\"href\":\"http://self\"},\"next\":{\"title\":\"Hey, @myabc\",\"href\":\"http://hit\"}}}", @song.to_json
-    end
-    
-    it "parses incoming JSON links correctly" do
-      @song.from_json "{\"links\":{\"self\":{\"href\":\"http://self\",\"title\":\"Hey, @myabc\"}}}"
-      assert_equal "http://self", @song.links[:self].href
-      assert_equal "Hey, @myabc", @song.links[:self].title
-      assert_equal nil, @song.links[:next]
-    end
-  end
-  
-  
   describe "HAL/JSON" do
     before do
-      Bla = Module.new do
+      ProductRepresenter = Module.new do
         include Roar::Representer::JSON::HAL
-        property :value
-        link :self do
-          "http://items/#{value}"
-        end
+        property :id, :from => :href, :as => "/products/?"
+        property :name
+        property :title
       end
-      
-      @order_rep = Module.new do
+
+      OrderRepresenter = Module.new do
         include Roar::Representer::JSON::HAL
-        property :id
-        collection :items, :class => Item, :extend => Bla, :embedded => true
         link :self do
-          "http://orders/#{id}"
+          "/orders/#{id}"
         end
+        link :upsell do
+          upsells
+        end
+        property :total
+        property :currency
+        property :status
       end
-      
-      @order = Order.new(:items => [Item.new(:value => "Beer")], :id => 1).extend(@order_rep)
+
+      FactoryRepresenter = Module.new do
+        include Roar::Representer::JSON::HAL
+        link :self do
+          "/orders"
+        end
+        link :rel => :next do
+          "/orders?page=2"
+        end
+        link :rel => :find, :templated => true do
+          "/orders{?id}"
+        end
+        collection :orders, :class => Order, :extend => OrderRepresenter, :embedded => true
+        property :currentlyProcessing
+        property :shippedToday
+      end
+
+      order1 = Order.new(:id => 1, :total => 30.0, :currency => 'USD', :status => 'shipped', :upsells => []).extend(OrderRepresenter)
+      order1.upsells << Product.new(:id => 452, :name => "FP01", :title => "Flower Pot").extend(ProductRepresenter)
+      order1.upsells << Product.new(:id => 832, :name => "HD77", :title => "Hover Donkey").extend(ProductRepresenter)
+      order2 = Order.new(:id => 2, :total => 20.0, :currency => 'USD', :status => 'processing', :upsells => []).extend(OrderRepresenter)
+      @factory = Factory.new(:orders => [], :currentlyProcessing => 14, :shippedToday => 20).extend(FactoryRepresenter)
+      @factory.orders << order1
+      @factory.orders << order2
     end
-    
+
     it "render links and embedded resources according to HAL" do
-      assert_equal "{\"id\":1,\"_embedded\":{\"items\":[{\"value\":\"Beer\",\"_links\":{\"self\":{\"href\":\"http://items/Beer\"}}}]},\"_links\":{\"self\":{\"href\":\"http://orders/1\"}}}", @order.to_json
+      assert_equal "{\"_links\":{\"self\":{\"href\":\"/orders\"},\"next\":{\"href\":\"/orders?page=2\"},\"find\":{\"templated\":true,\"href\":\"/orders{?id}\"}},\"_embedded\":{\"orders\":[{\"_links\":{\"self\":{\"href\":\"/orders/1\"},\"upsell\":[{\"href\":\"/products/452\",\"name\":\"FP01\",\"title\":\"Flower Pot\"},{\"href\":\"/products/832\",\"name\":\"HD77\",\"title\":\"Hover Donkey\"}]},\"total\":30.0,\"currency\":\"USD\",\"status\":\"shipped\"},{\"_links\":{\"self\":{\"href\":\"/orders/2\"},\"upsell\":[]},\"total\":20.0,\"currency\":\"USD\",\"status\":\"processing\"}]},\"currentlyProcessing\":14,\"shippedToday\":20}", @factory.to_json
     end
-    
+
     it "parses links and resources following the mighty HAL" do
-      @order.from_json("{\"id\":2,\"_embedded\":{\"items\":[{\"value\":\"Coffee\",\"_links\":{\"self\":{\"href\":\"http://items/Coffee\"}}}]},\"_links\":{\"self\":{\"href\":\"http://orders/2\"}}}")
-      assert_equal 2, @order.id
-      assert_equal "Coffee", @order.items.first.value
-      assert_equal "http://items/Coffee", @order.items.first.links[:self].href
-      assert_equal "http://orders/2", @order.links[:self].href
+      @factory.from_json("{\"_links\":{\"self\":{\"href\":\"/orders\"},\"next\":{\"href\":\"/orders?page=2\"},\"find\":{\"templated\":true,\"href\":\"/orders{?id}\"}},\"_embedded\":{\"orders\":[{\"_links\":{\"self\":{\"href\":\"/orders/1\"}},\"total\":30.0,\"currency\":\"USD\",\"status\":\"shipped\"},{\"_links\":{\"self\":{\"href\":\"/orders/2\"}},\"total\":20.0,\"currency\":\"USD\",\"status\":\"processing\"}]},\"currentlyProcessing\":14,\"shippedToday\":20}")
+      assert_equal 2, @factory.orders.length
+      assert_equal "USD", @factory.orders.first.currency
+      assert_equal "/orders/1", @factory.orders.first.links[:self].href
+      assert_equal "/orders", @factory.links[:self].href
     end
-    
+
     it "doesn't require _links and _embedded to be present" do
-      @order.from_json("{\"id\":2}")
-      assert_equal 2, @order.id
-      assert_equal [], @order.items
-      assert_equal [], @order.links
+      @factory.from_json("{\"shippedToday\":2}")
+      assert_equal 2, @factory.shippedToday
+      assert_equal [], @factory.orders
+      assert_equal [], @factory.links
     end
   end
 end
