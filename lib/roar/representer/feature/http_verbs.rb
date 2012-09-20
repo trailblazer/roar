@@ -32,37 +32,48 @@ module Roar
         
         # Serializes the object, POSTs it to +url+ with +format+, deserializes the returned document
         # and updates properties accordingly.
-        def post(url, format)
+        def post(url, format = nil)
+          format ||= format_from_url(url)
           response = http.post_uri(url, serialize, format)
           handle_response(response)
         end
         
         # GETs +url+ with +format+, deserializes the returned document and updates properties accordingly.
-        def get(url, format)
+        def get(url, format = nil)
+          format ||= format_from_url(url)
           response = http.get_uri(url, format)
           handle_response(response)
         end
         
         # Serializes the object, PUTs it to +url+ with +format+, deserializes the returned document
         # and updates properties accordingly.
-        def put(url, format)
+        def put(url, format = nil)
+          format ||= format_from_url(url)
           response = http.put_uri(url, serialize, format)
           handle_response(response)
           self
         end
         
-        def patch(url, format)
+        def patch(url, format = nil)
+          format ||= format_from_url(url)
           response = http.patch_uri(url, serialize, format)
           handle_response(response)
           self
         end
 
-        def delete(url, format)
+        def delete(url, format = nil)
+          format ||= format_from_url(url)
           http.delete_uri(url, format)
           self
         end
 
       private
+        def format_from_url url
+          extension = File.extname(url)[1..-1]
+          raise ArgumentError.new("Format can not read from Url '#{url}', the Url need's an extension or the format must set manually!") if extension.nil? || extension.empty?
+          "application/#{extension}"
+        end
+
         def handle_response(response)
           document = response.body
           deserialize(document)
