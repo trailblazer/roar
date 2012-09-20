@@ -104,6 +104,20 @@ class HttpVerbsTest < MiniTest::Spec
       end
     end
 
+    describe "#format_from_url" do
+      it "returns the format of the extention" do
+        @band.get "http://roar.example.com/bands/fake.json"
+        assert_equal 'Fake', @band.name
+        assert_equal 'application/json', @band.label
+      end
+
+      it "raise an error" do
+        assert_raises(ArgumentError) do
+          @band.get "http://roar.example.com/bands/fake"
+        end
+      end
+    end
+
     # HEAD, OPTIONs?
 
   end

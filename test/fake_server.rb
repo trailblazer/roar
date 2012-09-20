@@ -76,6 +76,10 @@ class FakeServer < Sinatra::Base
     {:name => "Slayer", :label => "Canadian Maple"}.to_json
   end
 
+  get "/bands/fake.json" do
+    {:name => "Fake", :label => request.env["CONTENT_TYPE"]}.to_json
+  end
+
   delete '/banks/metallica' do
     status 204
   end
