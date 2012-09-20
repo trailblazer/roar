@@ -1,7 +1,12 @@
 begin
   require 'faraday'
 rescue LoadError
-  puts 'You must add faraday as a dependency to use the FaradayTransport'
+  message = 'You must add faraday as a dependency to use the FaradayTransport'
+  if defined? Rails
+    Rails.logger.info message
+  else
+    puts message
+  end
 end
 require 'logger'
 
