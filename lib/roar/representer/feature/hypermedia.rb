@@ -20,6 +20,12 @@ module Roar
       #       "http://orders/#{id}"
       #     end
       #
+      # If you need dynamic attributes, the block can return a hash.
+      #
+      #     link :preview do
+      #       {:href => image.url, :title => image.name}
+      #     end
+      #
       # Sometimes you need values from outside when the representation links are rendered. Just pass them
       # to the render method, they will be available as block parameters.
       #
@@ -53,8 +59,9 @@ module Roar
           
           links_def.rel2block.each do |config|  # config is [{..}, block]
             options = config.first
-            options[:href] = run_link_block(config.last, *args) or next
-            
+            href = run_link_block(config.last, *args) or next
+            options.merge! href.is_a?(Hash) ? href : {:href => href}
+
             links.update_link(Feature::Hypermedia::Hyperlink.new(options))
           end
         end
