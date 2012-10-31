@@ -41,6 +41,16 @@ class HypermediaTest
 
         assert_equal "{\"links\":[{\"rel\":\"self\",\"href\":\"http://self/1\"}]}", Object.new.extend(@mod).to_json(:id => 1)
       end
+
+      it "supports returning hash" do
+        @mod.class_eval do
+          link :self do
+            {:href => "http://self", :type => "image/jpg"}
+          end
+        end
+
+        assert_equal "{\"links\":[{\"rel\":\"self\",\"href\":\"http://self\",\"type\":\"image/jpg\"}]}", Object.new.extend(@mod).to_json
+      end
     end
 
 
