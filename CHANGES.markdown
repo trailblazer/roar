@@ -1,3 +1,7 @@
+## 0.11.4
+
+* Links can now return a hash of attributes as `link :self do {:href => fruit_path(self), :title => "Yummy stuff"} end`.
+
 ## 0.11.3
 
 * Fixed an installation issue under Windows.
