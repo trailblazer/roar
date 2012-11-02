@@ -36,12 +36,12 @@ module Roar::Representer
       module Resources
         # Write the property to the +_embedded+ hash when it's a resource.
         def compile_fragment(bin, doc)
-          return super unless bin.definition.options[:embedded]
+          return super unless bin.options[:embedded]
           super(bin, doc[:_embedded] ||= {})
         end
         
         def uncompile_fragment(bin, doc)
-          return super unless bin.definition.options[:embedded]
+          return super unless bin.options[:embedded]
           super(bin, doc["_embedded"] || {})
         end
       end
