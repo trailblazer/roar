@@ -1,3 +1,5 @@
+require "roar/logger"
+
 module Roar
-  # Your code goes here...
+  extend Logger
 end
