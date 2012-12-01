@@ -1,9 +1,8 @@
 begin
   require 'faraday'
 rescue LoadError
-  puts 'You must add faraday as a dependency to use the FaradayTransport'
+  Roar.logger.info 'You must add faraday as a dependency to use the FaradayTransport'
 end
-require 'logger'
 
 module Roar
   module Representer
@@ -45,7 +44,7 @@ module Roar
             :url => uri,
             :headers => { :accept => as }
           ) do |builder|
-            # builder.use Faraday::Response::Logger, Logger.new('faraday.log')
+            # builder.use ::Faraday::Response::Logger, Roar.logger
             builder.use ::Faraday::Response::RaiseError
             builder.adapter ::Faraday.default_adapter
           end
