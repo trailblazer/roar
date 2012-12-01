@@ -2,6 +2,7 @@ require 'test_helper'
 
 require "test_xml/mini_test"
 require "roar/representer/json"
+require "roar/representer/json/collection"
 
 class JsonRepresenterTest < MiniTest::Spec
   class Order
@@ -65,6 +66,85 @@ class JsonRepresenterTest < MiniTest::Spec
       it "is aliased by #deserialize" do
         @order = Order.deserialize('{"id":1}')
         assert_equal 1, @order.id
+      end
+    end
+  end
+end
+
+class JsonCollectionRepresenterTest < MiniTest::Spec
+  class Order
+    include Roar::Representer::JSON
+    property :id
+    property :pending
+    attr_accessor :id, :pending
+  end
+
+  class Orders < Array
+    include Roar::Representer::JSON::Collection
+    items :class => Order
+  end
+
+  describe "JsonRepresenter" do
+    before do
+      @orders = Orders.new
+      @orders << Order.new
+      @orders << Order.new
+    end
+
+    describe "#to_json" do
+      before do
+        @orders[0].id = 1
+        @orders[1].id = 2
+      end
+
+      it "returns the serialized model" do
+        assert_equal '[{"id":1},{"id":2}]', @orders.to_json
+      end
+
+      it "is aliased by #serialize" do
+        assert_equal '[{"id":1},{"id":2}]', @orders.serialize
+      end
+
+      # TODO test neasted includes / excludes
+      # it "accepts :include and :exclude" do
+      #   assert_equal '[{},{}]', @orders.to_json(:exclude => [:id])
+      # end
+    end
+
+    describe "#from_json" do
+      it "returns the deserialized model" do
+        @orders.from_json('[{"id":1},{"id":2}]')
+        assert_equal 1, @orders[0].id
+        assert_equal 2, @orders[1].id
+      end
+
+      it "is aliased by #deserialize" do
+        @orders.from_json('[{"id":1},{"id":2}]')
+        assert_equal 1, @orders[0].id
+        assert_equal 2, @orders[1].id
+      end
+
+      it "works with a nil document" do
+        assert @orders.from_json(nil)
+      end
+
+      it "works with an empty document" do
+        assert @orders.from_json('')
+      end
+
+      # TODO test neasted includes / excludes
+      # it "accepts :include and :exclude" do
+      #   @orders.from_json('[{"id":1},{"id":2}]', :exclude => [:id])
+      #   assert_equal nil, @orders[0].id
+      #   assert_equal nil, @orders[1].id
+      # end
+    end
+
+    describe "JSON.from_json" do
+      it "is aliased by #deserialize" do
+        @orders = Orders.deserialize('[{"id":1},{"id":2}]')
+        assert_equal 1, @orders[0].id
+        assert_equal 2, @orders[1].id
       end
     end
   end
