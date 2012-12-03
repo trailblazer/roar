@@ -284,6 +284,7 @@ h2. More Features
 Be sure to check out the bundled features.
 
 # *Coercion* transforms values to typed objects when parsing a document. Uses virtus. 
+# *Faraday* support, if you want to use it install the Faraday gem and require 'roar/representer/transport/faraday' and configure 'Roar::Representer::Feature::HttpVerbs.transport_engine = Roar::Representer::Transport::Faraday'
 
 h2. What is REST about?
 
