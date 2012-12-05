@@ -1,5 +1,4 @@
 require 'roar/representer/transport/net_http'
-require 'roar/representer/transport/faraday'  # Do not require here
 
 module Roar
   # Gives HTTP-power to representers. They can serialize, send, process and deserialize HTTP-requests.
