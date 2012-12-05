@@ -1,3 +1,5 @@
+require 'faraday'
+
 module Roar
   module Representer
     module Transport
