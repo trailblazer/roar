@@ -3,28 +3,31 @@ require 'roar/representer/transport/faraday'
 
 class FaradayHttpTransportTest < MiniTest::Spec
   describe 'FaradayHttpTransport' do
+    let(:url) { "http://roar.example.com/method" }
+    let(:body) { "booty" }
+    let(:as) { "application/xml" }
     before do
       @transport = Roar::Representer::Transport::Faraday.new
     end
 
     it "#get_uri returns response" do
-      assert_equal "<method>get</method>",  @transport.get_uri("http://roar.example.com/method", "application/xml").body
+      @transport.get_uri(url, as).must_match_faraday_response :get, url, as
     end
 
     it "#post_uri returns response" do
-      assert_equal "<method>post</method>",  @transport.post_uri("http://roar.example.com/method", "booty", "application/xml").body
+      @transport.post_uri(url, body, as).must_match_faraday_response :post, url, as, body
     end
 
     it "#put_uri returns response" do
-      assert_equal "<method>put</method>",  @transport.put_uri("http://roar.example.com/method", "booty", "application/xml").body
+      @transport.put_uri(url, body, as).must_match_faraday_response :put, url, as, body
     end
 
     it "#delete_uri returns response" do
-      assert_equal "<method>delete</method>",  @transport.delete_uri("http://roar.example.com/method", "application/xml").body
+      @transport.delete_uri(url, as).must_match_faraday_response :delete, url, as
     end
 
     it "#patch_uri returns response" do
-      assert_equal "<method>patch</method>",  @transport.patch_uri("http://roar.example.com/method", "booty", "application/xml").body
+      @transport.patch_uri(url, body, as).must_match_faraday_response :patch, url, as, body
     end
 
     describe 'non-existent resource' do
@@ -34,25 +37,25 @@ class FaradayHttpTransportTest < MiniTest::Spec
 
       it '#get_uri raises a ResourceNotFound error' do
         assert_raises(Faraday::Error::ResourceNotFound) do
-          @transport.get_uri(@not_found_url, "application/xml").body
+          @transport.get_uri(@not_found_url, as).body
         end
       end
 
       it '#post_uri raises a ResourceNotFound error' do
         assert_raises(Faraday::Error::ResourceNotFound) do
-          @transport.post_uri(@not_found_url, 'crisis', "application/xml").body
+          @transport.post_uri(@not_found_url, body, as).body
         end
       end
 
       it '#post_uri raises a ResourceNotFound error' do
         assert_raises(Faraday::Error::ResourceNotFound) do
-          @transport.post_uri(@not_found_url, 'crisis', "application/xml").body
+          @transport.post_uri(@not_found_url, body, as).body
         end
       end
 
       it '#delete_uri raises a ResourceNotFound error' do
         assert_raises(Faraday::Error::ResourceNotFound) do
-          @transport.delete_uri(@not_found_url, "application/xml").body
+          @transport.delete_uri(@not_found_url, as).body
         end
       end
     end
@@ -60,10 +63,22 @@ class FaradayHttpTransportTest < MiniTest::Spec
     describe 'server errors (500 Internal Server Error)' do
       it '#get_uri raises a ClientError' do
         assert_raises(Faraday::Error::ClientError) do
-          @transport.get_uri('http://roar.example.com/deliberate-error', "application/xml").body
+          @transport.get_uri('http://roar.example.com/deliberate-error', as).body
         end
       end
     end
 
   end
 end
+
+module MiniTest::Assertions
+
+  def assert_faraday_response(type, response, url, as, body = nil)
+    headers = response.env[:request_headers]
+    assert_equal [as, as], [headers["Accept"], headers["Content-Type"]]
+    assert_equal "<method>#{type}#{(' - ' + body) if body}</method>", response.body
+  end
+
+end
+
+Faraday::Response.infect_an_assertion :assert_faraday_response, :must_match_faraday_response

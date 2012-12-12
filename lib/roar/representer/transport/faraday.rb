@@ -18,15 +18,15 @@ module Roar
         end
 
         def post_uri(uri, body, as)
-          build_connection(uri, as).post
+          build_connection(uri, as).post(nil, body)
         end
 
         def put_uri(uri, body, as)
-          build_connection(uri, as).put
+          build_connection(uri, as).put(nil, body)
         end
 
         def patch_uri(uri, body, as)
-          build_connection(uri, as).patch
+          build_connection(uri, as).patch(nil, body)
         end
 
         def delete_uri(uri, as)
@@ -38,7 +38,7 @@ module Roar
         def build_connection(uri, as)
           ::Faraday::Connection.new(
             :url => uri,
-            :headers => { :accept => as }
+            :headers => { :accept => as, :content_type => as }
           ) do |builder|
             builder.use ::Faraday::Response::RaiseError
             builder.adapter ::Faraday.default_adapter
