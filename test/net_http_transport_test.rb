@@ -1,5 +1,4 @@
 require 'test_helper'
-require 'assertions'
 require 'roar/representer/transport/net_http'
 
 class NetHTTPTransportTest < MiniTest::Spec
@@ -32,3 +31,14 @@ class NetHTTPTransportTest < MiniTest::Spec
     end
   end
 end
+
+module MiniTest::Assertions
+
+  def assert_net_response(type, response, url, as, body = nil)
+    # TODO: Assert headers
+    assert_equal "<method>#{type}#{(' - ' + body) if body}</method>", response.body
+  end
+
+end
+
+Net::HTTPOK.infect_an_assertion :assert_net_response, :must_match_net_response

@@ -1,5 +1,4 @@
 require 'test_helper'
-require 'assertions'
 require 'roar/representer/transport/faraday'
 
 class FaradayHttpTransportTest < MiniTest::Spec
@@ -71,3 +70,15 @@ class FaradayHttpTransportTest < MiniTest::Spec
 
   end
 end
+
+module MiniTest::Assertions
+
+  def assert_faraday_response(type, response, url, as, body = nil)
+    headers = response.env[:request_headers]
+    assert_equal [as, as], [headers["Accept"], headers["Content-Type"]]
+    assert_equal "<method>#{type}#{(' - ' + body) if body}</method>", response.body
+  end
+
+end
+
+Faraday::Response.infect_an_assertion :assert_faraday_response, :must_match_faraday_response
