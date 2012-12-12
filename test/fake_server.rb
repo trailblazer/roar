@@ -7,46 +7,45 @@ class FakeServer < Sinatra::Base
 
   module BandRepresenter
     include Roar::Representer::JSON
-    
+
     property :name
     property :label
   end
-  
+
   class Band
     attr_reader :name, :label
-    
+
     def name=(value)
       @name = value.upcase
     end
-    
+
     def label=(value)
       @label = value.upcase
     end
   end
-  
+
   def consume_band
     Band.new.extend(BandRepresenter).from_json(request.body.string)
   end
-  
-  
+
   get "/method" do
     "<method>get</method>"
   end
 
   post "/method" do
-    "<method>post</method>"
+    "<method>post - #{request.body.read}</method>"
   end
-  
+
   put "/method" do
-    "<method>put</method>"
+    "<method>put - #{request.body.read}</method>"
   end
-  
+
   delete "/method" do
     "<method>delete</method>"
   end
-  
+
   patch "/method" do
-    "<method>patch</method>"
+    "<method>patch - #{request.body.read}</method>"
   end
 
   get '/deliberate-error' do
@@ -56,10 +55,10 @@ class FakeServer < Sinatra::Base
   post "/bands" do
     #if request.content_type =~ /xml/
     body consume_band.to_json
-    
+
     status 201
   end
-  
+
   put "/bands/strungout" do
     # DISCUSS: as long as we don't agree on what to return in PUT/PATCH, let's return an updated document.
     body consume_band.to_json
