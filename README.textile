@@ -8,8 +8,8 @@ Roar is a framework for parsing and rendering REST documents. Nothing more. With
 
 Roar comes with built-in JSON, JSON::HAL and XML support. It exposes a highly modular architecture and makes it very simple to add new media types and functionality where needed. Additional features include client HTTP support, coercion, client-side caching, awesome hypermedia support and more. Representers feel pretty well in DCI environments, too.
 
-Roar is completely framework-agnostic and loves being used in web kits like Rails, Webmachine, Sinatra, Padrino, etc. Actually, Roar makes it fun designing real, hypermedia-driven, and resource-oriented systems that will even make Steve sleep happily at night so he finally gets some REST! 
- 
+Roar is completely framework-agnostic and loves being used in web kits like Rails, Webmachine, Sinatra, Padrino, etc. Actually, Roar makes it fun designing real, hypermedia-driven, and resource-oriented systems that will even make Steve sleep happily at night so he finally gets some REST!
+
 h2. Example
 
 Say your webshop consists of two completely separated apps. The REST backend, a Sinatra app, serves articles and processes orders. The frontend, being browsed by your clients, is a rich Rails application. It queries the services for articles, renders them nicely and reads or writes orders with REST calls. That being said, the frontend turns out to be a pure REST client.
@@ -34,7 +34,7 @@ pre. { "article": {
   "title":  "Lonestar Beer",
   "id":     4711,
   "links":[
-    { "rel":  "self", 
+    { "rel":  "self",
       "href": "http://articles/lonestarbeer"}
   ]}
 }
@@ -66,13 +66,13 @@ require 'roar/representer/feature/hypermedia'
 module ArticleRepresenter
   include Roar::Representer::JSON
   include Roar::Representer::Feature::Hypermedia
-  
+
   property :title
   property :id
-  
+
   link :self do
     article_url(self)
-  end 
+  end
 end
 </pre>
 
@@ -103,14 +103,14 @@ What if we wanted to check an existing order? We'd @GET http://orders/1@, right?
     {"title": "Lonestar Beer",
     "id":     666,
     "links":[
-      { "rel":  "self", 
+      { "rel":  "self",
         "href": "http://articles/lonestarbeer"}
     ]}
   ],
   "links":[
-    { "rel":  "self", 
+    { "rel":  "self",
       "href": "http://orders/1"},
-    { "rel":  "items", 
+    { "rel":  "items",
       "href": "http://orders/1/items"}
   ]}
 }
@@ -133,20 +133,20 @@ module OrderRepresenter
 
   property :id
   property :client_id
-  
+
   collection :articles, :class => Article
-  
+
   link :self do
     order_url(represented)
   end
-  
+
   link :items do
     items_url
-  end 
+  end
 end
 </pre>
 
-Representers don't have to be in modules, but can be 
+Representers don't have to be in modules, but can be
 
 The declarative @#collection@ method lets us define compositions of representers.
 
@@ -164,7 +164,7 @@ If we were to implement an endpoint for creating new orders, we'd allow POST to 
     order.to_json
   end
 </pre>
- 
+
 Look how the @#from_json@ method helps extracting data from the incoming document and, again, @#to_json@ returns the freshly created order's representation. Roar's representers are truely working in both directions, rendering and parsing and thus prevent you from redundant knowledge sharing.
 
 
@@ -212,9 +212,9 @@ First, check the JSON document we get back from the POST.
   "client_id":  1337,
   "articles":   [],
   "links":[
-    { "rel":  "self", 
+    { "rel":  "self",
       "href": "http://orders/42"},
-    { "rel":  "items", 
+    { "rel":  "items",
       "href": "http://orders/42/items"}
   ]}
 }
@@ -258,7 +258,7 @@ Again, we use hypermedia to retrieve the order's URL. And now, the added article
 [*Note:* If this looks clumsy - It's just the raw API for representers. You might be interested in the upcoming DSL that simplifys frequent workflows as updating a representer.]
 
 <pre>
-order.to_attributes #=> {:id => 42, :client_id => 1337, 
+order.to_attributes #=> {:id => 42, :client_id => 1337,
   :articles => [{:title => "Lonestar Beer", :id => 666}]}
 </pre>
 
@@ -266,7 +266,7 @@ This is cool, we used REST representers and hypermedia to create an order and fi
 
 
 h3. Using Accessors
- 
+
 What if the ordering API is going a different way? What if we had to place articles into the order document ourselves, and then PUT this representation to @http://orders/42@? No problem with representers!
 
 Here's what could happen in the frontend.
@@ -283,7 +283,7 @@ h2. More Features
 
 Be sure to check out the bundled features.
 
-# *Coercion* transforms values to typed objects when parsing a document. Uses virtus. 
+# *Coercion* transforms values to typed objects when parsing a document. Uses virtus.
 # *Faraday* support, if you want to use it install the Faraday gem and require 'roar/representer/transport/faraday' and configure 'Roar::Representer::Feature::HttpVerbs.transport_engine = Roar::Representer::Transport::Faraday'
 
 h2. What is REST about?

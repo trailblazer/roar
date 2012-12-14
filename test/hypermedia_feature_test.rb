@@ -31,7 +31,7 @@ class HypermediaTest
 
         assert_equal "{\"links\":[{\"rel\":\"self\",\"title\":\"Hey, @myabc\",\"href\":\"http://self\"}]}", Object.new.extend(@mod).to_json
       end
-      
+
       it "receives options from to_*" do
         @mod.class_eval do
           link :self do |opts|
@@ -210,13 +210,13 @@ class LinksDefinitionTest < MiniTest::Spec
       @d.rel2block << {:rel => :self}
       assert_equal [{:rel=>:self}], @d.rel2block
     end
-    
+
     it "responds to #clone" do
       @d.rel2block << {:rel => :self}
       assert @d.clone.rel2block.object_id != @d.rel2block.object_id
     end
-    
-    
+
+
     it "responds to #each to iterate rel2block" do
     end
 
@@ -258,13 +258,13 @@ class HyperlinkTest < MiniTest::Spec
     it "responds to #href" do
       assert_equal "http://self", @link.href
     end
-    
+
     it "responds to #replace with string keys" do
       @link.replace("rel" => "next")
       assert_equal nil, @link.href
       assert_equal "next", @link.rel
     end
-    
+
     it "responds to #each and implements Enumerable" do
       assert_equal ["rel:self", "href:http://self", "data-whatever:Hey, @myabc"], @link.collect { |k,v| "#{k}:#{v}" }
     end
@@ -300,7 +300,7 @@ class HyperlinkInheritanceTest < MiniTest::Spec
 
     it "should inherit parent links" do
       foo = Object.new.extend(Foo)
-      
+
       assert_equal "{\"links\":[{\"rel\":\"base\",\"href\":\"http://base\"},{\"rel\":\"foo\",\"href\":\"http://foo\"}]}", foo.to_json
     end
 

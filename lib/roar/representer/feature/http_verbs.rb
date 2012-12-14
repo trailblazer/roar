@@ -8,13 +8,13 @@ module Roar
 
         class << self
           attr_accessor :transport_engine
-          
+
           def included(base)
             base.extend ClassMethods
           end
         end
         self.transport_engine = ::Roar::Representer::Transport::NetHTTP
-        
+
 
         module ClassMethods
           # GETs +url+ with +format+ and returns deserialized represented object.
@@ -22,26 +22,26 @@ module Roar
             new.get(*args)
           end
         end
-        
-        
+
+
         attr_writer :transport_engine
         def transport_engine
           @transport_engine || HttpVerbs.transport_engine
         end
-        
+
         # Serializes the object, POSTs it to +url+ with +format+, deserializes the returned document
         # and updates properties accordingly.
         def post(url, format)
           response = http.post_uri(url, serialize, format)
           handle_response(response)
         end
-        
+
         # GETs +url+ with +format+, deserializes the returned document and updates properties accordingly.
         def get(url, format)
           response = http.get_uri(url, format)
           handle_response(response)
         end
-        
+
         # Serializes the object, PUTs it to +url+ with +format+, deserializes the returned document
         # and updates properties accordingly.
         def put(url, format)
@@ -49,7 +49,7 @@ module Roar
           handle_response(response)
           self
         end
-        
+
         def patch(url, format)
           response = http.patch_uri(url, serialize, format)
           handle_response(response)

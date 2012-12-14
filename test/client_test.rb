@@ -9,10 +9,10 @@ class ClientTest < MiniTest::Spec
         property :name
         property :band
       end
-      
+
       @song = Object.new.extend(@representer)
     end
-    
+
     it "should add accessors" do
       @song.extend Roar::Representer::Feature::Client
       @song.name = "Social Suicide"
