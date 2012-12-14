@@ -6,7 +6,7 @@ module Roar::Representer::Feature
   # class ImmigrantSong
   #   include Roar::Representer::JSON
   #   include Roar::Representer::Feature::Coercion
-  #   
+  #
   #   property :composed_at, :type => DateTime, :default => "May 12th, 2012"
   # end
   module Coercion

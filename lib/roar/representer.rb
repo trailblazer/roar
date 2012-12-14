@@ -7,7 +7,7 @@ module Roar
         include Representable
       end
     end
-    
+
   private
     def before_serialize(*)
     end

@@ -11,23 +11,23 @@ module Roar
         def get_uri(uri, as)
           do_request(Net::HTTP::Get, uri, as)
         end
-        
+
         def post_uri(uri, body, as)
           do_request(Net::HTTP::Post, uri, as, body)
         end
-        
+
         def put_uri(uri, body, as)
           do_request(Net::HTTP::Put, uri, as, body)
         end
-        
+
         def patch_uri(uri, body, as)
           do_request(Net::HTTP::Patch, uri, as, body)
         end
-        
+
         def delete_uri(uri, as)
           do_request(Net::HTTP::Delete, uri, as)
         end
-      
+
       private
         def do_request(what, uri, as, body="")
           # DISCUSS: can this be made easier?
