@@ -21,7 +21,7 @@
 * You can include nil values now in your representations since #property respects :represent_nil => true.
 
 * The `:except` option got deprecated in favor of `:exclude`.
-* Hyperlinks can now have arbitrary attributes. To render, just provide `#link` with the options 
+* Hyperlinks can now have arbitrary attributes. To render, just provide `#link` with the options
 <code>link :self, :title => "Mee!", "data-remote" => true</code>
 When parsing, the options are avaible via `OpenStruct` compliant readers.
 <code>link = Hyperlink.from_json({\"rel\":\"self\",\"data-url\":\"http://self\"} )

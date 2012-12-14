@@ -8,10 +8,10 @@ module Roar::Representer
     # :embedded => true option.
     #
     # Example:
-    # 
+    #
     #   module OrderRepresenter
     #     include Roar::Representer::JSON::HAL
-    #     
+    #
     #     property :id
     #     collection :items, :class => Item, :extend => ItemRepresenter, :embedded => true
     #
@@ -32,33 +32,33 @@ module Roar::Representer
           include Resources
         end
       end
-      
+
       module Resources
         # Write the property to the +_embedded+ hash when it's a resource.
         def compile_fragment(bin, doc)
           return super unless bin.options[:embedded]
           super(bin, doc[:_embedded] ||= {})
         end
-        
+
         def uncompile_fragment(bin, doc)
           return super unless bin.options[:embedded]
           super(bin, doc["_embedded"] || {})
         end
       end
-      
+
       module ClassMethods
         def links_definition_options
           super.tap { |options| options[1].merge!({:from => :_links}) }
         end
       end
-      
+
       # Including this module in your representer will render and parse your embedded hyperlinks
       # following the HAL specification: http://stateless.co/hal_specification.html
       #
       #   module SongRepresenter
       #     include Roar::Representer::JSON
       #     include Roar::Representer::JSON::HAL::Links
-      #     
+      #
       #     link :self { "http://self" }
       #   end
       #
@@ -75,11 +75,11 @@ module Roar::Representer
             extend Links::ClassMethods
           end
         end
-        
-        
+
+
         module LinkCollectionRepresenter
           include JSON
-          
+
           def to_hash(*)
             {}.tap do |hash|
               each do |link|
@@ -88,7 +88,7 @@ module Roar::Representer
               end
             end
           end
-          
+
           def from_hash(json, *)
             json ||= {} # since we override #from_hash we're responsible for this.
             json.each do |k, v|
@@ -97,8 +97,8 @@ module Roar::Representer
             self
           end
         end
-        
-        
+
+
         module ClassMethods
           def links_definition_options
             super.tap { |options| options[1] = {:class => Feature::Hypermedia::LinkCollection, :extend => LinkCollectionRepresenter} }
