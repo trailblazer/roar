@@ -56,7 +56,7 @@ class HypermediaTest
 
     before do
       @bookmarks = Class.new do
-        include AttributesContructor
+        include AttributesConstructor
         include Roar::Representer::XML
         include Roar::Representer::Feature::Hypermedia
 
@@ -111,7 +111,7 @@ class HypermediaTest
 
       it "sets up links even when nested" do
         class Page
-          include AttributesContructor
+          include AttributesConstructor
           include Roar::Representer::JSON
           property :note, :class => Note
           attr_accessor :note
