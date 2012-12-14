@@ -1,7 +1,7 @@
 require 'test_helper'
 
 class ItemRepresenter
-  include AttributesContructor
+  include AttributesConstructor
   include Roar::Representer::XML
   self.representation_wrap= :item
   property :value
@@ -9,7 +9,7 @@ class ItemRepresenter
 end
 
 class PositionRepresenter
-  include AttributesContructor
+  include AttributesConstructor
   include Roar::Representer::XML
   self.representation_wrap= :position
   property :id
@@ -20,7 +20,7 @@ end
 
 class XMLRepresenterFunctionalTest < MiniTest::Spec
   class Order
-    include AttributesContructor
+    include AttributesConstructor
     attr_accessor :id, :items
   end
 
@@ -148,7 +148,7 @@ class XMLRepresenterFunctionalTest < MiniTest::Spec
     describe "with a typed list" do
       before do
         @c = Class.new do
-          include AttributesContructor
+          include AttributesConstructor
           include Roar::Representer::XML
 
           self.representation_wrap= :order
