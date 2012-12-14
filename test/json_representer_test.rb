@@ -99,7 +99,7 @@ class JsonHypermediaTest
   describe "Hypermedia API" do
     before do
       @c = Class.new do
-        include AttributesContructor
+        include AttributesConstructor
         include Roar::Representer::JSON
         include Roar::Representer::Feature::Hypermedia
         attr_accessor :id, :self, :next

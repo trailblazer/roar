@@ -27,7 +27,7 @@ class RepresenterTest < MiniTest::Spec
       end
       
       class Person
-        include AttributesContructor
+        include AttributesConstructor
         include Roar::Representer::JSON
         include PersonRepresentation
         attr_accessor :name
