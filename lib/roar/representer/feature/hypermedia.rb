@@ -115,9 +115,8 @@ module Roar
 
         private
           def create_links
-            LinksDefinition.new(*links_definition_options).tap do |links|
-              representable_attrs << links
-            end
+           representable_attrs << links = LinksDefinition.new(*links_definition_options)
+           links
           end
         end
 
