@@ -44,12 +44,22 @@ module Roar
           super # Representer::Base
         end
 
-        def links=(link_list)
-          links.replace(link_list)
-        end
+        attr_writer :links
 
         def links
           @links ||= LinkCollection.new
+        end
+
+        def links_array
+          links.values  # FIXME: move to LinkCollection#to_a.
+        end
+
+        def links_array=(ary)
+          # FIXME: move to LinkCollection
+          self.links= LinkCollection.new
+          ary.each do |lnk|
+            self.links[lnk.rel.to_s] = lnk
+          end
         end
 
       protected
@@ -62,8 +72,12 @@ module Roar
             href = run_link_block(config.last, *args) or next
             options.merge! href.is_a?(Hash) ? href : {:href => href}
 
-            links.update_link(Feature::Hypermedia::Hyperlink.new(options))
+            prepare_link_for(options)
           end
+        end
+
+        def prepare_link_for(options)
+          links.add(Feature::Hypermedia::Hyperlink.new(options))
         end
 
         def run_link_block(block, *args)
@@ -75,18 +89,16 @@ module Roar
         end
 
 
-        class LinkCollection < Array
+        class LinkCollection < Hash
+          # DISCUSS: make Link#rel return string always.
           def [](rel)
-            link = find { |l| l.rel.to_s == rel.to_s } and return link
+            self[rel.to_s]
           end
 
           # Checks if the link is already contained by querying for its +rel+.
           # If so, it gets replaced. Otherwise, the new link gets appended.
-          def update_link(link)
-            if i = find_index { |l| l.rel.to_s == link.rel.to_s }
-              return self[i] = link
-            end
-            self << link
+          def add(link) # FIXME: use Hash API.
+            self[link.rel.to_s] = link
           end
         end
 

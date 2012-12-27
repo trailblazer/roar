@@ -2,33 +2,55 @@ require 'test_helper'
 require 'roar/representer/json/hal'
 
 class HalJsonTest < MiniTest::Spec
-  module SongRepresenter
-    include Roar::Representer::JSON
-    include Roar::Representer::JSON::HAL::Links
+  let(:rpr) do
+    Module.new do
+      include Roar::Representer::JSON
+      include Roar::Representer::JSON::HAL
 
-    link :self do
-      "http://self"
-    end
+      links :self do
+        [{:lang => "en", :href => "http://en.hit"}, 
+         {:lang => "de", :href => "http://de.hit"}]
+      end
 
-    link :rel => :next, :title => "Hey, @myabc" do
-      "http://hit"
+      link :next do
+        "http://next"
+      end
     end
   end
 
-  describe "JSON::HAL::Links" do
-    before do
-      @song = Object.new.extend(SongRepresenter)
+  subject { Object.new.extend(rpr) }
+
+  describe "#links" do
+    it "parses link array" do # TODO: remove me.
+      obj = subject.from_json("{\"_links\":{\"self\":[{\"lang\":\"en\",\"href\":\"http://en.hit\"},{\"lang\":\"de\",\"href\":\"http://de.hit\"}]}}")
+      obj.links.must_equal "self" => [link(:rel => :self, :href => "http://en.hit", :lang => :en), link(:rel => :self, :href => "http://de.hit", :lang => :de)]
     end
 
-    it "renders links according to the HAL spec" do
-      assert_equal "{\"links\":{\"self\":{\"href\":\"http://self\"},\"next\":{\"title\":\"Hey, @myabc\",\"href\":\"http://hit\"}}}", @song.to_json
+    it "parses single links" do # TODO: remove me.
+      obj = subject.from_json("{\"_links\":{\"next\":{\"href\":\"http://next\"}}}")
+      obj.links.must_equal "next" => link(:rel => :next, :href => "http://next")
     end
 
-    it "parses incoming JSON links correctly" do
-      @song.from_json "{\"links\":{\"self\":{\"href\":\"http://self\",\"title\":\"Hey, @myabc\"}}}"
-      assert_equal "http://self", @song.links[:self].href
-      assert_equal "Hey, @myabc", @song.links[:self].title
-      assert_equal nil, @song.links[:next]
+    it "parses link and link array" do
+      obj = subject.from_json("{\"_links\":{\"next\":{\"href\":\"http://next\"}, \"self\":[{\"lang\":\"en\",\"href\":\"http://en.hit\"},{\"lang\":\"de\",\"href\":\"http://de.hit\"}]}}")
+      obj.links.must_equal "next" => link(:rel => :next, :href => "http://next"), "self" => [link(:rel => :self, :href => "http://en.hit", :lang => :en), link(:rel => :self, :href => "http://de.hit", :lang => :de)]
+    end
+
+    it "rejects single links declared as array when parsing" do
+      assert_raises TypeError do
+        subject.from_json("{\"_links\":{\"self\":{\"href\":\"http://next\"}}}")
+      end      
+    end
+
+    it "renders link and link array" do
+      subject.to_json.must_equal "{\"_links\":{\"self\":[{\"lang\":\"en\",\"href\":\"http://en.hit\"},{\"lang\":\"de\",\"href\":\"http://de.hit\"}],\"next\":{\"href\":\"http://next\"}}}"
+    end
+  end
+
+  describe "#prepare_links!" do
+    it "should map link arrays correctly" do
+      subject.send :prepare_links!
+      subject.links.must_equal "self" => []
     end
   end
 
@@ -71,7 +93,7 @@ class HalJsonTest < MiniTest::Spec
       @order.from_json("{\"id\":2}")
       assert_equal 2, @order.id
       assert_equal [], @order.items
-      assert_equal [], @order.links
+      @order.links.must_equal({})
     end
   end
 end

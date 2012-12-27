@@ -49,3 +49,21 @@ require './test/fake_server'
 ShamRack.at('roar.example.com').rackup do
   run FakeServer
 end
+
+MiniTest::Spec.class_eval do
+  def link(options)
+    Roar::Representer::Feature::Hypermedia::Hyperlink.new(options)
+  end
+end
+
+Roar::Representer::Feature::Hypermedia::Hyperlink.class_eval do
+  def ==(other)
+    stringify_hash(table) == stringify_hash(other.table)
+  end
+
+  def stringify_hash(hash)
+    hash.collect do |k,v|
+      [k.to_s, v.to_s]
+    end.sort
+  end
+end

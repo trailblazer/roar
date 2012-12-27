@@ -68,40 +68,120 @@ module Roar::Representer
       #
       # Note that the HAL::Links module alone doesn't prepend an underscore to +links+. Use the JSON::HAL module for that.
       module Links
-        # TODO: allow more attributes besides :href in Hyperlink.
         def self.included(base)
           base.class_eval do
             include Roar::Representer::Feature::Hypermedia
+            include InstanceMethods
             extend Links::ClassMethods
           end
         end
+        
+        module InstanceMethods
+        def prepare_link_for(options)
+          opts = find_links_definition.rel2block.find do |cfg|
+               cfg.first if cfg.first[:rel] == options[:rel].to_sym
+            end
+
+            puts "opts: #{opts.inspect}"
+
+          return links.add(Feature::Hypermedia::Hyperlink.new(options)) unless opts.first[:array]
+          
+
+ary = LinkArray.new(
+                        opts.first[:href].collect do |args|
+                          puts args.merge!( {:rel => options[:rel]}).inspect
+                          Feature::Hypermedia::Hyperlink.new(args.merge!( {:rel => options[:rel]}))
+                        end)
 
 
+            links.add(ary)
+        end
+        
+        end
+        
+        require 'representable/json/collection'
+        require 'representable/json/hash'
         module LinkCollectionRepresenter
-          include JSON
+          include Representable::JSON::Hash
 
-          def to_hash(*)
-            {}.tap do |hash|
-              each do |link|
-                # TODO: we statically use JSON::HyperlinkRepresenter here.
-                hash[link.rel] = link.extend(JSON::HyperlinkRepresenter).to_hash(:exclude => [:rel])
+          values :extend => lambda { |item| item.is_a?(Array) ? LinkArrayRepresenter : Roar::Representer::JSON::HyperlinkRepresenter },
+            :class => lambda { |hsh| puts ":class block arg: #{hsh.inspect}"; hsh.is_a?(LinkArray) ? nil : Roar::Representer::Feature::Hypermedia::Hyperlink }
+
+          def to_hash(options)
+            puts "to_hash: #{self.class}"
+            puts "to_hash: #{self.inspect}"
+            super.tap do |hsh|  # TODO: cool: super(:exclude => [:rel]).
+              puts hsh.inspect
+
+              hsh.each do |k,v|
+                puts k.inspect
+                v.delete(:rel)
               end
             end
           end
+          
 
-          def from_hash(json, *)
-            json ||= {} # since we override #from_hash we're responsible for this.
-            json.each do |k, v|
-              self << Feature::Hypermedia::Hyperlink.new(v.merge :rel => k)
+          def from_hash(hash, options={})
+            hash.each do |k,v|
+              link_options = find_options_for_rel_in_binding(options[:binding], k)
+              
+              hash[k] = LinkArray.new(v) if link_options[:array]  # set type for :class polymorphism. this needs access to the Definition instance.
             end
-            self
+            
+            hsh = super(hash) # this is where :class and :extend do the work.
+
+            hsh.each do |k, v|
+              v.rel = k
+            end
+          end
+
+          def find_options_for_rel_in_binding(binding, rel) # FIXME: move to LinksDefinition.
+            binding.rel2block.each do |cfg|
+              return cfg.first if cfg.first[:rel] == rel.to_sym
+            end
+          end
+        end
+
+        class LinkArray < Array
+          def rel
+            first.rel
+          end
+
+          def rel=(rel)
+            each { |lnk| lnk.rel = rel }
+          end
+        end
+
+        module LinkArrayRepresenter
+          include Representable::JSON::Collection
+
+          items :extend => Roar::Representer::JSON::HyperlinkRepresenter,
+            :class => Roar::Representer::Feature::Hypermedia::Hyperlink
+
+          def to_hash(*)
+            super.tap do |ary|
+              ary.each do |link|
+                rel = link.delete(:rel)
+              end
+            end
           end
         end
 
 
         module ClassMethods
           def links_definition_options
-            super.tap { |options| options[1] = {:class => Feature::Hypermedia::LinkCollection, :extend => LinkCollectionRepresenter} }
+            super.tap { |options|
+
+              options[0] = :links
+              options[1] = {:class => Feature::Hypermedia::LinkCollection, :extend => LinkCollectionRepresenter, :from => :_links} 
+            }
+
+          end
+
+          def links(options, &block)
+            options = {:rel => options} if options.is_a?(Symbol)
+            options[:array] = true  # FIXME: we need to save this information somewhere.
+            link(options, &block)
           end
         end
       end
