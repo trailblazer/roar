@@ -54,6 +54,17 @@ MiniTest::Spec.class_eval do
   def link(options)
     Roar::Representer::Feature::Hypermedia::Hyperlink.new(options)
   end
+
+  def self.representer_for(&block) # FIXME: move to test_helper.
+    let (:rpr) do
+      Module.new do
+        include Roar::Representer::JSON
+        include Roar::Representer::Feature::Hypermedia
+
+        instance_exec(&block)
+      end
+    end
+  end
 end
 
 Roar::Representer::Feature::Hypermedia::Hyperlink.class_eval do

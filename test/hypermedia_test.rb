@@ -4,19 +4,6 @@ class HypermediaTest < MiniTest::Spec
   describe "#links_array" do
     subject { Object.new.extend(rpr) }
 
-    def self.representer_for(&block) # FIXME: move to test_helper.
-      let (:rpr) do
-        Module.new do
-          include Roar::Representer::JSON
-          include Roar::Representer::Feature::Hypermedia
-
-          instance_exec(&block)
-        end
-      end
-    end
-
-    
-
     representer_for do
       link(:self) { "//self" }
     end

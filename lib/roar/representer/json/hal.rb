@@ -121,7 +121,7 @@ ary = LinkArray.new(
           end
           
 
-          def from_hash(hash, options={})
+          def from_hash(hash, options)
             hash.each do |k,v|
               link_options = find_options_for_rel_in_binding(options[:binding], k)
               

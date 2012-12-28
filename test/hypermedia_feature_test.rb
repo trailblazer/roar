@@ -4,54 +4,6 @@ require 'roar/representer/json'
 
 class HypermediaTest
   describe "Hypermedia Feature" do
-    describe "Hypermedia.link" do
-      before do
-        @mod = Module.new do
-          include Roar::Representer::JSON
-          include Roar::Representer::Feature::Hypermedia
-        end
-      end
-
-      it "accepts rel symbol, only" do
-        @mod.class_eval do
-          link :self do
-            "http://self"
-          end
-        end
-
-        assert_equal "{\"links\":[{\"rel\":\"self\",\"href\":\"http://self\"}]}", Object.new.extend(@mod).to_json
-      end
-
-      it "accepts any options" do
-        @mod.class_eval do
-          link :rel => :self, :title => "Hey, @myabc" do
-            "http://self"
-          end
-        end
-
-        assert_equal "{\"links\":[{\"rel\":\"self\",\"title\":\"Hey, @myabc\",\"href\":\"http://self\"}]}", Object.new.extend(@mod).to_json
-      end
-
-      it "receives options from to_*" do
-        @mod.class_eval do
-          link :self do |opts|
-            "http://self/#{opts[:id]}"
-          end
-        end
-
-        assert_equal "{\"links\":[{\"rel\":\"self\",\"href\":\"http://self/1\"}]}", Object.new.extend(@mod).to_json(:id => 1)
-      end
-
-      it "supports returning hash" do
-        @mod.class_eval do
-          link :self do
-            {:href => "http://self", :type => "image/jpg"}
-          end
-        end
-
-        assert_equal "{\"links\":[{\"rel\":\"self\",\"href\":\"http://self\",\"type\":\"image/jpg\"}]}", Object.new.extend(@mod).to_json
-      end
-    end
 
 
     before do
@@ -133,11 +85,11 @@ class HypermediaTest
 
         assert_kind_of Roar::Representer::Feature::Hypermedia::LinkCollection, doc.links
         assert_equal 1, doc.links.size
-        assert_equal(["self", "http://bookmarks"], [doc.links.first.rel, doc.links.first.href])
+        assert_equal(["self", "http://bookmarks"], [doc.links_array.first.rel, doc.links_array.first.href])
       end
 
       it "sets up an empty link list if no links found in the document" do
-        assert_equal [], @bookmarks_with_links.from_xml(%{<bookmarks/>}).links
+        assert_equal [], @bookmarks_with_links.from_xml(%{<bookmarks/>}).links_array
       end
     end
 
@@ -179,18 +131,17 @@ class HypermediaTest
     end
 
 
+    # TODO: remove me.
     describe "#find_links_definition" do
-      it "returns Definition if links are present" do
-        @bookmarks.class_eval do
-          property :id
-          link :self
-        end
-
-        assert_equal "links", @bookmarks.find_links_definition.name
+      representer_for do
+        property :id
+        link :self
       end
 
-      it "returns nil if no links defined" do
-        assert_equal nil, @bookmarks.find_links_definition
+      subject { Object.new.extend(rpr) }
+
+      it "returns Definition if links are present" do
+        subject.send(:find_links_definition).must_be_kind_of Roar::Representer::Feature::Hypermedia::LinksDefinition
       end
     end
   end
@@ -225,17 +176,16 @@ end
 
 class LinkCollectionTest < MiniTest::Spec
   describe "LinkCollection" do
-    it "provides #update_link" do
-      collection  = Roar::Representer::Feature::Hypermedia::LinkCollection.new
-      link        = Roar::Representer::Feature::Hypermedia::Hyperlink.new
-      link.rel  = "self"
-      link.href = "http://self"
-
-      collection.update_link(link)
-      assert_equal 1, collection.size
-
-      collection.update_link(link)
-      assert_equal 1, collection.size
+    subject { Roar::Representer::Feature::Hypermedia::LinkCollection.new }
+    
+    describe "#add" do
+      it "keys by using rel string" do
+        subject.size.must_equal 0
+        subject.add(link = link(:rel => :self))
+        subject.values.must_equal [link]
+        subject.add(link = link(:rel => "self"))
+        subject.values.must_equal [link]
+      end
     end
   end
 end
@@ -243,30 +193,28 @@ end
 class HyperlinkTest < MiniTest::Spec
   Hyperlink = Roar::Representer::Feature::Hypermedia::Hyperlink
   describe "Hyperlink" do
-    before do
-      @link = Hyperlink.new(:rel => "self", "href" => "http://self", "data-whatever" => "Hey, @myabc")
-    end
+    subject { Hyperlink.new(:rel => "self", "href" => "http://self", "data-whatever" => "Hey, @myabc") }
 
     it "accepts string keys in constructor" do
-      assert_equal "Hey, @myabc", @link.send("data-whatever")
+      assert_equal "Hey, @myabc", subject.send("data-whatever")
     end
 
     it "responds to #rel" do
-      assert_equal "self", @link.rel
+      assert_equal "self", subject.rel
     end
 
     it "responds to #href" do
-      assert_equal "http://self", @link.href
+      assert_equal "http://self", subject.href
     end
 
     it "responds to #replace with string keys" do
       @link.replace("rel" => "next")
-      assert_equal nil, @link.href
-      assert_equal "next", @link.rel
+      assert_equal nil, subject.href
+      assert_equal "next", subject.rel
     end
 
     it "responds to #each and implements Enumerable" do
-      assert_equal ["rel:self", "href:http://self", "data-whatever:Hey, @myabc"], @link.collect { |k,v| "#{k}:#{v}" }
+      assert_equal ["rel:self", "href:http://self", "data-whatever:Hey, @myabc"], subject.collect { |k,v| "#{k}:#{v}" }
     end
   end
 end
