@@ -81,7 +81,7 @@ module Roar::Representer
             return super(href, options) unless options[:array]  # TODO: remove :array and use special instan
             
             list = href.collect { |opts| Feature::Hypermedia::Hyperlink.new(opts.merge!(:rel => options[:rel])) }
-            links.add(LinkArray.new(list))
+            LinkArray.new(list)
           end
         end
         

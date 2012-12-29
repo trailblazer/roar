@@ -71,13 +71,13 @@ module Roar
             options, block  = config.first, config.last
             href            = run_link_block(block, *args) or next
 
-            prepare_link_for(href, options)
+            links.add(prepare_link_for(href, options))
           end
         end
 
         def prepare_link_for(href, options)
           options.merge! href.is_a?(Hash) ? href : {:href => href}
-          links.add(Hyperlink.new(options))
+          Hyperlink.new(options)
         end
 
         def run_link_block(block, *args)
@@ -95,8 +95,6 @@ module Roar
             self[rel.to_s]
           end
 
-          # Checks if the link is already contained by querying for its +rel+.
-          # If so, it gets replaced. Otherwise, the new link gets appended.
           def add(link) # FIXME: use Hash API.
             self[link.rel.to_s] = link
           end
