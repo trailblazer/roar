@@ -77,29 +77,15 @@ module Roar::Representer
         end
         
         module InstanceMethods
-        def prepare_link_for(options)
-          opts = find_links_definition.rel2block.find do |cfg|
-               cfg.first if cfg.first[:rel] == options[:rel].to_sym
-            end
-
-            puts "opts: #{opts.inspect}"
-
-          return links.add(Feature::Hypermedia::Hyperlink.new(options)) unless opts.first[:array]
-          
-
-ary = LinkArray.new(
-                        opts.first[:href].collect do |args|
-                          puts args.merge!( {:rel => options[:rel]}).inspect
-                          Feature::Hypermedia::Hyperlink.new(args.merge!( {:rel => options[:rel]}))
-                        end)
-
-
-            links.add(ary)
+          def prepare_link_for(href, options)
+            return super(href, options) unless options[:array]  # TODO: remove :array and use special instan
+            
+            list = href.collect { |opts| Feature::Hypermedia::Hyperlink.new(opts.merge!(:rel => options[:rel])) }
+            links.add(LinkArray.new(list))
+          end
         end
         
-        end
         
-        require 'representable/json/collection'
         require 'representable/json/hash'
         module LinkCollectionRepresenter
           include Representable::JSON::Hash
@@ -152,6 +138,7 @@ ary = LinkArray.new(
           end
         end
 
+        require 'representable/json/collection'
         module LinkArrayRepresenter
           include Representable::JSON::Collection
 

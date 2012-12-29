@@ -68,16 +68,16 @@ module Roar
           links_def = find_links_definition or return
 
           links_def.rel2block.each do |config|  # config is [{..}, block]
-            options = config.first
-            href = run_link_block(config.last, *args) or next
-            options.merge! href.is_a?(Hash) ? href : {:href => href}
+            options, block  = config.first, config.last
+            href            = run_link_block(block, *args) or next
 
-            prepare_link_for(options)
+            prepare_link_for(href, options)
           end
         end
 
-        def prepare_link_for(options)
-          links.add(Feature::Hypermedia::Hyperlink.new(options))
+        def prepare_link_for(href, options)
+          options.merge! href.is_a?(Hash) ? href : {:href => href}
+          links.add(Hyperlink.new(options))
         end
 
         def run_link_block(block, *args)
