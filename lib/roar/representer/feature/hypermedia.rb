@@ -52,6 +52,9 @@ module Roar
           end
         end
         include LinksDefinitionMethods
+        def links_definition_options  # FIXME: make this unnecessary.
+          self.class.links_definition_options
+        end
 
         def before_serialize(options={})
           prepare_links!(options) unless options[:links] == false  # DISCUSS: doesn't work when links are already setup (e.g. from #deserialize).
@@ -100,7 +103,7 @@ module Roar
         class LinkCollection < Hash
           # DISCUSS: make Link#rel return string always.
           def [](rel)
-            self[rel.to_s]
+            self.fetch(rel.to_s, nil)
           end
 
           def add(link) # FIXME: use Hash API.

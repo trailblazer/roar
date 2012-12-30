@@ -95,39 +95,25 @@ class HypermediaTest
 
 
     describe "#links" do
-      before do
-        @set  = @bookmarks.new
-        hyper = Roar::Representer::Feature::Hypermedia::Hyperlink
+      subject { Object.new.extend(rpr).tap do |obj|
+        obj.send :prepare_links!
+      end }
 
-        @set.links = [
-          {:rel => "self", :href => "http://self"},
-          {:rel => "next", :href => "http://next"}].collect do |config|
-            link = hyper.new
-            link.rel  = config[:rel]
-            link.href = config[:href]
-            link
-          end
+      representer_for do
+        link(:self) { "//self" }
+        link(:next) { "//next" }
       end
 
-      describe "#links=" do
-        it "wraps links in a LinkCollection" do
-          assert_kind_of Roar::Representer::Feature::Hypermedia::LinkCollection, @set.links
-          assert_equal 2, @set.links.size
-        end
-      end
-
-      describe "#link[]" do
         it "returns link object" do
-          assert_equal "http://self", @set.links["self"].href
-          assert_equal "http://self", @set.links[:self].href
-          assert_equal "http://next", @set.links[:next].href
-          assert_equal nil, @set.links[:prev]
+          subject.links["self"].href.must_equal "//self"
+          subject.links[:self].href.must_equal "//self"
+          subject.links[:next].href.must_equal "//next"
+          subject.links["unknown"].must_equal nil
         end
-      end
 
-      it "returns an empty list when no links present" do
-        assert_equal Roar::Representer::Feature::Hypermedia::LinkCollection.new, @bookmarks.new.links
-      end
+#      it "returns an empty list when no links present" do
+ #       assert_equal Roar::Representer::Feature::Hypermedia::LinkCollection.new, @bookmarks.new.links
+  #    end
     end
   end
 end
@@ -167,7 +153,7 @@ class HyperlinkTest < MiniTest::Spec
     end
 
     it "responds to #replace with string keys" do
-      @link.replace("rel" => "next")
+      subject.replace("rel" => "next")
       assert_equal nil, subject.href
       assert_equal "next", subject.rel
     end

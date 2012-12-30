@@ -114,7 +114,7 @@ class JsonHypermediaTest
     end
 
     it "responds to #links" do
-      assert_equal [], @r.links
+      @r.links.must_equal({})
     end
 
     it "extracts links from JSON" do
