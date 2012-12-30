@@ -69,3 +69,32 @@ class HypermediaTest < MiniTest::Spec
     end
   end
 end
+
+class LinksDefinitionTest < MiniTest::Spec
+  describe "LinksDefinition" do
+    subject { Roar::Representer::Feature::Hypermedia::LinksDefinition.new(:links) }
+
+    it "responds to #<<" do
+      subject << "arbitrary bullshit"
+      subject.to_a.must_equal ["arbitrary bullshit"]
+    end
+
+    it "responds to #each" do
+      subject.to_a.must_equal []
+    end
+
+    it "accepts options in constructor" do
+      assert_equal [], subject.rel2block
+    end
+
+    it "accepts configuration" do
+      subject.rel2block << {:rel => :self}
+      assert_equal [{:rel=>:self}], subject.rel2block
+    end
+
+    it "responds to #clone" do
+      subject.rel2block << {:rel => :self}
+      assert subject.clone.rel2block.object_id != subject.rel2block.object_id
+    end
+  end
+end

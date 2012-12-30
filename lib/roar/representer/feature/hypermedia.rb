@@ -39,6 +39,20 @@ module Roar
           base.extend ClassMethods
         end
 
+        # TODO: the whole declarative setup in representable should happen on instance level so we don't need to share methods between class and instance.
+        module LinksDefinitionMethods
+        private
+          def create_links_definition
+            representable_attrs << links = LinksDefinition.new(*links_definition_options)
+            links
+          end
+
+          def links_definition
+            representable_attrs.find { |d| d.is_a?(LinksDefinition) } or create_links_definition
+          end
+        end
+        include LinksDefinitionMethods
+
         def before_serialize(options={})
           prepare_links!(options) unless options[:links] == false  # DISCUSS: doesn't work when links are already setup (e.g. from #deserialize).
           super # Representer::Base
@@ -62,12 +76,10 @@ module Roar
           end
         end
 
-      protected
+      private
         # Setup hypermedia links by invoking their blocks. Usually called by #serialize.
         def prepare_links!(*args)
-          links_def = find_links_definition or return
-
-          links_def.rel2block.each do |config|  # config is [{..}, block]
+          links_definition.each do |config|  # config is [{..}, block]
             options, block  = config.first, config.last
             href            = run_link_block(block, *args) or next
 
@@ -84,10 +96,6 @@ module Roar
           instance_exec(*args, &block)
         end
 
-        def find_links_definition
-          representable_attrs.find { |d| d.is_a?(LinksDefinition) }
-        end
-
 
         class LinkCollection < Hash
           # DISCUSS: make Link#rel return string always.
@@ -102,6 +110,7 @@ module Roar
 
 
         module ClassMethods
+          include LinksDefinitionMethods
           # Declares a hypermedia link in the document.
           #
           # Example:
@@ -113,32 +122,30 @@ module Roar
           # The block is executed in instance context, so you may call properties or other accessors.
           # Note that you're free to put decider logic into #link blocks, too.
           def link(options, &block)
-            links = find_links_definition || create_links
-
             options = {:rel => options} if options.is_a?(Symbol)
-            links.rel2block << [options, block]
-          end
-
-          def find_links_definition
-            representable_attrs.find { |d| d.is_a?(LinksDefinition) }
-          end
-
-        private
-          def create_links
-           representable_attrs << links = LinksDefinition.new(*links_definition_options)
-           links
+            links_definition << [options, block]
           end
         end
 
 
         class LinksDefinition < Representable::Definition
-          # TODO: hide rel2block in interface.
-          attr_writer :rel2block
+          include Enumerable
 
-          def rel2block
-            @rel2block ||= []
+          attr_accessor :rel2block
+          def initialize(*)
+            super
+            @rel2block = []
           end
 
+          def <<(args)
+            rel2block << args
+          end
+
+          def each(*args, &block)
+            rel2block.each(*args, &block)
+          end
+
+          # DISCUSS: where do we need this?
           def clone
             super.tap { |d| d.rel2block = rel2block.clone }
           end

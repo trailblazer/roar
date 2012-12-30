@@ -129,50 +129,9 @@ class HypermediaTest
         assert_equal Roar::Representer::Feature::Hypermedia::LinkCollection.new, @bookmarks.new.links
       end
     end
-
-
-    # TODO: remove me.
-    describe "#find_links_definition" do
-      representer_for do
-        property :id
-        link :self
-      end
-
-      subject { Object.new.extend(rpr) }
-
-      it "returns Definition if links are present" do
-        subject.send(:find_links_definition).must_be_kind_of Roar::Representer::Feature::Hypermedia::LinksDefinition
-      end
-    end
   end
 end
 
-class LinksDefinitionTest < MiniTest::Spec
-  describe "LinksDefinition" do
-    before do
-      @d = Roar::Representer::Feature::Hypermedia::LinksDefinition.new(:links)
-    end
-
-    it "accepts options in constructor" do
-      assert_equal [], @d.rel2block
-    end
-
-    it "accepts configuration" do
-      @d.rel2block << {:rel => :self}
-      assert_equal [{:rel=>:self}], @d.rel2block
-    end
-
-    it "responds to #clone" do
-      @d.rel2block << {:rel => :self}
-      assert @d.clone.rel2block.object_id != @d.rel2block.object_id
-    end
-
-
-    it "responds to #each to iterate rel2block" do
-    end
-
-  end
-end
 
 class LinkCollectionTest < MiniTest::Spec
   describe "LinkCollection" do
