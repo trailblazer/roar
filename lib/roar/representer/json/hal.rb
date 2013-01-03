@@ -48,7 +48,23 @@ module Roar::Representer
 
       module ClassMethods
         def links_definition_options
-          super.tap { |options| options[1].merge!({:from => :_links}) }
+          super.tap { |options| options[1].merge!({:from => :_links, :extend => lambda{ |bin|
+
+
+link_arrays = links_definition.collect do |cfg|
+  cfg.first[:array] ? cfg.first[:rel].to_s : nil
+end.compact
+
+m = Module.new
+m.class_eval( %Q{def wurst; #{link_arrays}; end} )
+
+                      [Roar::Representer::JSON::HAL::Links::LinkCollectionRepresenter, m
+
+                      ]}
+          }); puts options.inspect
+
+
+           }
         end
       end
 
@@ -91,38 +107,30 @@ module Roar::Representer
           include Representable::JSON::Hash
 
           values :extend => lambda { |item| item.is_a?(Array) ? LinkArrayRepresenter : Roar::Representer::JSON::HyperlinkRepresenter },
-            :class => lambda { |hsh| puts ":class block arg: #{hsh.inspect}"; hsh.is_a?(LinkArray) ? nil : Roar::Representer::Feature::Hypermedia::Hyperlink }
+            :class => lambda { |hsh| hsh.is_a?(LinkArray) ? nil : Roar::Representer::Feature::Hypermedia::Hyperlink }
 
           def to_hash(options)
-            puts "to_hash: #{self.class}"
-            puts "to_hash: #{self.inspect}"
             super.tap do |hsh|  # TODO: cool: super(:exclude => [:rel]).
-              puts hsh.inspect
-
-              hsh.each do |k,v|
-                puts k.inspect
-                v.delete(:rel)
-              end
+              hsh.each { |k,v| v.delete(:rel) }
             end
           end
           
 
-          def from_hash(hash, options)
+          def from_hash(hash, options={})
             hash.each do |k,v|
-              link_options = find_options_for_rel_in_binding(options[:binding], k)
+              #link_options = find_options_for_rel_in_binding(options[:binding], k)
               
-              hash[k] = LinkArray.new(v) if link_options[:array]  # set type for :class polymorphism. this needs access to the Definition instance.
+              hash[k] = LinkArray.new(v) if wurst.include?(k.to_s)  # set type for :class polymorphism. this needs access to the Definition instance.
             end
             
             hsh = super(hash) # this is where :class and :extend do the work.
 
-            hsh.each do |k, v|
-              v.rel = k
-            end
+            hsh.each { |k, v| v.rel = k }
           end
 
           def find_options_for_rel_in_binding(binding, rel) # FIXME: move to LinksDefinition.
-            binding.rel2block.each do |cfg|
+            return {} unless binding
+            binding.each do |cfg|
               return cfg.first if cfg.first[:rel] == rel.to_sym
             end
           end
