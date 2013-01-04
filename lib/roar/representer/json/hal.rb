@@ -165,7 +165,12 @@ module Roar::Representer
 
           end
 
-          # Use this to define link arrays.
+          # Use this to define link arrays. It accepts the shared rel attribute and an array of options per link object.
+          #
+          #   links :self do
+          #     [{:lang => "en", :href => "http://en.hit"}, 
+          #      {:lang => "de", :href => "http://de.hit"}]
+          #   end
           def links(options, &block)
             options = {:rel => options} if options.is_a?(Symbol)
             options[:array] = true  # FIXME: we need to save this information somewhere.
