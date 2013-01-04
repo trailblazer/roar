@@ -1,3 +1,7 @@
+## 0.11.5
+
+* Introducing HAL::links method to map arrays of link objects in the HAL format. This completes the HAL/JSON specification.
+
 ## 0.11.4
 
 * Links can now return a hash of attributes as `link :self do {:href => fruit_path(self), :title => "Yummy stuff"} end`.
