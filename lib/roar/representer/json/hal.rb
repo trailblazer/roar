@@ -48,22 +48,19 @@ module Roar::Representer
 
       module ClassMethods
         def links_definition_options
-          super.tap { |options| options[1].merge!({:from => :_links, :extend => lambda{ |bin|
+          super.tap { |options| options[1].merge!(:from => :_links, :extend => Roar::Representer::JSON::HAL::Links::LinkCollectionRepresenter,
 
+:instance => lambda { |hsh|
 
 link_arrays = links_definition.collect do |cfg|
   cfg.first[:array] ? cfg.first[:rel].to_s : nil
 end.compact
 
-m = Module.new
-m.class_eval( %Q{def wurst; #{link_arrays}; end} )
-
-                      [Roar::Representer::JSON::HAL::Links::LinkCollectionRepresenter, m
-
-                      ]}
-          }); puts options.inspect
-
-
+Feature::Hypermedia::LinkCollection.new.instance_eval do
+  @arrays = link_arrays
+  self
+end
+})
            }
         end
       end
@@ -120,7 +117,7 @@ m.class_eval( %Q{def wurst; #{link_arrays}; end} )
             hash.each do |k,v|
               #link_options = find_options_for_rel_in_binding(options[:binding], k)
               
-              hash[k] = LinkArray.new(v) if wurst.include?(k.to_s)  # set type for :class polymorphism. this needs access to the Definition instance.
+              hash[k] = LinkArray.new(v) if @arrays.include?(k.to_s)  # set type for :class polymorphism. this needs access to the Definition instance.
             end
             
             hsh = super(hash) # this is where :class and :extend do the work.
