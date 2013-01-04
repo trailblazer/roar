@@ -48,20 +48,22 @@ module Roar::Representer
 
       module ClassMethods
         def links_definition_options
-          super.tap { |options| options[1].merge!(:from => :_links, :extend => Roar::Representer::JSON::HAL::Links::LinkCollectionRepresenter,
-
-:instance => lambda { |hsh|
-
-link_arrays = links_definition.collect do |cfg|
-  cfg.first[:array] ? cfg.first[:rel].to_s : nil
-end.compact
-
-Feature::Hypermedia::LinkCollection.new.instance_eval do
-  @arrays = link_arrays
-  self
-end
-})
+          super.tap { |options| options[1].merge!(
+            :from     => :_links, 
+            :extend   => HAL::Links::LinkCollectionRepresenter,
+            :instance => lambda { |hsh| LinkCollection.new(link_array_rels) })  # defined in InstanceMethods as this is executed in represented context.
            }
+        end
+      end
+
+      class LinkCollection < Feature::Hypermedia::LinkCollection
+        def initialize(array_rels, *args)
+          super(*args)
+          @array_rels = array_rels.map(&:to_s)
+        end
+
+        def is_array?(rel)
+          @array_rels.include?(rel.to_s)
         end
       end
 
@@ -90,11 +92,17 @@ end
         end
         
         module InstanceMethods
+        private
           def prepare_link_for(href, options)
             return super(href, options) unless options[:array]  # TODO: remove :array and use special instan
             
             list = href.collect { |opts| Feature::Hypermedia::Hyperlink.new(opts.merge!(:rel => options[:rel])) }
             LinkArray.new(list)
+          end
+        
+          # TODO: move to LinksDefinition.
+          def link_array_rels
+            links_definition.collect { |cfg| cfg.first[:array] ? cfg.first[:rel] : nil }.compact
           end
         end
         
@@ -114,22 +122,11 @@ end
           
 
           def from_hash(hash, options={})
-            hash.each do |k,v|
-              #link_options = find_options_for_rel_in_binding(options[:binding], k)
-              
-              hash[k] = LinkArray.new(v) if @arrays.include?(k.to_s)  # set type for :class polymorphism. this needs access to the Definition instance.
-            end
+            hash.each { |k,v| hash[k] = LinkArray.new(v) if is_array?(k) }
             
             hsh = super(hash) # this is where :class and :extend do the work.
 
             hsh.each { |k, v| v.rel = k }
-          end
-
-          def find_options_for_rel_in_binding(binding, rel) # FIXME: move to LinksDefinition.
-            return {} unless binding
-            binding.each do |cfg|
-              return cfg.first if cfg.first[:rel] == rel.to_sym
-            end
           end
         end
 
@@ -152,24 +149,23 @@ end
 
           def to_hash(*)
             super.tap do |ary|
-              ary.each do |link|
-                rel = link.delete(:rel)
-              end
+              ary.each { |lnk| rel = lnk.delete(:rel) }
             end
           end
         end
 
 
         module ClassMethods
+          # TODO: remove Links support in non-HAL.
           def links_definition_options
             super.tap { |options|
-
               options[0] = :links
               options[1] = {:class => Feature::Hypermedia::LinkCollection, :extend => LinkCollectionRepresenter, :from => :_links} 
             }
 
           end
 
+          # Use this to define link arrays.
           def links(options, &block)
             options = {:rel => options} if options.is_a?(Symbol)
             options[:array] = true  # FIXME: we need to save this information somewhere.

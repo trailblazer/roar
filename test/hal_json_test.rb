@@ -54,6 +54,12 @@ class HalJsonTest < MiniTest::Spec
     end
   end
 
+  describe "#link_array_rels" do
+    it "returns list of rels for array links" do
+      subject.send(:link_array_rels).must_equal [:self]
+    end
+  end
+
 
   describe "HAL/JSON" do
     before do
@@ -94,6 +100,20 @@ class HalJsonTest < MiniTest::Spec
       assert_equal 2, @order.id
       assert_equal [], @order.items
       @order.links.must_equal({})
+    end
+  end
+end
+
+class LinkCollectionTest < MiniTest::Spec
+  subject { Roar::Representer::JSON::HAL::LinkCollection.new([:self, "next"]) }
+  describe "#is_array?" do
+    it "returns true for array link" do
+      subject.is_array?(:self).must_equal true
+      subject.is_array?("self").must_equal true
+    end
+
+    it "returns false otherwise" do
+      subject.is_array?("prev").must_equal false
     end
   end
 end
