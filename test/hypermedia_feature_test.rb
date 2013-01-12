@@ -2,7 +2,7 @@ require 'test_helper'
 require 'roar/representer/feature/hypermedia'
 require 'roar/representer/json'
 
-class HypermediaTest
+class HypermediaTest < MiniTest::Spec
   describe "Hypermedia Feature" do
 
 
