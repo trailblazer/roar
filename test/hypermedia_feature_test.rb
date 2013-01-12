@@ -135,35 +135,6 @@ class LinkCollectionTest < MiniTest::Spec
   end
 end
 
-class HyperlinkTest < MiniTest::Spec
-  Hyperlink = Roar::Representer::Feature::Hypermedia::Hyperlink
-  describe "Hyperlink" do
-    subject { Hyperlink.new(:rel => "self", "href" => "http://self", "data-whatever" => "Hey, @myabc") }
-
-    it "accepts string keys in constructor" do
-      assert_equal "Hey, @myabc", subject.send("data-whatever")
-    end
-
-    it "responds to #rel" do
-      assert_equal "self", subject.rel
-    end
-
-    it "responds to #href" do
-      assert_equal "http://self", subject.href
-    end
-
-    it "responds to #replace with string keys" do
-      subject.replace("rel" => "next")
-      assert_equal nil, subject.href
-      assert_equal "next", subject.rel
-    end
-
-    it "responds to #each and implements Enumerable" do
-      assert_equal ["rel:self", "href:http://self", "data-whatever:Hey, @myabc"], subject.collect { |k,v| "#{k}:#{v}" }
-    end
-  end
-end
-
 class HyperlinkInheritanceTest < MiniTest::Spec
   describe "when the base representer has a link" do
     before do

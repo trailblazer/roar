@@ -98,3 +98,31 @@ class LinksDefinitionTest < MiniTest::Spec
     end
   end
 end
+
+class HyperlinkTest < MiniTest::Spec
+  describe "Hyperlink" do
+    subject { link(:rel => "self", "href" => "http://self", "data-whatever" => "Hey, @myabc") }
+
+    it "accepts string keys in constructor" do
+      assert_equal "Hey, @myabc", subject.send("data-whatever")
+    end
+
+    it "responds to #rel" do
+      assert_equal "self", subject.rel
+    end
+
+    it "responds to #href" do
+      assert_equal "http://self", subject.href
+    end
+
+    it "responds to #replace with string keys" do
+      subject.replace("rel" => "next")
+      assert_equal nil, subject.href
+      assert_equal "next", subject.rel
+    end
+
+    it "responds to #each and implements Enumerable" do
+      assert_equal ["rel:self", "href:http://self", "data-whatever:Hey, @myabc"], subject.collect { |k,v| "#{k}:#{v}" }
+    end
+  end
+end
