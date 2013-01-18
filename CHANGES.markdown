@@ -1,3 +1,7 @@
+## 0.11.7
+
+* Maintenance release: Fixing the horrible bug fix from 0.11.6 and make it a bit less horrible.
+
 ## 0.11.6
 
 * "Fixing" a bug where `links_definition_option` was missing when no link was set in a representer. Note that this is a quick and horrible bugfix and will soon be cleaned up.
