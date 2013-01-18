@@ -39,20 +39,6 @@ module Roar
           base.extend ClassMethods
         end
 
-        # TODO: the whole declarative setup in representable should happen on instance level so we don't need to share methods between class and instance.
-        module LinksDefinitionMethods
-        private
-          def create_links_definition
-            representable_attrs << links = LinksDefinition.new(*links_definition_options)
-            links
-          end
-
-          def links_definition
-            representable_attrs.find { |d| d.is_a?(LinksDefinition) } or create_links_definition
-          end
-        end
-        include LinksDefinitionMethods
-
         def before_serialize(options={})
           prepare_links!(options) unless options[:links] == false  # DISCUSS: doesn't work when links are already setup (e.g. from #deserialize).
           super # Representer::Base
@@ -77,6 +63,10 @@ module Roar
         end
 
       private
+        def links_definition
+          representable_attrs.find { |d| d.is_a?(LinksDefinition) } or [] # FIXME: this is a bug as soon as #links_definition is used somewhere else beside #prepare_links.
+        end
+
         # Setup hypermedia links by invoking their blocks. Usually called by #serialize.
         def prepare_links!(*args)
           links_definition.each do |config|  # config is [{..}, block]
@@ -110,7 +100,6 @@ module Roar
 
 
         module ClassMethods
-          include LinksDefinitionMethods
           # Declares a hypermedia link in the document.
           #
           # Example:
@@ -124,6 +113,16 @@ module Roar
           def link(options, &block)
             options = {:rel => options} if options.is_a?(Symbol)
             links_definition << [options, block]
+          end
+
+        private
+          def create_links_definition
+            representable_attrs << links = LinksDefinition.new(*links_definition_options)
+            links
+          end
+
+          def links_definition
+            representable_attrs.find { |d| d.is_a?(LinksDefinition) } or create_links_definition
           end
         end
 

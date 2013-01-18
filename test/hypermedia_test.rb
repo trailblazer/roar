@@ -59,7 +59,7 @@ class HypermediaTest < MiniTest::Spec
         representer_for {}
 
         it "still allows rendering" do
-          subject.to_json.must_equal "{\"links\":[]}"
+          subject.to_json.must_equal "{}"
         end
       end
     end
