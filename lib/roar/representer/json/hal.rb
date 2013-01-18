@@ -86,7 +86,7 @@ module Roar::Representer
         def self.included(base)
           base.class_eval do
             include Roar::Representer::Feature::Hypermedia
-            include InstanceMethods
+            include InstanceMethods 
             extend Links::ClassMethods
           end
         end

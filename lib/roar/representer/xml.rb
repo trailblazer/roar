@@ -47,6 +47,10 @@ module Roar
         end
       end
 
+      def links_definition_options  # FIXME: remove me ASAP!
+        [:links_array, {:from => :link, :class => Feature::Hypermedia::Hyperlink, :collection => true, :extend => XML::HyperlinkRepresenter}]
+      end
+
 
       require 'representable/xml/hash'
       module HyperlinkRepresenter

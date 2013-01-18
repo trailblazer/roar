@@ -49,6 +49,10 @@ module Roar
         end
       end
 
+      def links_definition_options  # FIXME: remove me ASAP!
+        [:links_array, {:from => :links, :class => Feature::Hypermedia::Hyperlink, :extend => HyperlinkRepresenter, :collection => true}]
+      end
+
       require "representable/json/hash"
       # Represents a hyperlink in standard roar+json hash representation.
       module HyperlinkRepresenter

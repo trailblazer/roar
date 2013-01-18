@@ -1,3 +1,7 @@
+## 0.11.6
+
+* "Fixing" a bug where `links_definition_option` was missing when no link was set in a representer. Note that this is a quick and horrible bugfix and will soon be cleaned up.
+
 ## 0.11.5
 
 * Introducing HAL::links method to map arrays of link objects in the HAL format. This completes the HAL/JSON specification.

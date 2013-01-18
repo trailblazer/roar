@@ -54,6 +54,14 @@ class HypermediaTest < MiniTest::Spec
           subject.to_json.must_equal "{\"links\":[{\"rel\":\"self\",\"href\":\"//self\",\"type\":\"image/jpg\"}]}"
         end
       end
+
+      describe "not calling #link" do
+        representer_for {}
+
+        it "still allows rendering" do
+          subject.to_json.must_equal "{\"links\":[]}"
+        end
+      end
     end
 
     # private tests:
