@@ -44,6 +44,7 @@ class HttpVerbsTest < MiniTest::Spec
       end
 
       # FIXME: move to faraday test.
+      require 'roar/representer/transport/faraday'
       describe 'a non-existent resource' do
         it 'handles HTTP errors and raises a ResourceNotFound error with FaradayHttpTransport' do
           @band.transport_engine = Roar::Representer::Transport::Faraday
@@ -73,7 +74,7 @@ class HttpVerbsTest < MiniTest::Spec
       it "updates instance with incoming representation" do
         @band.name = "Strung Out"
         assert_equal nil, @band.label
-
+        
         @band.post("http://roar.example.com/bands", "application/xml")
         assert_equal "STRUNG OUT", @band.name
         assert_equal nil, @band.label
