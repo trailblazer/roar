@@ -17,7 +17,7 @@ begin
 rescue LoadError
 end
 
-module AttributesConstructor
+module AttributesConstructor  # TODO: remove me.
   def initialize(attrs={})
     attrs.each do |k,v|
       instance_variable_set("@#{k}", v)
@@ -25,19 +25,13 @@ module AttributesConstructor
   end
 end
 
-class Item
-  include AttributesConstructor
-  attr_accessor :value
+class Song < OpenStruct
+  def ==(other)
+    name == other.name and track == other.track
+  end
 end
 
-class Position
-  include AttributesConstructor
-  attr_accessor :id, :item
-end
-
-class Order
-  include AttributesConstructor
-  attr_accessor :id, :items
+class Album < OpenStruct
 end
 
 require "test_xml/mini_test"
@@ -55,7 +49,7 @@ MiniTest::Spec.class_eval do
     Roar::Representer::Feature::Hypermedia::Hyperlink.new(options)
   end
 
-  def self.representer_for(&block) # FIXME: move to test_helper.
+  def self.representer_for(&block)
     let (:rpr) do
       Module.new do
         include Roar::Representer::JSON

@@ -51,7 +51,7 @@ class HypermediaTest < MiniTest::Spec
           end
 
           it "propagates options" do
-            Class.new(OpenStruct).new(:entity => Class.new(OpenStruct).new).extend(rpr).to_json(:id => 1).must_equal "{\"entity\":{\"links\":[{\"rel\":\"self\",\"href\":\"//self/1\"}]},\"links\":[{\"rel\":\"self\",\"href\":\"//self/1\"}]}"
+            Song.new(:entity => Song.new).extend(rpr).to_json(:id => 1).must_equal "{\"entity\":{\"links\":[{\"rel\":\"self\",\"href\":\"//self/1\"}]},\"links\":[{\"rel\":\"self\",\"href\":\"//self/1\"}]}"
           end
         end
       end

@@ -65,41 +65,41 @@ class HalJsonTest < MiniTest::Spec
     before do
       Bla = Module.new do
         include Roar::Representer::JSON::HAL
-        property :value
+        property :title
         link :self do
-          "http://items/#{value}"
+          "http://songs/#{title}"
         end
       end
 
-      @order_rep = Module.new do
+      @album_rpr = Module.new do
         include Roar::Representer::JSON::HAL
         property :id
-        collection :items, :class => Item, :extend => Bla, :embedded => true
+        collection :songs, :class => Song, :extend => Bla, :embedded => true
         link :self do
-          "http://orders/#{id}"
+          "http://albums/#{id}"
         end
       end
 
-      @order = Order.new(:items => [Item.new(:value => "Beer")], :id => 1).extend(@order_rep)
+      @album = Album.new(:songs => [Song.new(:title => "Beer")], :id => 1).extend(@album_rpr)
     end
 
     it "render links and embedded resources according to HAL" do
-      assert_equal "{\"id\":1,\"_embedded\":{\"items\":[{\"value\":\"Beer\",\"_links\":{\"self\":{\"href\":\"http://items/Beer\"}}}]},\"_links\":{\"self\":{\"href\":\"http://orders/1\"}}}", @order.to_json
+      assert_equal "{\"id\":1,\"_embedded\":{\"songs\":[{\"title\":\"Beer\",\"_links\":{\"self\":{\"href\":\"http://songs/Beer\"}}}]},\"_links\":{\"self\":{\"href\":\"http://albums/1\"}}}", @album.to_json
     end
 
     it "parses links and resources following the mighty HAL" do
-      @order.from_json("{\"id\":2,\"_embedded\":{\"items\":[{\"value\":\"Coffee\",\"_links\":{\"self\":{\"href\":\"http://items/Coffee\"}}}]},\"_links\":{\"self\":{\"href\":\"http://orders/2\"}}}")
-      assert_equal 2, @order.id
-      assert_equal "Coffee", @order.items.first.value
-      assert_equal "http://items/Coffee", @order.items.first.links[:self].href
-      assert_equal "http://orders/2", @order.links[:self].href
+      @album.from_json("{\"id\":2,\"_embedded\":{\"songs\":[{\"title\":\"Coffee\",\"_links\":{\"self\":{\"href\":\"http://songs/Coffee\"}}}]},\"_links\":{\"self\":{\"href\":\"http://albums/2\"}}}")
+      assert_equal 2, @album.id
+      assert_equal "Coffee", @album.songs.first.title
+      assert_equal "http://songs/Coffee", @album.songs.first.links[:self].href
+      assert_equal "http://albums/2", @album.links[:self].href
     end
 
     it "doesn't require _links and _embedded to be present" do
-      @order.from_json("{\"id\":2}")
-      assert_equal 2, @order.id
-      assert_equal [], @order.items
-      @order.links.must_equal({})
+      @album.from_json("{\"id\":2}")
+      assert_equal 2, @album.id
+      assert_equal [], @album.songs
+      @album.links.must_equal({})
     end
   end
 end
