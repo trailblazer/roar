@@ -43,6 +43,17 @@ class HypermediaTest < MiniTest::Spec
         it "receives options when rendering" do
           subject.to_json(:id => 1).must_equal "{\"links\":[{\"rel\":\"self\",\"href\":\"//self/1\"}]}"
         end
+
+        describe "in a composition" do
+          representer_for do
+            property :entity, :extend => self
+            link(:self) { |opts| "//self/#{opts[:id]}" }
+          end
+
+          it "propagates options" do
+            Class.new(OpenStruct).new(:entity => Class.new(OpenStruct).new).extend(rpr).to_json(:id => 1).must_equal "{\"entity\":{\"links\":[{\"rel\":\"self\",\"href\":\"//self/1\"}]},\"links\":[{\"rel\":\"self\",\"href\":\"//self/1\"}]}"
+          end
+        end
       end
 
       describe "returning option hash from block" do
