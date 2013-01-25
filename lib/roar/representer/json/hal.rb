@@ -48,11 +48,7 @@ module Roar::Representer
 
       module ClassMethods
         def links_definition_options
-          super.tap { |options| options[1].merge!(
-            :from     => :_links, 
-            :extend   => HAL::Links::LinkCollectionRepresenter,
-            :instance => lambda { |hsh| LinkCollection.new(link_array_rels) })  # defined in InstanceMethods as this is executed in represented context.
-           }
+          super.tap { |options| options[1].merge!(:from => :_links) }
         end
       end
 
