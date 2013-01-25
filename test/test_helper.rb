@@ -3,6 +3,7 @@ Bundler.setup
 
 require 'test/unit'
 require 'minitest/spec'
+require 'ostruct'
 
 require 'roar/representer'
 require 'roar/representer/feature/http_verbs'
