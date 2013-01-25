@@ -62,25 +62,24 @@ class HalJsonTest < MiniTest::Spec
 
 
   describe "HAL/JSON" do
+    Bla = Module.new do
+      include Roar::Representer::JSON::HAL
+      property :title
+      link :self do
+        "http://songs/#{title}"
+      end
+    end
+
+    representer_for([Roar::Representer::JSON::HAL]) do
+      property :id
+      collection :songs, :class => Song, :extend => Bla, :embedded => true
+      link :self do
+        "http://albums/#{id}"
+      end
+    end
+
     before do
-      Bla = Module.new do
-        include Roar::Representer::JSON::HAL
-        property :title
-        link :self do
-          "http://songs/#{title}"
-        end
-      end
-
-      @album_rpr = Module.new do
-        include Roar::Representer::JSON::HAL
-        property :id
-        collection :songs, :class => Song, :extend => Bla, :embedded => true
-        link :self do
-          "http://albums/#{id}"
-        end
-      end
-
-      @album = Album.new(:songs => [Song.new(:title => "Beer")], :id => 1).extend(@album_rpr)
+      @album = Album.new(:songs => [Song.new(:title => "Beer")], :id => 1).extend(rpr)
     end
 
     it "render links and embedded resources according to HAL" do

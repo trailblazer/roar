@@ -49,11 +49,10 @@ MiniTest::Spec.class_eval do
     Roar::Representer::Feature::Hypermedia::Hyperlink.new(options)
   end
 
-  def self.representer_for(&block)
+  def self.representer_for(modules=[Roar::Representer::JSON, Roar::Representer::Feature::Hypermedia], &block)
     let (:rpr) do
       Module.new do
-        include Roar::Representer::JSON
-        include Roar::Representer::Feature::Hypermedia
+        include *modules.reverse
 
         instance_exec(&block)
       end
