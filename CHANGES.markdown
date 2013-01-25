@@ -1,3 +1,7 @@
+## 0.11.8
+
+* Fixed `JSON::HAL::Links` so that it keys links with `links` and not `_links`. The latter is still done by `JSON::HAL`.
+
 ## 0.11.7
 
 * Maintenance release: Fixing the horrible bug fix from 0.11.6 and make it a bit less horrible.
