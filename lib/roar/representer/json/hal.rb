@@ -160,7 +160,7 @@ module Roar::Representer
           def links_definition_options
             super.tap { |options|
               options[0] = :links
-              options[1] = {:class => Feature::Hypermedia::LinkCollection, :extend => LinkCollectionRepresenter, :from => :_links} 
+              options[1] = {:class => Feature::Hypermedia::LinkCollection, :extend => LinkCollectionRepresenter}
             }
 
           end
