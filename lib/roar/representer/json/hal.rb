@@ -156,13 +156,12 @@ module Roar::Representer
 
 
         module ClassMethods
-          # TODO: remove Links support in non-HAL.
           def links_definition_options
-            super.tap { |options|
-              options[0] = :links
-              options[1] = {:class => Feature::Hypermedia::LinkCollection, :extend => LinkCollectionRepresenter}
-            }
-
+            [:links,
+              :from     => :links, 
+              :extend   => HAL::Links::LinkCollectionRepresenter,
+              :instance => lambda { |hsh| LinkCollection.new(link_array_rels) }  # defined in InstanceMethods as this is executed in represented context.
+            ]
           end
 
           # Use this to define link arrays. It accepts the shared rel attribute and an array of options per link object.

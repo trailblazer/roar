@@ -9,17 +9,22 @@ class HalLinkTest < MiniTest::Spec
       include Roar::Representer::JSON
       include Roar::Representer::JSON::HAL::Links
       link :self do
-        "me"
+        "//songs"
       end
     end
   end
 
   subject { Object.new.extend(rpr) }
 
-  describe "#prepare_links!" do
-    it "should use 'links' key" do
-      assert_equal subject.to_json, "{\"links\":{\"self\":{\"href\":\"me\"}}}"
-      puts subject.to_json
+  describe "#to_json" do
+    it "uses 'links' key" do
+      assert_equal subject.to_json, "{\"links\":{\"self\":{\"href\":\"//songs\"}}}"
+    end
+  end
+
+  describe "#from_json" do
+    it "uses 'links' key" do
+      subject.from_json("{\"links\":{\"self\":{\"href\":\"//lifer\"}}}").links.values.must_equal [link(:href => "//lifer", :rel => :self)]
     end
   end
 end
