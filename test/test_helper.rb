@@ -55,7 +55,7 @@ MiniTest::Spec.class_eval do
       Module.new do
         include *modules.reverse
 
-        instance_exec(&block)
+        module_exec(&block)
       end
     end
   end
