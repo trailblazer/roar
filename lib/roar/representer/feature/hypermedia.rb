@@ -67,12 +67,19 @@ module Roar
 
         # Setup hypermedia links by invoking their blocks. Usually called by #serialize.
         def prepare_links!(*args)
-          links_definition.each do |config|  # config is [{..}, block]
+          # TODO: move this method to _links or something so it doesn't need to be called in #serialize.
+          compile_links_for(links_definition, *args).each do |lnk|
+            links.add(lnk)  # TODO: move to LinkCollection.new.
+          end
+        end
+
+        def compile_links_for(configs, *args)
+          configs.collect do |config|
             options, block  = config.first, config.last
             href            = run_link_block(block, *args) or next
 
-            links.add(prepare_link_for(href, options))
-          end
+            prepare_link_for(href, options)
+          end.compact # FIXME: make this less ugly.
         end
 
         def prepare_link_for(href, options)
@@ -91,7 +98,7 @@ module Roar
             self.fetch(rel.to_s, nil)
           end
 
-          def add(link) # FIXME: use Hash API.
+          def add(link)
             self[link.rel.to_s] = link
           end
         end
