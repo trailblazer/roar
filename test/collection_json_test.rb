@@ -37,6 +37,37 @@ class CollectionJsonTest < MiniTest::Spec
     link(:stats) { "//songs/scarifice/stats" }
   end
 
+  # TODO: provide automatic copying from the ItemRepresenter here.
+  TemplateRepresenter = Module.new do
+    include Roar::Representer::JSON
+
+    property :title, :prompt => "Song title", :render_nil => true
+    property :length, :prompt => "Song length", :render_nil => true
+
+    def to_hash(*)
+      hash = super
+      data = []
+      hash.keys.each do |n| # TODO: get all except :links etc.
+        v = hash.delete(n.to_s)
+        data << {:name => n, :value => v} # TODO: get :prompt from Definition.
+      end
+      hash[:data] = data
+      hash
+    end
+  end
+
+  QueriesRepresenter = Module.new do
+    include Roar::Representer::JSON
+    include Roar::Representer::Feature::Hypermedia
+
+    link :search do
+      {:href => "//search", :data => [{:name => "q", :value => ""}]}
+    end
+  end
+
+  #puts Object.new.extend(QueriesRepresenter).to_json
+
+
   representer_for do
     include Roar::Representer::JSON
     include Roar::Representer::Feature::Hypermedia
@@ -46,6 +77,16 @@ class CollectionJsonTest < MiniTest::Spec
     collection :items, :extend => ItemRepresenter
     def items
       self
+    end
+    property :template, :extend => TemplateRepresenter
+    def template
+      OpenStruct.new  # TODO: handle preset values.
+    end
+    #class QueryLinksDefinition < Roar::Representer::Feature::Hypermedia::LinksDefinition
+    #end
+    collection :queries, :extend => Roar::Representer::JSON::HyperlinkRepresenter
+    def queries
+      compile_links_for QueriesRepresenter.representable_attrs.first
     end
 
     def version
@@ -70,7 +111,7 @@ class CollectionJsonTest < MiniTest::Spec
 
   describe "#to_json" do
     it "renders document" do
-      [song].extend(rpr).to_json.must_equal %{{"collection":{"version":"1.0","href":"//songs/","items":[{"href":"//songs/scarifice","links":[{"rel":"download","href":"//songs/scarifice.mp3"},{"rel":"stats","href":"//songs/scarifice/stats"}],"data":[{"name":"title","value":"scarifice"},{"name":"length","value":43}]}],"links":[{"rel":"feed","href":"//songs/feed"}]}}}
+      [song].extend(rpr).to_json.must_equal %{{"collection":{"version":"1.0","href":"//songs/","items":[{"href":"//songs/scarifice","links":[{"rel":"download","href":"//songs/scarifice.mp3"},{"rel":"stats","href":"//songs/scarifice/stats"}],"data":[{"name":"title","value":"scarifice"},{"name":"length","value":43}]}],"template":{"data":[{"name":"title","value":null},{"name":"length","value":null}]},"queries":[{"rel":"search","href":"//search","data":[{"name":"q","value":""}]}],"links":[{"rel":"feed","href":"//songs/feed"}]}}}
     end
   end
 end
