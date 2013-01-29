@@ -57,9 +57,7 @@ module Roar
         def links_array=(ary)
           # FIXME: move to LinkCollection
           self.links= LinkCollection.new
-          ary.each do |lnk|
-            self.links[lnk.rel.to_s] = lnk
-          end
+          ary.each { |lnk| links.add(lnk) }
         end
 
       private
