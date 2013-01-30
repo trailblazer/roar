@@ -3,7 +3,7 @@ source "http://rubygems.org"
 # Specify your gem's dependencies in roar.gemspec
 gemspec
 
-gem "representable", "~> 1.2.9"
+gem "representable", ">= 1.3.1"
 
 
 group :test do
