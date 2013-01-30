@@ -8,7 +8,6 @@ module Roar::Representer::JSON
         include Roar::Representer::Feature::Hypermedia
 
         extend ClassMethods
-        #include InstanceMethods # otherwise Representable overrides our #to_json.
 
         self.representation_wrap= :collection # FIXME: move outside of this block for inheritance!
 
@@ -17,14 +16,24 @@ module Roar::Representer::JSON
           OpenStruct.new  # TODO: handle preset values.
         end
 
-        collection :queries, :extend => lambda {|*| representable_attrs.collection_representers[:queries] }
+        collection :queries, :extend => Roar::Representer::JSON::HyperlinkRepresenter
         def queries
-          compile_links_for representable_attrs.collection_representers[:queries].representable_attrs.first
+          compile_links_for(representable_attrs.collection_representers[:queries].representable_attrs.first)
         end
 
         collection :items, :extend => lambda {|*| representable_attrs.collection_representers[:items] }
         def items
           self
+        end
+
+        property :__version, :writeable => false, :as => :version
+        def __version
+          representable_attrs.collection_representers[:version]
+        end
+
+        property :__href, :as => :href
+        def __href
+          compile_links_for(representable_attrs.collection_representers[:href].representable_attrs.first).first.href
         end
       end
     end
@@ -54,6 +63,12 @@ module Roar::Representer::JSON
           include Roar::Representer::Feature::Hypermedia
           
           module_exec(&block)
+
+          def to_hash(*)
+            hash = super
+            puts hash.inspect
+            hash["links"] # TODO: make it easier to render collection of links.
+          end
         end
       end
 
@@ -62,20 +77,44 @@ module Roar::Representer::JSON
           include Roar::Representer::JSON
           include Roar::Representer::Feature::Hypermedia
           include Roar::Representer::JSON::CollectionJSON::DataMethods
+          extend SharedClassMethodsBullshit
 
           module_exec(&block)
+
+          # TODO: share with main module!
+          property :__href, :as => :href
+          def __href
+            compile_links_for(representable_attrs.collection_representers[:href].representable_attrs.first).first.href
+          end
         end
       end
 
-      def representable_attrs
-        super.tap do |attrs|
-          attrs.instance_eval do # FIXME: of course, this is WIP.
-            def collection_representers
-              @collection_representers ||= {}
+      def version(v)
+        representable_attrs.collection_representers[:version] = v
+      end
+
+      module SharedClassMethodsBullshit
+        def href(&block)
+          mod = representable_attrs.collection_representers[:href] = Module.new do
+            include Roar::Representer::JSON
+            include Roar::Representer::Feature::Hypermedia
+
+
+            link(:href, &block)
+          end
+        end
+
+        def representable_attrs
+          super.tap do |attrs|
+            attrs.instance_eval do # FIXME: of course, this is WIP.
+              def collection_representers
+                @collection_representers ||= {}
+              end
             end
           end
         end
       end
+      include SharedClassMethodsBullshit
     end
 
     module DataMethods
