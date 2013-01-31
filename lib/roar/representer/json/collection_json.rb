@@ -11,8 +11,8 @@ module Roar::Representer::JSON
 
         self.representation_wrap= :collection # FIXME: move outside of this block for inheritance!
 
-        property :template, :extend => lambda {|*| representable_attrs.collection_representers[:template] }
-        def template
+        property :__template, :as => :template, :extend => lambda {|*| representable_attrs.collection_representers[:template] }, :class => Array
+        def __template
           OpenStruct.new  # TODO: handle preset values.
         end
 
@@ -20,13 +20,18 @@ module Roar::Representer::JSON
         def queries
           compile_links_for(representable_attrs.collection_representers[:queries].representable_attrs.first)
         end
+        def queries=(v)
+        end
 
-        collection :items, :extend => lambda {|*| representable_attrs.collection_representers[:items] }
+
         def items
           self
         end
+        def items=(v)
+          replace(v)
+        end
 
-        property :__version, :writeable => false, :as => :version
+        property :__version, :as => :version
         def __version
           representable_attrs.collection_representers[:version]
         end
@@ -35,6 +40,10 @@ module Roar::Representer::JSON
         def __href
           compile_links_for(representable_attrs.collection_representers[:href].representable_attrs.first).first.href
         end
+        
+
+        
+        include ClientMethods
       end
     end
 
@@ -54,6 +63,10 @@ module Roar::Representer::JSON
           extend PropertyWithRenderNil
 
           module_exec(&block)
+
+          def from_hash(hash, *args)
+            replace(hash["data"])
+          end
         end
       end
 
@@ -66,13 +79,14 @@ module Roar::Representer::JSON
 
           def to_hash(*)
             hash = super
-            puts hash.inspect
             hash["links"] # TODO: make it easier to render collection of links.
           end
         end
       end
 
-      def items(&block)
+      def items(options={}, &block)
+        collection :items, { :extend => lambda {|*| representable_attrs.collection_representers[:items] } }.merge!(options)
+
         mod = representable_attrs.collection_representers[:items] = Module.new do
           include Roar::Representer::JSON
           include Roar::Representer::Feature::Hypermedia
@@ -85,6 +99,12 @@ module Roar::Representer::JSON
           property :__href, :as => :href
           def __href
             compile_links_for(representable_attrs.collection_representers[:href].representable_attrs.first).first.href
+          end
+          def __href=(v)
+            @__href = Roar::Representer::Feature::Hypermedia::Hyperlink.new(:href => v)
+          end
+          def href
+            @__href
           end
         end
       end
@@ -129,6 +149,38 @@ module Roar::Representer::JSON
           end
           hsh[:data] = data
         end
+      end
+
+      def from_hash(hash, *args)
+        data = {}
+        hash.delete("data").collect do |item|
+          data[item["name"]] = item["value"]
+        end
+        super(hash.merge!(data))
+      end
+    end
+
+    module ClientMethods
+      def __version=(v)
+        @__version = v
+      end
+      def version
+        @__version
+      end
+
+      def __href=(v)
+        @__href = Roar::Representer::Feature::Hypermedia::Hyperlink.new(:href => v)
+      end
+      def href
+        @__href
+      end
+
+      def __template=(v)
+        @__template = v
+      end
+      # DISCUSS: this might return a Template instance, soon.
+      def template
+        @__template
       end
     end
   end

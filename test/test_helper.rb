@@ -26,6 +26,7 @@ module AttributesConstructor  # TODO: remove me.
   end
 end
 
+# FIXME: provide a real #== for OpenStruct.
 class Song < OpenStruct
   def ==(other)
     name == other.name and track == other.track

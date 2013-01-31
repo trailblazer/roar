@@ -2,7 +2,6 @@ require 'test_helper'
 require 'roar/representer/json/collection_json'
 
 class CollectionJsonTest < MiniTest::Spec
-  subject { Object.new().extend(rpr)  }
   let(:song) { OpenStruct.new(:title => "scarifice", :length => 43) }
 
   representer_for([Roar::Representer::JSON::CollectionJSON]) do
@@ -11,7 +10,7 @@ class CollectionJsonTest < MiniTest::Spec
 
     link(:feed) { "//songs/feed" }
 
-    items do
+    items(:class => Song) do
       href { "//songs/scarifice" }
 
       property :title, :prompt => "Song title"
@@ -75,6 +74,44 @@ class CollectionJsonTest < MiniTest::Spec
           ]
         }
       })# %{{"collection":{"version":"1.0","href":"//songs/","items":[{"href":"//songs/scarifice","links":[{"rel":"download","href":"//songs/scarifice.mp3"},{"rel":"stats","href":"//songs/scarifice/stats"}],"data":[{"name":"title","value":"scarifice"},{"name":"length","value":43}]}],"template":{"data":[{"name":"title","value":null},{"name":"length","value":null}]},"queries":[{"rel":"search","href":"//search","data":[{"name":"q","value":""}]}],"links":[{"rel":"feed","href":"//songs/feed"}]}}}
+    end
+  end
+
+  describe "#from_json" do
+    subject { [].extend(rpr).from_json [song].extend(rpr).to_json }
+
+    it "provides #version" do
+      subject.version.must_equal "1.0"
+    end
+
+    it "provides #href" do
+      subject.href.must_equal link(:href => "//songs/")
+    end
+
+    it "provides #template" do
+      # DISCUSS: this might return a Template instance, soon.
+      subject.template.must_equal([
+        {"name"=>"title", "value"=>nil},
+        {"name"=>"length", "value"=>nil}])
+    end
+
+    it "provides #queries" do
+      # DISCUSS: this might return CollectionJSON::Hyperlink instances that support some kind of substitution operation for the :data attribute.
+      # FIXME: this is currently _not_ parsed!
+      subject.queries.must_equal([link(:rel => :search, :href=>"//search", :data=>[{:name=>"q", :value=>""}])])
+    end
+
+    it "provides #items" do
+      subject.items.must_equal([Song.new(:title => "scarifice", :length => "43")])
+      song = subject.items.first
+      song.title.must_equal "scarifice"
+      song.length.must_equal 43
+      song.links.must_equal("download" => link({:rel=>:download, :href=>"//songs/scarifice.mp3"}), "stats" => link({:rel=>:stats, :href=>"//songs/scarifice/stats"}))
+      song.href.must_equal link(:href => "//songs/scarifice")
+    end
+
+    it "provides #links" do
+      subject.links.must_equal({"feed" => link(:rel => :feed, :href => "//songs/feed")})
     end
   end
 end
