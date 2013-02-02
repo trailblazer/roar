@@ -1,5 +1,10 @@
 module Roar::Representer::JSON
   # Implementation of the Collection+JSON media format, http://amundsen.com/media-types/collection/format/
+  #
+  # When clients want to add or update an item the collection's filled out template is POSTed or PUT. You can parse that using the
+  # +SongCollectionRepresenter::template_representer+ module.
+  #
+  #   Song.new.extend(SongCollectionRepresenter.template_representer).from_json("{template: ...")
   module CollectionJSON
     def self.included(base)
       base.class_eval do
@@ -56,7 +61,7 @@ module Roar::Representer::JSON
 
       # TODO: provide automatic copying from the ItemRepresenter here.
       def template(&block)
-        mod = representable_attrs.collection_representers[:template] = Module.new do
+        mod = representable_attrs.collection_representers[:object_template] = Module.new do
           include Roar::Representer::JSON
           include Roar::Representer::JSON::CollectionJSON::DataMethods
           
@@ -64,10 +69,26 @@ module Roar::Representer::JSON
 
           module_exec(&block)
 
+          #self.representation_wrap = :template
+          def from_hash(hash, *args)  # overridden in :template representer.
+            super(hash["template"])
+          end
+        end
+
+        representable_attrs.collection_representers[:template] = Module.new do
+          include Roar::Representer::JSON
+          include mod
+
+          #self.representation_wrap = false
+
+          # DISCUSS: currently we skip real deserialization here and just store the :data hash.
           def from_hash(hash, *args)
             replace(hash["data"])
           end
         end
+      end
+      def template_representer
+        representable_attrs.collection_representers[:object_template]
       end
 
       def queries(&block)

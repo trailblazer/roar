@@ -114,4 +114,17 @@ class CollectionJsonTest < MiniTest::Spec
       subject.links.must_equal({"feed" => link(:rel => :feed, :href => "//songs/feed")})
     end
   end
+
+  describe "template_representer#from_json" do
+    it "parses object" do
+      song = OpenStruct.new.extend(rpr.template_representer).from_hash(
+        "template"=>{
+          "data"=>[
+            {"name"=>"title",  "value"=>"Black Star"},
+            {"name"=>"length", "value"=>"4.53"}
+          ]
+        })
+      song.title.must_equal "Black Star"
+    end
+  end
 end
