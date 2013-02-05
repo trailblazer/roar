@@ -8,21 +8,12 @@ module Roar
         include HttpVerbs
 
         def self.extended(base)
-          base.instance_eval do
-            representable_attrs.each do |attr|
+          target = base.is_a?(Module) ? base : base.singleton_class
+
+          target.class_eval do
+            base.send(:representable_attrs).each do |attr|
               next unless attr.instance_of? Representable::Definition # ignore hyperlinks etc for now.
-              name = attr.name
-
-              # TODO: could anyone please make this better?
-              instance_eval %Q{
-                def #{name}=(v)
-                  @#{name} = v
-                end
-
-                def #{name}
-                  @#{name}
-                end
-              }
+              attr_accessor attr.name
             end
           end
         end
