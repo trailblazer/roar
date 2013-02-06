@@ -1,3 +1,8 @@
+## 0.11.9
+
+* When using `Feature::Client` hyperlinks are no longer rendered in POST and PUT since we pass `links: false`.
+* `Transport::NetHttp` now sets both `Accept:` and `Content-type:` header since Rails services seems to get confused.
+
 ## 0.11.8
 
 * Fixed `JSON::HAL::Links` so that it keys links with `links` and not `_links`. The latter is still done by `JSON::HAL`.
