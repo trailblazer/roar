@@ -26,6 +26,10 @@ module Roar
             end
           end
         end
+
+        def before_serialize(options={})
+          super({:links => false}.merge!(options))
+        end
       end
     end
   end
