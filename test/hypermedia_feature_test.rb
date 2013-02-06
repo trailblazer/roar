@@ -145,27 +145,27 @@ class HyperlinkInheritanceTest < MiniTest::Spec
         link(:base) { "http://base" }
       end
 
-       module Foo
+      module Bar
         include Roar::Representer::JSON
         include Roar::Representer::Feature::Hypermedia
-        include BaseRepresenter
-
-        link(:foo) { "http://foo" }
-      end
-
-       module Bar
-        include Roar::Representer::JSON
-        include Roar::Representer::Feature::Hypermedia
-        include BaseRepresenter
 
         link(:bar) { "http://bar" }
+      end
+
+      module Foo
+        include Roar::Representer::JSON
+        include Roar::Representer::Feature::Hypermedia
+        include BaseRepresenter
+        include Bar
+
+        link(:foo) { "http://foo" }
       end
     end
 
     it "should inherit parent links" do
       foo = Object.new.extend(Foo)
 
-      assert_equal "{\"links\":[{\"rel\":\"base\",\"href\":\"http://base\"},{\"rel\":\"foo\",\"href\":\"http://foo\"}]}", foo.to_json
+      assert_equal "{\"links\":[{\"rel\":\"base\",\"href\":\"http://base\"},{\"rel\":\"bar\",\"href\":\"http://bar\"},{\"rel\":\"foo\",\"href\":\"http://foo\"}]}", foo.to_json
     end
 
   end
