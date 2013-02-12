@@ -134,39 +134,3 @@ class LinkCollectionTest < MiniTest::Spec
     end
   end
 end
-
-class HyperlinkInheritanceTest < MiniTest::Spec
-  describe "when the base representer has a link" do
-    before do
-      module BaseRepresenter
-        include Roar::Representer::JSON
-        include Roar::Representer::Feature::Hypermedia
-
-        link(:base) { "http://base" }
-      end
-
-      module Bar
-        include Roar::Representer::JSON
-        include Roar::Representer::Feature::Hypermedia
-
-        link(:bar) { "http://bar" }
-      end
-
-      module Foo
-        include Roar::Representer::JSON
-        include Roar::Representer::Feature::Hypermedia
-        include BaseRepresenter
-        include Bar
-
-        link(:foo) { "http://foo" }
-      end
-    end
-
-    it "should inherit parent links" do
-      foo = Object.new.extend(Foo)
-
-      assert_equal "{\"links\":[{\"rel\":\"base\",\"href\":\"http://base\"},{\"rel\":\"bar\",\"href\":\"http://bar\"},{\"rel\":\"foo\",\"href\":\"http://foo\"}]}", foo.to_json
-    end
-
-  end
-end

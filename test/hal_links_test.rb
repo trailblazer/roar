@@ -18,7 +18,7 @@ class HalLinkTest < MiniTest::Spec
 
   describe "#to_json" do
     it "uses 'links' key" do
-      assert_equal subject.to_json, "{\"links\":{\"self\":{\"href\":\"//songs\"}}}"
+      subject.to_json.must_equal "{\"links\":{\"self\":{\"href\":\"//songs\"}}}"
     end
   end
 

@@ -81,9 +81,9 @@ module Roar::Representer
       module Links
         def self.included(base)
           base.class_eval do
+            extend Links::ClassMethods  # ::links_definition_options
             include Roar::Representer::Feature::Hypermedia
             include InstanceMethods 
-            extend Links::ClassMethods
           end
         end
         

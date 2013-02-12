@@ -1,6 +1,44 @@
 require 'test_helper'
 
 class HypermediaTest < MiniTest::Spec
+  describe "inheritance" do
+    before do
+      module BaseRepresenter
+        include Roar::Representer::JSON
+        include Roar::Representer::Feature::Hypermedia
+
+        link(:base) { "http://base" }
+      end
+
+      module Bar
+        include Roar::Representer::JSON
+        include Roar::Representer::Feature::Hypermedia
+
+        link(:bar) { "http://bar" }
+      end
+
+      module Foo
+        include Roar::Representer::JSON
+        include Roar::Representer::Feature::Hypermedia
+        include BaseRepresenter
+        include Bar
+
+        link(:foo) { "http://foo" }
+      end
+    end
+
+    it "inherits parent links" do
+      foo = Object.new.extend(Foo)
+
+      assert_equal "{\"links\":[{\"rel\":\"base\",\"href\":\"http://base\"},{\"rel\":\"bar\",\"href\":\"http://bar\"},{\"rel\":\"foo\",\"href\":\"http://foo\"}]}", foo.to_json
+    end
+
+    it "inherits links from all mixed-in representers" do
+      skip
+      Object.new.extend(BaseRepresenter).extend(Bar).to_json.must_equal "{\"links\":[{\"rel\":\"base\",\"href\":\"http://base\"},{\"rel\":\"bar\",\"href\":\"http://bar\"}]}"
+    end
+  end
+
   describe "#links_array" do
     subject { Object.new.extend(rpr) }
 
@@ -54,23 +92,6 @@ class HypermediaTest < MiniTest::Spec
             Song.new(:entity => Song.new).extend(rpr).to_json(:id => 1).must_equal "{\"entity\":{\"links\":[{\"rel\":\"self\",\"href\":\"//self/1\"}]},\"links\":[{\"rel\":\"self\",\"href\":\"//self/1\"}]}"
           end
         end
-
-        describe "in chained compositions" do
-          representer_for do
-            link(:self) { |opts| "//self" }
-          end
-
-          it "retains links" do
-            canonical = Module.new do
-              include Roar::Representer::JSON
-              include Roar::Representer::Feature::Hypermedia
-
-              link(:canonical) { "//self/canonical" }
-            end
-
-            subject.extend(canonical).to_json.must_equal "{\"links\":[{\"rel\":\"self\",\"href\":\"//self\"},{\"rel\":\"canonical\",\"href\":\"//self/canonical\"}]}"
-          end
-        end
       end
 
       describe "returning option hash from block" do
@@ -105,6 +126,8 @@ class HypermediaTest < MiniTest::Spec
     end
   end
 end
+
+
 
 class LinksDefinitionTest < MiniTest::Spec
   describe "LinksDefinition" do

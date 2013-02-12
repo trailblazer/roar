@@ -37,6 +37,8 @@ module Roar
       module Hypermedia
         def self.included(base)
           base.extend ClassMethods
+          base.extend InheritableArray
+          #base.send :create_links_definition
         end
 
         def before_serialize(options={})
@@ -68,7 +70,8 @@ module Roar
         # Setup hypermedia links by invoking their blocks. Usually called by #serialize.
         def prepare_links!(*args)
           # TODO: move this method to _links or something so it doesn't need to be called in #serialize.
-          compile_links_for(links_definition, *args).each do |lnk|
+          #compile_links_for(links_definition, *args).each do |lnk|
+          compile_links_for(representable_attrs.inherited_array(:links), *args).each do |lnk|
             links.add(lnk)  # TODO: move to LinkCollection.new.
           end
         end
@@ -118,6 +121,7 @@ module Roar
           def link(options, &block)
             options = {:rel => options} if options.is_a?(Symbol)
             links_definition << [options, block]
+            representable_attrs.inherited_array(:links) << [options, block]
           end
 
         private
@@ -169,6 +173,31 @@ module Roar
           def replace(hash)
             # #marshal_load requires symbol keys: http://apidock.com/ruby/v1_9_3_125/OpenStruct/marshal_load
             marshal_load(hash.inject({}) { |h, (k,v)| h[k.to_sym] = v; h })
+          end
+        end
+
+        # TODO: move to separate module
+        # DISCUSS: experimental. this will soon be moved to a separate gem
+        module InheritableArray
+          def representable_attrs
+            super.extend(ConfigExtensions)
+          end
+
+          module ConfigExtensions
+            def inherited_array(name)
+              inheritable_arrays[name] ||= []
+            end
+            def inheritable_arrays
+              @inheritable_arrays ||= {}
+            end
+
+            def inherit(parent)
+              super
+              
+              parent.inheritable_arrays.keys.each do |k|
+                inherited_array(k).push *parent.inherited_array(k).clone
+              end
+            end
           end
         end
       end
