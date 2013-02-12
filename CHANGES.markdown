@@ -1,3 +1,7 @@
+## 0.11.10
+
+* store link definitions in `representable_attrs(:links)` now and no longer in the `LinksDefinition` instance itself. removing `#links_definition` in favor of `#link_configs`.
+
 ## 0.11.9
 
 * When using `Feature::Client` hyperlinks are no longer rendered in POST and PUT since we pass `links: false`.
