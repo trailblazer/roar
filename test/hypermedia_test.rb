@@ -127,37 +127,6 @@ class HypermediaTest < MiniTest::Spec
   end
 end
 
-
-
-class LinksDefinitionTest < MiniTest::Spec
-  describe "LinksDefinition" do
-    subject { Roar::Representer::Feature::Hypermedia::LinksDefinition.new(:links) }
-
-    it "responds to #<<" do
-      subject << "arbitrary bullshit"
-      subject.to_a.must_equal ["arbitrary bullshit"]
-    end
-
-    it "responds to #each" do
-      subject.to_a.must_equal []
-    end
-
-    it "accepts options in constructor" do
-      assert_equal [], subject.rel2block
-    end
-
-    it "accepts configuration" do
-      subject.rel2block << {:rel => :self}
-      assert_equal [{:rel=>:self}], subject.rel2block
-    end
-
-    it "responds to #clone" do
-      subject.rel2block << {:rel => :self}
-      assert subject.clone.rel2block.object_id != subject.rel2block.object_id
-    end
-  end
-end
-
 class HyperlinkTest < MiniTest::Spec
   describe "Hyperlink" do
     subject { link(:rel => "self", "href" => "http://self", "data-whatever" => "Hey, @myabc") }
@@ -203,41 +172,41 @@ class HyperlinkTest < MiniTest::Spec
       it "inherits to uninitialized child" do
         representer_for do # child
           include(representer_for do # parent
-            representable_attrs.inherited_array(:links) << "bar"
+            representable_attrs.inheritable_array(:links) << "bar"
           end)
-        end.representable_attrs.inherited_array(:links).must_equal(["bar"])
+        end.representable_attrs.inheritable_array(:links).must_equal(["bar"])
       end
 
       it "works with uninitialized parent" do
         representer_for do # child
-          representable_attrs.inherited_array(:links) << "bar"
+          representable_attrs.inheritable_array(:links) << "bar"
 
           include(representer_for do # parent
           end)
-        end.representable_attrs.inherited_array(:links).must_equal(["bar"])
+        end.representable_attrs.inheritable_array(:links).must_equal(["bar"])
       end
 
       it "inherits when both are initialized" do
         representer_for do # child
-          representable_attrs.inherited_array(:links) << "bar"
+          representable_attrs.inheritable_array(:links) << "bar"
 
           include(representer_for do # parent
-            representable_attrs.inherited_array(:links) << "stadium"
+            representable_attrs.inheritable_array(:links) << "stadium"
           end)
-        end.representable_attrs.inherited_array(:links).must_equal(["bar", "stadium"])
+        end.representable_attrs.inheritable_array(:links).must_equal(["bar", "stadium"])
       end
 
       it "clones parent inheritables" do # FIXME: actually we don't clone here!
         representer_for do # child
-          representable_attrs.inherited_array(:links) << "bar"
+          representable_attrs.inheritable_array(:links) << "bar"
 
           include(parent = representer_for do # parent
-            representable_attrs.inherited_array(:links) << "stadium"
+            representable_attrs.inheritable_array(:links) << "stadium"
           end)
 
-          parent.representable_attrs.inherited_array(:links) << "park"  # modify parent array.
+          parent.representable_attrs.inheritable_array(:links) << "park"  # modify parent array.
         
-        end.representable_attrs.inherited_array(:links).must_equal(["bar", "stadium"])
+        end.representable_attrs.inheritable_array(:links).must_equal(["bar", "stadium"])
       end
     end
   end

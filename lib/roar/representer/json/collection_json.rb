@@ -23,7 +23,7 @@ module Roar::Representer::JSON
 
         collection :queries, :extend => Roar::Representer::JSON::HyperlinkRepresenter
         def queries
-          compile_links_for(representable_attrs.collection_representers[:queries].representable_attrs.first)
+          compile_links_for(representable_attrs.collection_representers[:queries].link_configs)
         end
         def queries=(v)
         end
@@ -43,7 +43,7 @@ module Roar::Representer::JSON
 
         property :__href, :as => :href
         def __href
-          compile_links_for(representable_attrs.collection_representers[:href].representable_attrs.first).first.href
+          compile_links_for(representable_attrs.collection_representers[:href].link_configs).first.href
         end
         
 
@@ -119,7 +119,7 @@ module Roar::Representer::JSON
           # TODO: share with main module!
           property :__href, :as => :href
           def __href
-            compile_links_for(representable_attrs.collection_representers[:href].representable_attrs.first).first.href
+            compile_links_for(representable_attrs.collection_representers[:href].link_configs).first.href
           end
           def __href=(v)
             @__href = Roar::Representer::Feature::Hypermedia::Hyperlink.new(:href => v)

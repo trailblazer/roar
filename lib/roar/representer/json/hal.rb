@@ -98,7 +98,7 @@ module Roar::Representer
         
           # TODO: move to LinksDefinition.
           def link_array_rels
-            links_definition.collect { |cfg| cfg.first[:array] ? cfg.first[:rel] : nil }.compact
+            link_configs.collect { |cfg| cfg.first[:array] ? cfg.first[:rel] : nil }.compact
           end
         end
         

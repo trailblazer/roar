@@ -38,7 +38,6 @@ module Roar
         def self.included(base)
           base.extend ClassMethods
           base.extend InheritableArray
-          #base.send :create_links_definition
         end
 
         def before_serialize(options={})
@@ -62,16 +61,19 @@ module Roar
           ary.each { |lnk| links.add(lnk) }
         end
 
-      private
-        def links_definition
-          representable_attrs.find { |d| d.is_a?(LinksDefinition) } or [] # FIXME: this is a bug as soon as #links_definition is used somewhere else beside #prepare_links.
+        module LinkConfigsMethod
+          def link_configs
+            representable_attrs.inheritable_array(:links)
+          end
         end
 
+        include LinkConfigsMethod
+
+      private
         # Setup hypermedia links by invoking their blocks. Usually called by #serialize.
         def prepare_links!(*args)
           # TODO: move this method to _links or something so it doesn't need to be called in #serialize.
-          #compile_links_for(links_definition, *args).each do |lnk|
-          compile_links_for(representable_attrs.inherited_array(:links), *args).each do |lnk|
+          compile_links_for(link_configs, *args).each do |lnk|
             links.add(lnk)  # TODO: move to LinkCollection.new.
           end
         end
@@ -120,43 +122,20 @@ module Roar
           # Note that you're free to put decider logic into #link blocks, too.
           def link(options, &block)
             options = {:rel => options} if options.is_a?(Symbol)
-            links_definition << [options, block]
-            representable_attrs.inherited_array(:links) << [options, block]
+            create_links_definition # this assures the links are rendered at the right position.
+            link_configs << [options, block]
           end
+
+          include LinkConfigsMethod
 
         private
           def create_links_definition
-            representable_attrs << links = LinksDefinition.new(*links_definition_options)
-            links
-          end
-
-          def links_definition
-            representable_attrs.find { |d| d.is_a?(LinksDefinition) } or create_links_definition
+            return if representable_attrs.find { |d| d.is_a?(LinksDefinition) }
+            representable_attrs << LinksDefinition.new(*links_definition_options)
           end
         end
 
-
         class LinksDefinition < Representable::Definition
-          include Enumerable
-
-          attr_accessor :rel2block
-          def initialize(*)
-            super
-            @rel2block = []
-          end
-
-          def <<(args)
-            rel2block << args
-          end
-
-          def each(*args, &block)
-            rel2block.each(*args, &block)
-          end
-
-          # DISCUSS: where do we need this?
-          def clone
-            super.tap { |d| d.rel2block = rel2block.clone }
-          end
         end
 
 
@@ -184,7 +163,7 @@ module Roar
           end
 
           module ConfigExtensions
-            def inherited_array(name)
+            def inheritable_array(name)
               inheritable_arrays[name] ||= []
             end
             def inheritable_arrays
@@ -195,7 +174,7 @@ module Roar
               super
               
               parent.inheritable_arrays.keys.each do |k|
-                inherited_array(k).push *parent.inherited_array(k).clone
+                inheritable_array(k).push *parent.inheritable_array(k).clone
               end
             end
           end
