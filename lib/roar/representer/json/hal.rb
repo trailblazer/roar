@@ -83,26 +83,26 @@ module Roar::Representer
           base.class_eval do
             extend Links::ClassMethods  # ::links_definition_options
             include Roar::Representer::Feature::Hypermedia
-            include InstanceMethods 
+            include InstanceMethods
           end
         end
-        
+
         module InstanceMethods
         private
           def prepare_link_for(href, options)
             return super(href, options) unless options[:array]  # TODO: remove :array and use special instan
-            
+
             list = href.collect { |opts| Feature::Hypermedia::Hyperlink.new(opts.merge!(:rel => options[:rel])) }
             LinkArray.new(list)
           end
-        
+
           # TODO: move to LinksDefinition.
           def link_array_rels
             link_configs.collect { |cfg| cfg.first[:array] ? cfg.first[:rel] : nil }.compact
           end
         end
-        
-        
+
+
         require 'representable/json/hash'
         module LinkCollectionRepresenter
           include Representable::JSON::Hash
@@ -115,11 +115,11 @@ module Roar::Representer
               hsh.each { |k,v| v.delete(:rel) }
             end
           end
-          
+
 
           def from_hash(hash, options={})
             hash.each { |k,v| hash[k] = LinkArray.new(v) if is_array?(k) }
-            
+
             hsh = super(hash) # this is where :class and :extend do the work.
 
             hsh.each { |k, v| v.rel = k }
@@ -154,16 +154,18 @@ module Roar::Representer
         module ClassMethods
           def links_definition_options
             [:links,
-              :from     => :links, 
-              :extend   => HAL::Links::LinkCollectionRepresenter,
-              :instance => lambda { |hsh| LinkCollection.new(link_array_rels) }  # defined in InstanceMethods as this is executed in represented context.
+              {
+                :from     => :links,
+                :extend   => HAL::Links::LinkCollectionRepresenter,
+                :instance => lambda { |hsh| LinkCollection.new(link_array_rels) }  # defined in InstanceMethods as this is executed in represented context.
+              }
             ]
           end
 
           # Use this to define link arrays. It accepts the shared rel attribute and an array of options per link object.
           #
           #   links :self do
-          #     [{:lang => "en", :href => "http://en.hit"}, 
+          #     [{:lang => "en", :href => "http://en.hit"},
           #      {:lang => "de", :href => "http://de.hit"}]
           #   end
           def links(options, &block)
