@@ -1,6 +1,6 @@
 ## 0.11.10
-
-* store link definitions in `representable_attrs(:links)` now and no longer in the `LinksDefinition` instance itself. removing `#links_definition` in favor of `#link_configs`.
+* Fix a syntax error for Ruby 1.8.
+* Store link definitions in `representable_attrs(:links)` now and no longer in the `LinksDefinition` instance itself. removing `#links_definition` in favor of `#link_configs`.
 
 ## 0.11.9
 
