@@ -121,7 +121,7 @@ module Roar
           # The block is executed in instance context, so you may call properties or other accessors.
           # Note that you're free to put decider logic into #link blocks, too.
           def link(options, &block)
-            options = {:rel => options} if options.is_a?(Symbol)
+            options = {:rel => options} unless options.is_a?(Hash)
             create_links_definition # this assures the links are rendered at the right position.
             link_configs << [options, block]
           end

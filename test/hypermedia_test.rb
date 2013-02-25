@@ -73,6 +73,16 @@ class HypermediaTest < MiniTest::Spec
         end
       end
 
+      describe "with string rel" do
+        representer_for do
+          link("ns:self") { "//self" }
+        end
+
+        it "renders rel" do
+          subject.to_json.must_equal "{\"links\":[{\"rel\":\"ns:self\",\"href\":\"//self\"}]}"
+        end
+      end
+
       describe "passing options to serialize" do
         representer_for do
           link(:self) { |opts| "//self/#{opts[:id]}" }
