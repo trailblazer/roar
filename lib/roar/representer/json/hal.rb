@@ -1,3 +1,5 @@
+require 'roar/representer/json'
+
 module Roar::Representer
   module JSON
     # Including the JSON::HAL module in your representer will render and parse documents
