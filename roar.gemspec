@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.homepage    = "http://rubygems.org/gems/roar"
   s.summary     = %q{Resource-oriented architectures in Ruby.}
   s.description = %q{Streamlines the development of RESTful, resource-oriented architectures in Ruby.}
-
+  s.license = 'MIT'
   s.rubyforge_project = "roar"
 
   s.files         = `git ls-files`.split("\n")
