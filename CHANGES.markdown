@@ -1,4 +1,9 @@
+# 0.11.11
+
+* Allow use of `::link(string)`.
+
 ## 0.11.10
+
 * Fix a syntax error for Ruby 1.8.
 * Store link definitions in `representable_attrs(:links)` now and no longer in the `LinksDefinition` instance itself. removing `#links_definition` in favor of `#link_configs`.
 
