@@ -31,7 +31,14 @@ module Roar::Representer
           include Roar::Representer::JSON
           include Links       # overwrites #links_definition_options.
           extend ClassMethods # overwrites #links_definition_options, again.
+          include InstanceMethods
           include Resources
+        end
+      end
+
+      module InstanceMethods
+        def to_hal(*args)
+          to_json(*args)
         end
       end
 
