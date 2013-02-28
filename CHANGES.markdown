@@ -1,3 +1,7 @@
+# 0.11.12
+
+* Moved `::inheritable_array` from `Hypermedia` to `Representer`.
+
 # 0.11.11
 
 * Allow use of `::link(string)`.

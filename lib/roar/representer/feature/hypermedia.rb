@@ -154,31 +154,6 @@ module Roar
             marshal_load(hash.inject({}) { |h, (k,v)| h[k.to_sym] = v; h })
           end
         end
-
-        # TODO: move to separate module
-        # DISCUSS: experimental. this will soon be moved to a separate gem
-        module InheritableArray
-          def representable_attrs
-            super.extend(ConfigExtensions)
-          end
-
-          module ConfigExtensions
-            def inheritable_array(name)
-              inheritable_arrays[name] ||= []
-            end
-            def inheritable_arrays
-              @inheritable_arrays ||= {}
-            end
-
-            def inherit(parent)
-              super
-              
-              parent.inheritable_arrays.keys.each do |k|
-                inheritable_array(k).push *parent.inheritable_array(k).clone
-              end
-            end
-          end
-        end
       end
     end
   end
