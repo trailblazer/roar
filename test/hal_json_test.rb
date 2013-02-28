@@ -8,7 +8,7 @@ class HalJsonTest < MiniTest::Spec
       include Roar::Representer::JSON::HAL
 
       links :self do
-        [{:lang => "en", :href => "http://en.hit"}, 
+        [{:lang => "en", :href => "http://en.hit"},
          {:lang => "de", :href => "http://de.hit"}]
       end
 
@@ -39,7 +39,7 @@ class HalJsonTest < MiniTest::Spec
     it "rejects single links declared as array when parsing" do
       assert_raises TypeError do
         subject.from_json("{\"_links\":{\"self\":{\"href\":\"http://next\"}}}")
-      end      
+      end
     end
 
     it "renders link and link array" do
@@ -84,6 +84,10 @@ class HalJsonTest < MiniTest::Spec
 
     it "render links and embedded resources according to HAL" do
       assert_equal "{\"id\":1,\"_embedded\":{\"songs\":[{\"title\":\"Beer\",\"_links\":{\"self\":{\"href\":\"http://songs/Beer\"}}}]},\"_links\":{\"self\":{\"href\":\"http://albums/1\"}}}", @album.to_json
+    end
+
+    it "render links and embedded resources according to HAL" do
+      assert_equal "{\"id\":1,\"_embedded\":{\"songs\":[{\"title\":\"Beer\",\"_links\":{\"self\":{\"href\":\"http://songs/Beer\"}}}]},\"_links\":{\"self\":{\"href\":\"http://albums/1\"}}}", @album.to_hal
     end
 
     it "parses links and resources following the mighty HAL" do
