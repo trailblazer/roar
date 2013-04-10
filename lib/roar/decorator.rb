@@ -1,0 +1,1 @@
+Roar::Decorator = Representable::Decorator
