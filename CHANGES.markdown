@@ -1,3 +1,7 @@
+# 0.11.13
+
+* Adding `Roar::Decorator`, see [representable docs](https://github.com/apotonick/representable#decorator-vs-extend) for now.
+
 # 0.11.12
 
 * Moved `::inheritable_array` from `Hypermedia` to `Representer`.
