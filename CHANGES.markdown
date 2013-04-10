@@ -1,3 +1,7 @@
+# 0.11.14
+
+* Fixing Gemfile.
+
 # 0.11.13
 
 * Adding `Roar::Decorator`, see [representable docs](https://github.com/apotonick/representable#decorator-vs-extend) for now.

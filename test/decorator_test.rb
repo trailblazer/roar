@@ -5,6 +5,7 @@ class DecoratorTest < MiniTest::Spec
 
   describe "Decorator" do
     it "exposes ::prepare" do
+      require 'representable/version'
       if Representable::VERSION.split(".")[1] == "4"
         require 'roar/decorator'
 
