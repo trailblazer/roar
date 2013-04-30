@@ -215,23 +215,32 @@ class HyperlinkTest < MiniTest::Spec
           end)
 
           parent.representable_attrs.inheritable_array(:links) << "park"  # modify parent array.
-        
+
         end.representable_attrs.inheritable_array(:links).must_equal(["bar", "stadium"])
       end
 
       it "doesn't mess up with inheritable_array" do  # FIXME: remove this test when uber is out.
         OpenStruct.new.extend( Module.new do
                   include Roar::Representer::JSON
-                  include Module.new do
-                    include Roar::Representer::JSON
-                    include Roar::Representer::Feature::Hypermedia
-        
-                    property :bla
+                  include(Module.new do
+                                      include Roar::Representer::JSON
+                                      include Roar::Representer::Feature::Hypermedia
 
-                    link( :self) {"bo"}
-                  end
+                                      property :bla
+
+                                      link( :self) {"bo"}
+
+                                      #puts "hey ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                                      #puts representable_attrs.inheritable_array(:links).inspect
+                                    end)
+
+
+                  #puts representable_attrs.inheritable_array(:links).inspect
+
                   property :blow
-                end).to_json
+                  include Roar::Representer::Feature::Hypermedia
+                  link(:bla) { "boo" }
+                end).to_hash.must_equal({"links"=>[{:rel=>:self, :href=>"bo"}, {:rel=>:bla, :href=>"boo"}]})
 
 
       end

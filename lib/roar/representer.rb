@@ -19,7 +19,7 @@ module Roar
 
         def inherit(parent)
           super
-          
+
           parent.inheritable_arrays.keys.each do |k|
             inheritable_array(k).push *parent.inheritable_array(k).clone
           end
@@ -30,10 +30,12 @@ module Roar
     def self.included(base)
       base.class_eval do
         include Representable
+        extend InheritableArray # this adds InheritableArray::representable_attrs to the module, e.g. when a representer includes a  representer, we don't work with the instance method, yet.
       end
     end
 
     include InheritableArray
+
 
   private
     def before_serialize(*)
