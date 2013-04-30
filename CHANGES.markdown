@@ -1,3 +1,7 @@
+# 0.11.15
+
+* Fixing [#66](https://github.com/apotonick/roar/issues/66).
+
 # 0.11.14
 
 * Fixing Gemfile.
