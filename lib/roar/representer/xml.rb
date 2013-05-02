@@ -38,7 +38,8 @@ module Roar
         include Representable::XML::ClassMethods
 
         def links_definition_options
-          [:links_array, {:from => :link, :class => Feature::Hypermedia::Hyperlink, :collection => true, :extend => XML::HyperlinkRepresenter}]
+          [:links_array, {:from => :link, :class => Feature::Hypermedia::Hyperlink, :collection => true, :extend => XML::HyperlinkRepresenter,
+            :representer_exec => true, :getter => lambda { |*| links.values }}] # TODO: merge with JSON.
         end
 
         # Generic entry-point for parsing.

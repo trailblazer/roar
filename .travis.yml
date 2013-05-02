@@ -4,5 +4,4 @@ rvm:
 notifications:
   irc: "irc.freenode.org#cells"
 gemfile:
-  - gemfiles/Gemfile.representable-1.3
   - gemfiles/Gemfile.representable-1.4

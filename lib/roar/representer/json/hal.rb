@@ -157,9 +157,11 @@ module Roar::Representer
           def links_definition_options
             [:links,
               {
-                :from     => :links,
+                :as       => :links,
                 :extend   => HAL::Links::LinkCollectionRepresenter,
-                :instance => lambda { |hsh| LinkCollection.new(link_array_rels) }  # defined in InstanceMethods as this is executed in represented context.
+                :instance => lambda { |hsh| LinkCollection.new(link_array_rels) }, # defined in InstanceMethods as this is executed in represented context.
+                :representer_exec => true,
+                :getter => lambda { |*| links }
               }
             ]
           end

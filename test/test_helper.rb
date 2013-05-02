@@ -7,6 +7,7 @@ require 'ostruct'
 
 require 'roar/representer'
 require 'roar/representer/feature/http_verbs'
+require 'roar/representer/json/hal'
 
 begin
   require 'turn'
