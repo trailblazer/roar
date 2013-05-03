@@ -281,6 +281,24 @@ order.post(order.links[:self])
 
 This was dead simple since representations can be composed of different documents in Roar.
 
+h2. Decorators
+
+You can use `Roar::Decorator` as a representer. More docs coming soon. Note that if you want your represented object to save incoming hypermedia you need to do two things.
+
+<pre>
+class SongClient
+  # do whatever here
+
+  attr_accessor :links
+end
+
+class SongRepresenter < Roar::Decorator
+  include Roar::Representer::JSON
+  include Roar::Decorator::HypermediaConsumer
+end
+</pre>
+
+
 h2. More Features
 
 Be sure to check out the bundled features.
