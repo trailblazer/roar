@@ -1,3 +1,7 @@
+# 0.11.16
+
+* Added `Roar::Decorator::HypermediaConsumer` which propagates incoming hypermedia links to the represented object (it has to have accessors for `:links`).
+
 # 0.11.15
 
 * Fixing [#66](https://github.com/apotonick/roar/issues/66).
