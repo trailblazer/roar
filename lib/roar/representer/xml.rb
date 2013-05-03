@@ -38,8 +38,9 @@ module Roar
         include Representable::XML::ClassMethods
 
         def links_definition_options
+          # FIXME: this doesn't belong into the generic XML representer.
           [:links_array, {:from => :link, :class => Feature::Hypermedia::Hyperlink, :collection => true, :extend => XML::HyperlinkRepresenter,
-            :representer_exec => true, :getter => lambda { |*| links.values }}] # TODO: merge with JSON.
+            :representer_exec => true, :getter => lambda { |*| links_array }, :setter => lambda { |val,*| self.links_array=(val) } }] # TODO: merge with JSON.
         end
 
         # Generic entry-point for parsing.

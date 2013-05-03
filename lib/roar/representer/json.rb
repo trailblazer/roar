@@ -45,8 +45,9 @@ module Roar
 
         # TODO: move to instance method, or remove?
         def links_definition_options
+          # FIXME: this doesn't belong into the generic JSON representer.
           [:links_array, {:from => :links, :class => Feature::Hypermedia::Hyperlink, :extend => HyperlinkRepresenter, :collection => true,
-            :representer_exec => true, :getter => lambda { |*| links.values }}]
+            :representer_exec => true, :getter => lambda { |*| links_array }, :setter => lambda { |val,*| self.links_array=(val) } }]
         end
       end
 

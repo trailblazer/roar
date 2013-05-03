@@ -70,6 +70,12 @@ module Roar
         include LinkConfigsMethod
 
       private
+        def links_definition_options
+          # TODO: this method is never called.
+          [:links_array, {:from => :link, :class => Feature::Hypermedia::Hyperlink, :collection => true,
+            :representer_exec => true, :getter => lambda { |*| links_array }, :setter => lambda { |val,*| links_array=(val) } }] # TODO: merge with JSON.
+        end
+
         # Setup hypermedia links by invoking their blocks. Usually called by #serialize.
         def prepare_links!(*args)
           # TODO: move this method to _links or something so it doesn't need to be called in #serialize.
