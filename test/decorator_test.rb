@@ -1,20 +1,16 @@
 require 'test_helper'
+require 'roar/decorator'
 
 class DecoratorTest < MiniTest::Spec
   describe "Decorator" do
     it "exposes ::prepare" do
-      require 'representable/version'
-      if Representable::VERSION.split(".")[1] == "4"
-        require 'roar/decorator'
+      class SongRepresentation < Roar::Decorator
+        include Roar::Representer::JSON
 
-        class SongRepresentation < Roar::Decorator
-          include Roar::Representer::JSON
-
-          property :name
-        end
-
-        SongRepresentation.prepare(OpenStruct.new(:name => "Not The Same")).to_hash.must_equal({"name"=>"Not The Same"})
+        property :name
       end
+
+      SongRepresentation.prepare(OpenStruct.new(:name => "Not The Same")).to_hash.must_equal({"name"=>"Not The Same"})
     end
   end
 
@@ -37,6 +33,25 @@ class DecoratorTest < MiniTest::Spec
 
       it "sets links on decorator" do
         decorator.new(model).from_hash("links"=>[{:rel=>:self, :href=>"http://self"}]).links.must_equal("self"=>link(:rel=>:self, :href=>"http://self"))
+      end
+
+      let (:model_with_links) { model.singleton_class.instance_eval { attr_accessor :links }; model }
+      it "does not set links on represented" do
+        decorator.new(model_with_links).from_hash("links"=>[{:rel=>:self, :href=>"http://self"}])
+        model_with_links.links.must_equal nil
+      end
+
+      describe "Decorator::HypermediaClient" do
+        let (:decorator) { rpr_mod = rpr
+          Class.new(Roar::Decorator) do
+            include rpr_mod
+            include Roar::Decorator::HypermediaConsumer
+          end }
+
+        it "propagates links to represented" do
+          decorator.new(model_with_links).from_hash("links"=>[{:rel=>:self, :href=>"http://self"}])
+          model_with_links.links[:self].must_equal(link(:rel=>:self, :href=>"http://self"))
+        end
       end
     end
 
