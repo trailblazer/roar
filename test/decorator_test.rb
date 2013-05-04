@@ -20,6 +20,7 @@ class DecoratorTest < MiniTest::Spec
     end
 
     let (:model) { Object.new }
+    let (:model_with_links) { model.singleton_class.instance_eval { attr_accessor :links }; model }
 
     describe "JSON" do
       let (:decorator) { rpr_mod = rpr
@@ -32,10 +33,9 @@ class DecoratorTest < MiniTest::Spec
       end
 
       it "sets links on decorator" do
-        decorator.new(model).from_hash("links"=>[{:rel=>:self, :href=>"http://self"}]).links.must_equal("self"=>link(:rel=>:self, :href=>"http://self"))
+        decorator.new(model).from_hash("links"=>[{:rel=>:self, :href=>"http://next"}]).links.must_equal("self"=>link(:rel=>:self, :href=>"http://next"))
       end
 
-      let (:model_with_links) { model.singleton_class.instance_eval { attr_accessor :links }; model }
       it "does not set links on represented" do
         decorator.new(model_with_links).from_hash("links"=>[{:rel=>:self, :href=>"http://self"}])
         model_with_links.links.must_equal nil
@@ -49,8 +49,8 @@ class DecoratorTest < MiniTest::Spec
           end }
 
         it "propagates links to represented" do
-          decorator.new(model_with_links).from_hash("links"=>[{:rel=>:self, :href=>"http://self"}])
-          model_with_links.links[:self].must_equal(link(:rel=>:self, :href=>"http://self"))
+          decorator.new(model_with_links).from_hash("links"=>[{:rel=>:self, :href=>"http://next"}])
+          model_with_links.links[:self].must_equal(link(:rel=>:self, :href=>"http://next"))
         end
       end
     end
@@ -71,7 +71,7 @@ class DecoratorTest < MiniTest::Spec
       end
 
       it "sets links on decorator" do
-        decorator.new(model).from_xml(%{<song><link rel="self" href="http://self"/></song>}).links.must_equal("self"=>link(:rel=>:self, :href=>"http://self"))
+        decorator.new(model).from_xml(%{<song><link rel="self" href="http://next"/></song>}).links.must_equal("self"=>link(:rel=>:self, :href=>"http://next"))
       end
     end
 
@@ -87,6 +87,23 @@ class DecoratorTest < MiniTest::Spec
 
       it "rendering links works" do
         decorator.new(model).to_hash.must_equal({"_links"=>{"self"=>{:href=>"http://self"}}})
+      end
+
+      it "sets links on decorator" do
+        decorator.new(model).from_hash({"_links"=>{"self"=>{:href=>"http://next"}}}).links.must_equal("self"=>link(:rel=>:self, :href=>"http://next"))
+      end
+
+      describe "Decorator::HypermediaClient" do
+        let (:decorator) { rpr_mod = rpr
+          Class.new(Roar::Decorator) do
+            include rpr_mod
+            include Roar::Decorator::HypermediaConsumer
+          end }
+
+        it "propagates links to represented" do
+          decorator.new(model_with_links).from_hash("_links"=>{"self"=>{:href=>"http://self"}})
+          model_with_links.links[:self].must_equal(link(:rel=>:self, :href=>"http://self"))
+        end
       end
     end
   end

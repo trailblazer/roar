@@ -109,8 +109,8 @@ module Roar::Representer
         module LinkCollectionRepresenter
           include Representable::JSON::Hash
 
-          values :extend => lambda { |item| item.is_a?(Array) ? LinkArrayRepresenter : Roar::Representer::JSON::HyperlinkRepresenter },
-            :class => lambda { |hsh| hsh.is_a?(LinkArray) ? nil : Roar::Representer::Feature::Hypermedia::Hyperlink }
+          values :extend => lambda { |item, *| item.is_a?(Array) ? LinkArrayRepresenter : Roar::Representer::JSON::HyperlinkRepresenter },
+            :class => lambda { |hsh, *| hsh.is_a?(LinkArray) ? nil : Roar::Representer::Feature::Hypermedia::Hyperlink }
 
           def to_hash(options)
             super.tap do |hsh|  # TODO: cool: super(:exclude => [:rel]).
@@ -157,11 +157,11 @@ module Roar::Representer
           def links_definition_options
             [:links,
               {
-                :as       => :links,
                 :extend   => HAL::Links::LinkCollectionRepresenter,
-                :instance => lambda { |hsh| LinkCollection.new(link_array_rels) }, # defined in InstanceMethods as this is executed in represented context.
+                :instance => lambda { |*| LinkCollection.new(link_array_rels) }, # defined in InstanceMethods as this is executed in represented context.
                 :representer_exec => true,
-                :getter => lambda { |*| links }
+                :getter => lambda { |*| links },
+                :setter => lambda { |val,*| self.links=(val) }
               }
             ]
           end

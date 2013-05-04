@@ -6,5 +6,11 @@ class Roar::Decorator < Representable::Decorator
       super # TODO: this currently sets #links which is not obvious.
       represented.links = links
     end
+
+    # TODO: what is the deal with #links_array and #links?
+    def links=(*args)
+      super
+      represented.links = links
+    end
   end
 end
