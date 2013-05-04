@@ -1,3 +1,8 @@
+# 0.11.17
+
+* Fixing HAL + Decorator.
+* Requiring representable-1.5.0.
+
 # 0.11.16
 
 * Added `Roar::Decorator::HypermediaConsumer` which propagates incoming hypermedia links to the represented object (it has to have accessors for `:links`).
