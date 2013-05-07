@@ -2,15 +2,17 @@ require 'test_helper'
 require 'roar/decorator'
 
 class DecoratorTest < MiniTest::Spec
+  class SongRepresentation < Roar::Decorator
+    include Roar::Representer::JSON
+
+    property :name
+  end
+
   describe "Decorator" do
+    let (:song) { OpenStruct.new(:name => "Not The Same") }
+
     it "exposes ::prepare" do
-      class SongRepresentation < Roar::Decorator
-        include Roar::Representer::JSON
-
-        property :name
-      end
-
-      SongRepresentation.prepare(OpenStruct.new(:name => "Not The Same")).to_hash.must_equal({"name"=>"Not The Same"})
+      SongRepresentation.prepare(song).to_hash.must_equal({"name"=>"Not The Same"})
     end
   end
 
