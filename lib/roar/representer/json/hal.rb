@@ -159,7 +159,7 @@ module Roar::Representer
               {
                 :extend   => HAL::Links::LinkCollectionRepresenter,
                 :instance => lambda { |*| LinkCollection.new(link_array_rels) }, # defined in InstanceMethods as this is executed in represented context.
-                :representer_exec => true,
+                :decorator_scope => true,
                 :getter => lambda { |*| links },
                 :setter => lambda { |val,*| self.links=(val) }
               }

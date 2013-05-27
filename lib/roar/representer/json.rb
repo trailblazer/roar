@@ -47,7 +47,7 @@ module Roar
         def links_definition_options
           # FIXME: this doesn't belong into the generic JSON representer.
           [:links_array, {:from => :links, :class => Feature::Hypermedia::Hyperlink, :extend => HyperlinkRepresenter, :collection => true,
-            :representer_exec => true, :getter => lambda { |*| links_array }, :setter => lambda { |val,*| self.links_array=(val) } }]
+            :decorator_scope => true, :getter => lambda { |*| links_array }, :setter => lambda { |val,*| self.links_array=(val) } }]
         end
       end
 
