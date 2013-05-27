@@ -158,6 +158,7 @@ module Roar
           def replace(hash)
             # #marshal_load requires symbol keys: http://apidock.com/ruby/v1_9_3_125/OpenStruct/marshal_load
             marshal_load(hash.inject({}) { |h, (k,v)| h[k.to_sym] = v; h })
+            self
           end
         end
       end
