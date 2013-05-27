@@ -1,23 +1,9 @@
-require 'bundler'
-Bundler.setup
-
-require 'test/unit'
-require 'minitest/spec'
+require 'minitest/autorun'
 require 'ostruct'
 
 require 'roar/representer'
 require 'roar/representer/feature/http_verbs'
 require 'roar/representer/json/hal'
-
-begin
-  require 'turn'
-
-  Turn.config do |config|
-    config.format  = :dotted
-    # config.trace   = true
-  end
-rescue LoadError
-end
 
 module AttributesConstructor  # TODO: remove me.
   def initialize(attrs={})
