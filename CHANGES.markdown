@@ -1,3 +1,7 @@
+# 0.11.18
+
+* Updating to representable-1.5.2.
+
 # 0.11.17
 
 * Fixing HAL + Decorator.
