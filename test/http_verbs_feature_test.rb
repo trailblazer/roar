@@ -55,7 +55,7 @@ class HttpVerbsTest < MiniTest::Spec
 
         it 'performs no HTTP error handling with NetHttpTransport' do
           @band.transport_engine = Roar::Representer::Transport::NetHTTP
-          assert_raises(JSON::ParserError) do
+          assert_raises(MultiJson::LoadError) do
             @band.get('http://roar.example.com/bands/anthrax', "application/json")
           end
         end
@@ -74,7 +74,7 @@ class HttpVerbsTest < MiniTest::Spec
       it "updates instance with incoming representation" do
         @band.name = "Strung Out"
         assert_equal nil, @band.label
-        
+
         @band.post("http://roar.example.com/bands", "application/xml")
         assert_equal "STRUNG OUT", @band.name
         assert_equal nil, @band.label
