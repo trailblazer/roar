@@ -8,7 +8,7 @@ class HalJsonTest < MiniTest::Spec
       include Roar::Representer::JSON::HAL
 
       links :self do
-        [{:lang => "en", :href => "http://en.hit"}, 
+        [{:lang => "en", :href => "http://en.hit"},
          {:lang => "de", :href => "http://de.hit"}]
       end
 
@@ -39,7 +39,7 @@ class HalJsonTest < MiniTest::Spec
     it "rejects single links declared as array when parsing" do
       assert_raises TypeError do
         subject.from_json("{\"_links\":{\"self\":{\"href\":\"http://next\"}}}")
-      end      
+      end
     end
 
     it "renders link and link array" do
