@@ -10,8 +10,6 @@ Roar comes with built-in JSON, JSON::HAL and XML support. It exposes a highly mo
 
 Roar is completely framework-agnostic and loves being used in web kits like Rails, Webmachine, Sinatra, Padrino, etc. Actually, Roar makes it fun designing real, hypermedia-driven, and resource-oriented systems that will even make Steve sleep happily at night so he finally gets some REST!
 
-Note: This README sucks and will be updated this week (April 10, 2013).
-
 h2. Example
 
 Say your webshop consists of two completely separated apps. The REST backend, a Sinatra app, serves articles and processes orders. The frontend, being browsed by your clients, is a rich Rails application. It queries the services for articles, renders them nicely and reads or writes orders with REST calls. That being said, the frontend turns out to be a pure REST client.
