@@ -1,3 +1,6 @@
+require 'roar/representer'
+require 'representable/decorator'
+
 class Roar::Decorator < Representable::Decorator
   extend Roar::Representer::InheritableArray
 
