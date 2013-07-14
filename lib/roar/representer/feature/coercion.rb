@@ -12,8 +12,7 @@ module Roar::Representer::Feature
   module Coercion
     def self.included(base)
       base.class_eval do
-        include Virtus
-        extend Representable::Coercion::ClassMethods
+        include Representable::Coercion
       end
     end
   end
