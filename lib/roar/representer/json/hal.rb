@@ -32,6 +32,12 @@ module Roar::Representer
           include Links       # overwrites #links_definition_options.
           extend ClassMethods # overwrites #links_definition_options, again.
           include Resources
+
+          def representable_mapper(*) # TODO: make this easier to override.
+            super.tap do |map|
+              map.extend Resources
+            end
+          end
         end
       end
 

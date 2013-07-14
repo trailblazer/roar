@@ -8,6 +8,8 @@ class CoercionFeatureTest < MiniTest::Spec
       include Roar::Representer::Feature::Coercion
 
       property :composed_at, :type => DateTime, :default => "May 12th, 2012"
+
+      attr_accessor :composed_at
     end
 
     it "coerces into the provided type" do
