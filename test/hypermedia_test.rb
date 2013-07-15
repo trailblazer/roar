@@ -165,6 +165,60 @@ class HyperlinkTest < MiniTest::Spec
   end
 
   describe "Config inheritance" do
+    # TODO: this section will soon be moved to uber.
+    describe "inheritance when including" do
+      # TODO: test all the below issues AND if cloning works.
+      module TestMethods
+        def representer_for(modules=[Roar::Representer::Feature::Hypermedia, Representable], &block)
+          Module.new do
+            extend TestMethods
+            include *modules
+            module_exec(&block)
+          end
+        end
+      end
+      include TestMethods
+
+      it "inherits to uninitialized child" do
+        representer_for do # child
+          include(representer_for do # parent
+            representable_attrs.inheritable_array(:links) << "bar"
+          end)
+        end.representable_attrs.inheritable_array(:links).must_equal(["bar"])
+      end
+
+      it "works with uninitialized parent" do
+        representer_for do # child
+          representable_attrs.inheritable_array(:links) << "bar"
+
+          include(representer_for do # parent
+          end)
+        end.representable_attrs.inheritable_array(:links).must_equal(["bar"])
+      end
+
+      it "inherits when both are initialized" do
+        representer_for do # child
+          representable_attrs.inheritable_array(:links) << "bar"
+
+          include(representer_for do # parent
+            representable_attrs.inheritable_array(:links) << "stadium"
+          end)
+        end.representable_attrs.inheritable_array(:links).must_equal(["bar", "stadium"])
+      end
+
+      it "clones parent inheritables" do # FIXME: actually we don't clone here!
+        representer_for do # child
+          representable_attrs.inheritable_array(:links) << "bar"
+
+          include(parent = representer_for do # parent
+            representable_attrs.inheritable_array(:links) << "stadium"
+          end)
+
+          parent.representable_attrs.inheritable_array(:links) << "park"  # modify parent array.
+
+        end.representable_attrs.inheritable_array(:links).must_equal(["bar", "stadium"])
+      end
+
       it "doesn't mess up with inheritable_array" do  # FIXME: remove this test when uber is out.
         OpenStruct.new.extend( Module.new do
                   include Roar::Representer::JSON
@@ -187,6 +241,9 @@ class HyperlinkTest < MiniTest::Spec
                   include Roar::Representer::Feature::Hypermedia
                   link(:bla) { "boo" }
                 end).to_hash.must_equal({"links"=>[{:rel=>:self, :href=>"bo"}, {:rel=>:bla, :href=>"boo"}]})
+
+
+      end
     end
   end
 end
