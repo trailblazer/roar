@@ -45,7 +45,7 @@ p. In addition to boring article data, there's a _link_ embedded in the document
 
 So, how did the service render that JSON document? It could use an ERB template, @#to_json@, or maybe another gem. The document could also be created by a *representer*.
 
-Representers are the key ingredience in Roar, so let's check them out!
+Representers are the key ingredients in Roar, so let's check them out!
 
 
 h2. Representers
@@ -167,7 +167,7 @@ If we were to implement an endpoint for creating new orders, we'd allow POST to 
   end
 </pre>
 
-Look how the @#from_json@ method helps extracting data from the incoming document and, again, @#to_json@ returns the freshly created order's representation. Roar's representers are truely working in both directions, rendering and parsing and thus prevent you from redundant knowledge sharing.
+Look how the @#from_json@ method helps extracting data from the incoming document and, again, @#to_json@ returns the freshly created order's representation. Roar's representers are truly working in both directions, rendering and parsing, thus preventing you from redundant knowledge sharing.
 
 
 h2. Representers in the Client
@@ -257,7 +257,7 @@ order.get!(order.links[:self])
 
 Again, we use hypermedia to retrieve the order's URL. And now, the added article is included in the order.
 
-[*Note:* If this looks clumsy - It's just the raw API for representers. You might be interested in the upcoming DSL that simplifys frequent workflows as updating a representer.]
+*Note:* If this looks clumsy - It's just the raw API for representers. You might be interested in the upcoming DSL that simplifies frequent workflows as updating a representer.
 
 <pre>
 order.to_attributes #=> {:id => 42, :client_id => 1337,
@@ -283,7 +283,7 @@ This was dead simple since representations can be composed of different document
 
 h2. Decorators
 
-You can use `Roar::Decorator` as a representer. More docs coming soon. Note that if you want your represented object to save incoming hypermedia you need to do two things.
+You can use <pre>Roar::Decorator</pre> as a representer. More docs coming soon. Note that if you want your represented object to save incoming hypermedia you need to do two things.
 
 <pre>
 class SongClient
@@ -304,7 +304,7 @@ h2. More Features
 Be sure to check out the bundled features.
 
 # *Coercion* transforms values to typed objects when parsing a document. Uses virtus.
-# *Faraday* support, if you want to use it install the Faraday gem and require 'roar/representer/transport/faraday' and configure 'Roar::Representer::Feature::HttpVerbs.transport_engine = Roar::Representer::Transport::Faraday'
+# *Faraday* support. If you want to use it, install the Faraday gem and require 'roar/representer/transport/faraday' and configure 'Roar::Representer::Feature::HttpVerbs.transport_engine = Roar::Representer::Transport::Faraday'
 
 h2. What is REST about?
 
