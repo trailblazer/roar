@@ -283,7 +283,7 @@ This was dead simple since representations can be composed of different document
 
 h2. Decorators
 
-You can use <pre>Roar::Decorator</pre> as a representer. More docs coming soon. Note that if you want your represented object to save incoming hypermedia you need to do two things.
+You can use Roar::Decorator as a representer. More docs coming soon. Note that if you want your represented object to save incoming hypermedia you need to do two things.
 
 <pre>
 class SongClient
