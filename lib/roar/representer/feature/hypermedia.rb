@@ -41,8 +41,8 @@ module Roar
         end
 
         def before_serialize(options={})
+          super(options) # Representer::Base
           prepare_links!(options) unless options[:links] == false  # DISCUSS: doesn't work when links are already setup (e.g. from #deserialize).
-          super # Representer::Base
         end
 
         attr_writer :links

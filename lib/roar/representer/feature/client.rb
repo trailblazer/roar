@@ -27,8 +27,11 @@ module Roar
           end
         end
 
+        # DISCUSS: should we just override #serialize here? otherwise if you later include Hypermedia, it'll run before that method.
         def before_serialize(options={})
-          super({:links => false}.merge!(options))
+          options[:links] ||= false
+
+          super(options)
         end
       end
     end

@@ -26,5 +26,11 @@ class ClientTest < MiniTest::Spec
       song.name = "Silenced"
       song.to_json.must_equal %{{\"name\":\"Silenced\",\"links\":[]}}
     end
+
+    # since this is considered dangerous, we test the mutuable options.
+    it "adds links: false to options" do
+      song.to_hash(options = {})
+      options.must_equal({:links => false})
+    end
   end
 end
