@@ -31,7 +31,7 @@ module Roar
       private
         def do_request(what, uri, as, body="")
           # DISCUSS: can this be made easier?
-          uri   = URI(uri)
+          uri   = parse_uri(uri)
           http  = Net::HTTP.new(uri.host, uri.port)
           req   = what.new(uri.request_uri)
 
@@ -41,6 +41,12 @@ module Roar
           req.body          = body if body
 
           http.request(req)
+        end
+
+        def parse_uri(url)
+          uri = URI(url)
+          raise "Incorrect URL `#{url}`. Maybe you forgot http://?" if uri.instance_of?(URI::Generic)
+          uri
         end
       end
     end

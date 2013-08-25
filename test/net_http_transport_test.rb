@@ -30,7 +30,7 @@ class NetHTTPTransportTest < MiniTest::Spec
   end
 
   it "complains with invalid URL" do
-    assert_raises do
+    assert_raises RuntimeError do
       @transport.get_uri("example.com", as)
     end
   end
