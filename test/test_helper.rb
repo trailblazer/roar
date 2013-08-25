@@ -26,37 +26,7 @@ end
 require "test_xml/mini_test"
 require "roar/representer/xml"
 
-
-require "integration/band_representer"
-#require '/home/nick/projects/sinatra/test/integration_helper'
-class ServerRunner# < IntegrationHelper::Server
-  def app_file
-    File.expand_path("../integration/server.rb", __FILE__)
-  end
-
-  def run
-    @pipe = IO.popen(command)
-    sleep 2
-  end
-
-  def command
-    "ruby #{app_file} -p 4567 -e production"
-  end
-
-  def kill
-    puts "Killling : #{@pipe.pid.inspect}"
-    Process.kill("KILL", @pipe.pid)
-  end
-end
-runner = ServerRunner.new
-#at_exit { puts "killing it:"; runner.kill }
-
-runner.run
-
-MiniTest::Unit.after_tests do
-  puts "killing it"
-    runner.kill
-  end
+require "integration/runner"
 
 MiniTest::Spec.class_eval do
   def link(options)

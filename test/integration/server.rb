@@ -18,7 +18,9 @@ class Band
 end
 
 def consume_band
-  Band.new.extend(Integration::BandRepresenter).from_json(request.body.read)
+  Band.new.
+    extend(Integration::BandRepresenter).
+    from_json(request.body.read)
 end
 
 get "/method" do
