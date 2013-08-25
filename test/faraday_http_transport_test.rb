@@ -3,7 +3,7 @@ require 'roar/representer/transport/faraday'
 
 class FaradayHttpTransportTest < MiniTest::Spec
   describe 'FaradayHttpTransport' do
-    let(:url) { "http://roar.example.com/method" }
+    let(:url) { "http://localhost:4567/method" }
     let(:body) { "booty" }
     let(:as) { "application/xml" }
     before do
@@ -32,7 +32,7 @@ class FaradayHttpTransportTest < MiniTest::Spec
 
     describe 'non-existent resource' do
       before do
-        @not_found_url = 'http://roar.example.com/missing-resource'
+        @not_found_url = 'http://localhost:4567/missing-resource'
       end
 
       it '#get_uri raises a ResourceNotFound error' do
@@ -63,7 +63,7 @@ class FaradayHttpTransportTest < MiniTest::Spec
     describe 'server errors (500 Internal Server Error)' do
       it '#get_uri raises a ClientError' do
         assert_raises(Faraday::Error::ClientError) do
-          @transport.get_uri('http://roar.example.com/deliberate-error', as).body
+          @transport.get_uri('http://localhost:4567/deliberate-error', as).body
         end
       end
     end

@@ -3,7 +3,7 @@ require 'roar/representer/feature/http_verbs'
 require 'roar/representer/json'
 
 class HttpVerbsTest < MiniTest::Spec
-  BandRepresenter = FakeServer::BandRepresenter
+  BandRepresenter = Integration::BandRepresenter
 
   # keep this class clear of Roar modules.
   class Band
@@ -38,7 +38,7 @@ class HttpVerbsTest < MiniTest::Spec
 
     describe "HttpVerbs.get" do
       it "returns instance from incoming representation" do
-        band = @band.get("http://roar.example.com/bands/slayer", "application/json")
+        band = @band.get("http://localhost:4567/bands/slayer", "application/json")
         assert_equal "Slayer", band.name
         assert_equal "Canadian Maple", band.label
       end
@@ -49,14 +49,14 @@ class HttpVerbsTest < MiniTest::Spec
         it 'handles HTTP errors and raises a ResourceNotFound error with FaradayHttpTransport' do
           @band.transport_engine = Roar::Representer::Transport::Faraday
           assert_raises(::Faraday::Error::ResourceNotFound) do
-            @band.get('http://roar.example.com/bands/anthrax', "application/json")
+            @band.get('http://localhost:4567/bands/anthrax', "application/json")
           end
         end
 
         it 'performs no HTTP error handling with NetHttpTransport' do
           @band.transport_engine = Roar::Representer::Transport::NetHTTP
           assert_raises(MultiJson::LoadError) do
-            @band.get('http://roar.example.com/bands/anthrax', "application/json")
+            @band.get('http://localhost:4567/bands/anthrax', "application/json")
           end
         end
       end
@@ -64,7 +64,7 @@ class HttpVerbsTest < MiniTest::Spec
 
     describe "#get" do
       it "updates instance with incoming representation" do
-        @band.get("http://roar.example.com/bands/slayer", "application/json")
+        @band.get("http://localhost:4567/bands/slayer", "application/json")
         assert_equal "Slayer", @band.name
         assert_equal "Canadian Maple", @band.label
       end
@@ -75,7 +75,7 @@ class HttpVerbsTest < MiniTest::Spec
         @band.name = "Strung Out"
         assert_equal nil, @band.label
 
-        @band.post("http://roar.example.com/bands", "application/xml")
+        @band.post("http://localhost:4567/bands", "application/xml")
         assert_equal "STRUNG OUT", @band.name
         assert_equal nil, @band.label
       end
@@ -85,7 +85,7 @@ class HttpVerbsTest < MiniTest::Spec
       it "updates instance with incoming representation" do
         @band.name   = "Strung Out"
         @band.label  = "Fat Wreck"
-        @band.put("http://roar.example.com/bands/strungout", "application/xml")
+        @band.put("http://localhost:4567/bands/strungout", "application/xml")
         assert_equal "STRUNG OUT", @band.name
         assert_equal "FAT WRECK", @band.label
       end
@@ -94,14 +94,14 @@ class HttpVerbsTest < MiniTest::Spec
     describe "#patch" do
       it 'does something' do
         @band.label  = 'Fat Mike'
-        @band.patch("http://roar.example.com/bands/strungout", "application/xml")
+        @band.patch("http://localhost:4567/bands/strungout", "application/xml")
         assert_equal 'FAT MIKE', @band.label
       end
     end
 
     describe "#delete" do
       it 'does something' do
-        @band.delete("http://roar.example.com/bands/metallica", "application/xml")
+        @band.delete("http://localhost:4567/bands/metallica", "application/xml")
       end
     end
 
