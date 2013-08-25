@@ -31,12 +31,15 @@ module Roar
       private
         def do_request(what, uri, as, body="")
           # DISCUSS: can this be made easier?
-          uri   = URI.parse(uri)
+          uri   = URI(uri)
           http  = Net::HTTP.new(uri.host, uri.port)
           req   = what.new(uri.request_uri)
+
+
           req.content_type  = as
           req["accept"]     = as  # TODO: test me. # DISCUSS: if Accept is not set, rails treats this request as as "text/html".
           req.body          = body if body
+
           http.request(req)
         end
       end
