@@ -74,7 +74,8 @@ end
 class JsonHyperlinkRepresenterTest
   describe "API" do
     before do
-      @link = Roar::Representer::Feature::Hypermedia::Hyperlink.new.extend(Roar::Representer::JSON::HyperlinkRepresenter).from_json({:rel => :self, :href => "http://roar.apotomo.de", :media => "web"}.to_json)
+      @link = Roar::Representer::Feature::Hypermedia::Hyperlink.new.extend(Roar::Representer::JSON::HyperlinkRepresenter).from_json(
+        '{"rel":"self", "href":"http://roar.apotomo.de", "media":"web"}')
     end
 
     it "responds to #rel" do
@@ -118,7 +119,7 @@ class JsonHypermediaTest
     end
 
     it "extracts links from JSON" do
-      r = @c.from_json({:links => [{:rel => "self", :href => "http://self"}]}.to_json)
+      r = @c.from_json('{"links":[{"rel":"self","href":"http://self"}]}')
 
       assert_equal 1, r.links_array.size
       link = r.links_array.first
