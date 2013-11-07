@@ -20,30 +20,53 @@ class HalJsonTest < MiniTest::Spec
 
   subject { Object.new.extend(rpr) }
 
-  describe "#links" do
-    it "parses link array" do # TODO: remove me.
-      obj = subject.from_json("{\"_links\":{\"self\":[{\"lang\":\"en\",\"href\":\"http://en.hit\"},{\"lang\":\"de\",\"href\":\"http://de.hit\"}]}}")
-      obj.links.must_equal "self" => [link(:rel => :self, :href => "http://en.hit", :lang => :en), link(:rel => :self, :href => "http://de.hit", :lang => :de)]
-    end
+  describe "links" do
+    describe "parsing" do
+      it "parses link array" do # TODO: remove me.
+        obj = subject.from_json("{\"_links\":{\"self\":[{\"lang\":\"en\",\"href\":\"http://en.hit\"},{\"lang\":\"de\",\"href\":\"http://de.hit\"}]}}")
+        obj.links.must_equal "self" => [link(:rel => :self, :href => "http://en.hit", :lang => :en), link(:rel => :self, :href => "http://de.hit", :lang => :de)]
+      end
 
-    it "parses single links" do # TODO: remove me.
-      obj = subject.from_json("{\"_links\":{\"next\":{\"href\":\"http://next\"}}}")
-      obj.links.must_equal "next" => link(:rel => :next, :href => "http://next")
-    end
+      it "parses single links" do # TODO: remove me.
+        obj = subject.from_json("{\"_links\":{\"next\":{\"href\":\"http://next\"}}}")
+        obj.links.must_equal "next" => link(:rel => :next, :href => "http://next")
+      end
 
-    it "parses link and link array" do
-      obj = subject.from_json("{\"_links\":{\"next\":{\"href\":\"http://next\"}, \"self\":[{\"lang\":\"en\",\"href\":\"http://en.hit\"},{\"lang\":\"de\",\"href\":\"http://de.hit\"}]}}")
-      obj.links.must_equal "next" => link(:rel => :next, :href => "http://next"), "self" => [link(:rel => :self, :href => "http://en.hit", :lang => :en), link(:rel => :self, :href => "http://de.hit", :lang => :de)]
-    end
+      it "parses link and link array" do
+        obj = subject.from_json("{\"_links\":{\"next\":{\"href\":\"http://next\"}, \"self\":[{\"lang\":\"en\",\"href\":\"http://en.hit\"},{\"lang\":\"de\",\"href\":\"http://de.hit\"}]}}")
+        obj.links.must_equal "next" => link(:rel => :next, :href => "http://next"), "self" => [link(:rel => :self, :href => "http://en.hit", :lang => :en), link(:rel => :self, :href => "http://de.hit", :lang => :de)]
+      end
 
-    it "rejects single links declared as array when parsing" do
-      assert_raises TypeError do
-        subject.from_json("{\"_links\":{\"self\":{\"href\":\"http://next\"}}}")
+      it "parses empty link array" do
+        subject.from_json("{\"_links\":{\"self\":[]}}").links[:self].must_equal []
+      end
+
+      it "parses non-existent link array" do
+        subject.from_json("{\"_links\":{}}").links[:self].must_equal nil # DISCUSS: should this be []?
+      end
+
+      it "rejects single links declared as array" do
+        assert_raises TypeError do
+          subject.from_json("{\"_links\":{\"self\":{\"href\":\"http://next\"}}}")
+        end
       end
     end
 
-    it "renders link and link array" do
-      subject.to_json.must_equal "{\"_links\":{\"self\":[{\"lang\":\"en\",\"href\":\"http://en.hit\"},{\"lang\":\"de\",\"href\":\"http://de.hit\"}],\"next\":{\"href\":\"http://next\"}}}"
+    describe "rendering" do
+      it "renders link and link array" do
+        subject.to_json.must_equal "{\"_links\":{\"self\":[{\"lang\":\"en\",\"href\":\"http://en.hit\"},{\"lang\":\"de\",\"href\":\"http://de.hit\"}],\"next\":{\"href\":\"http://next\"}}}"
+      end
+
+      it "renders empty link array" do
+        rpr = Module.new do
+          include Roar::Representer::JSON::HAL
+
+          links :self do [] end
+        end
+        subject = Object.new.extend(rpr)
+
+        subject.to_json.must_equal ""
+      end
     end
   end
 
