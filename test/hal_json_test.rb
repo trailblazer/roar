@@ -65,7 +65,7 @@ class HalJsonTest < MiniTest::Spec
         end
         subject = Object.new.extend(rpr)
 
-        subject.to_json.must_equal ""
+        subject.to_json.must_equal "{\"_links\":{\"self\":[]}}"
       end
     end
   end

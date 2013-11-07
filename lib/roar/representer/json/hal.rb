@@ -101,7 +101,7 @@ module Roar::Representer
             return super(href, options) unless options[:array]  # TODO: remove :array and use special instan
 
             list = href.collect { |opts| Feature::Hypermedia::Hyperlink.new(opts.merge!(:rel => options[:rel])) }
-            LinkArray.new(list)
+            LinkArray.new(list, options[:rel])
           end
 
           # TODO: move to LinksDefinition.
@@ -126,7 +126,7 @@ module Roar::Representer
 
 
           def from_hash(hash, options={})
-            hash.each { |k,v| hash[k] = LinkArray.new(v) if is_array?(k) }
+            hash.each { |k,v| hash[k] = LinkArray.new(v, k) if is_array?(k) }
 
             hsh = super(hash) # this is where :class and :extend do the work.
 
@@ -135,9 +135,12 @@ module Roar::Representer
         end
 
         class LinkArray < Array
-          def rel
-            first.rel
+          def initialize(elems, rel)
+            super(elems)
+            @rel = rel
           end
+
+          attr_reader :rel
 
           def rel=(rel)
             each { |lnk| lnk.rel = rel }
