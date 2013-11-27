@@ -1,3 +1,7 @@
+# 0.12.1
+
+Allow representable >= 1.6.
+
 # 0.11.18
 
 * Updating to representable-1.5.2.
