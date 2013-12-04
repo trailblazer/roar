@@ -25,6 +25,8 @@ end
 song = Song.new(title: "Fate").extend(SongRepresenter)
 puts song.to_json
 
+# Parsing
+
 song = Song.new.extend(SongRepresenter)
 song.from_json('{"title":"Linoleum"}')
 puts song.title
@@ -32,9 +34,20 @@ puts song.title
 
 # Decorator
 
+require 'roar/decorator'
 
+module Decorator
+  class SongRepresenter < Roar::Decorator
+    include Roar::Representer::JSON
 
+    property :title
+  end
+end
 
+song = Song.new(title: "Medicine Balls")
+puts Decorator::SongRepresenter.new(song).to_json
+
+# Collections
 
 reset_representer(SongRepresenter)
 
@@ -45,8 +58,6 @@ module SongRepresenter
   collection :composers
 end
 
-
-# Collections
 
 song = Song.new(title: "Roxanne", composers: ["Sting", "Stu Copeland"])
 song.extend(SongRepresenter)
@@ -95,9 +106,6 @@ album.from_json('{"title":"True North","songs":[{"title":"The Island"},{"title":
 puts album.title
 puts album.songs.first.title
 
-# Passing options into link
-
-
 # parse_strategy: :sync
 
 reset_representer(AlbumRepresenter)
@@ -136,6 +144,27 @@ end
 
 song.extend(SongRepresenter)
 puts song.to_json
+
+# roar-rails and URL helpers
+
+
+# Passing options into link
+
+reset_representer(SongRepresenter)
+
+module SongRepresenter
+  include Roar::Representer::JSON
+
+  property :title
+
+  link :self do |opts|
+    "http://#{opts[:base_url]}songs/#{title}"
+  end
+end
+
+song.extend(SongRepresenter)
+puts song.to_json(base_url: "localhost:3001/")
+
 
 # Discovering Hypermedia
 
