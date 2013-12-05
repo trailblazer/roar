@@ -1,18 +1,207 @@
-h1. ROAR
+# ROAR
 
 _Resource-Oriented Architectures in Ruby._
 
-h2. Introduction
+## Introduction
 
-Roar is a framework for parsing and rendering REST documents. Nothing more. With Roar, REST documents - also known as representations - are defined using a new concept called representers. Both syntax and semantics are declared in Ruby modules that can be mixed into your domain models, following clean OOP patterns.
+Roar is a framework for parsing and rendering REST documents. Nothing more.
 
-Roar comes with built-in JSON, JSON::HAL and XML support. It exposes a highly modular architecture and makes it very simple to add new media types and functionality where needed. Additional features include client HTTP support, coercion, client-side caching, awesome hypermedia support and more. Representers fit pretty well in DCI environments, too.
+Representers let you define your API document structure and semantics. They allow both rendering representations from your models _and_ parsing documents to update your Ruby objects. The bi-directional nature of representers make them interesting for both server and client usage.
 
-Roar is completely framework-agnostic and loves being used in web kits like Rails, Webmachine, Sinatra, Padrino, etc. Actually, Roar makes it fun designing real, hypermedia-driven, and resource-oriented systems that will even make Steve sleep happily at night so he finally gets some REST!
+Roar comes with built-in JSON, JSON::HAL and XML support. Its highly modulare architecture provides features like coercion, hypermedia, HTTP transport, client caching and more.
 
-Note: This README sucks and will be updated this week (April 10, 2013).
+Roar is completely framework-agnostic and loves being used in web kits like Rails, Webmachine, Sinatra, Padrino, etc. If you use Rails, consider [roar-rails](https://github.com/apotonick/roar-rails) for an enjoyable integration.
 
-h2. Example
+## Representable
+
+Roar is just a thin layer on top of the [representable](https://github.com/apotonick/representable) gem. While Roar gives you a DSL and behaviour for creating hypermedia APIs, representable implements all the mapping functionality.
+
+If in need for a feature, make sure to check the [representable API docs](https://github.com/apotonick/representable) first.
+
+
+## Defining Representers
+
+Let's see how representers work. They're fun to use.
+
+```ruby
+require 'roar/representer/json'
+
+module SongRepresenter
+  include Roar::Representer::JSON
+
+  property :title
+end
+```
+
+API documents are defined using a representer module or decorator class. You can define plain attributes using the `::property` method.
+
+Now let's assume we'd have `Song` which is an `ActiveRecord` class. Please note that Roar is not limited to ActiveRecord. In fact, it doesn't really care whether it's representing ActiveRecord, Datamapper or just an OpenStruct instance.
+
+```ruby
+class Song < ActiveRecord
+end
+```
+
+## Rendering
+
+To render a document, you apply the representer to your model.
+
+```ruby
+song = Song.new(title: "Fate")
+song.extend(SongRepresenter)
+
+song.to_json #=> {"title":"Fate"}
+```
+
+Here, the representer is injected into the actual model and gives us a new `#to_json` method.
+
+## Parsing
+
+The cool thing about representers is: they can be used for rendering and parsing. See how easy updating your model from a document is.
+
+```ruby
+song = Song.new
+song.extend(SongRepresenter)
+
+song.from_json('{"title":"Linoleum"}')
+
+song.title #=> Linoleum
+```
+
+Again, `#from_json` comes from the representer and just updates the known properties.
+
+Unknown attributes in the parsed document are simply ignored, making half-baked solutions like `strong_parameters` redundant.
+
+
+## Decorator
+
+Many people dislike `#extend` due to eventual performance issue or object polution. If you're one of those, just go with a decorator representer. They almost work identical to the module approach we just discovered.
+
+```ruby
+require 'roar/decorator'
+
+class SongRepresenter < Roar::Decorator
+  include Roar::Representer::JSON
+
+  property :title
+end
+```
+Instead of a module you use a class, the DSL inside is the same you already know.
+
+```ruby
+song = Song.new(title: "Medicine Balls")
+
+SongRepresenter.new(song).to_json #=> {"title":"Medicine Balls"}
+```
+
+Here, the `song` objects gets wrapped (or "decorated") by the decorator. It is treated as immutuable - Roar won't mix in any behaviour.
+
+Note that decorators and representer modules have identical features. You can parse, render, nest, go nuts with both of them.
+
+However, in this README we'll use modules to illustrate this framework.
+
+
+## Collections
+
+Roar (or rather representable) also allows to map collections in documents.
+
+```ruby
+module SongRepresenter
+  include Roar::Representer::JSON
+
+  property :title
+  collection :composers
+end
+```
+
+Where `::property` knows how to handle plain attributes, `::collection` does lists.
+
+```ruby
+song = Song.new(title: "Roxanne", composers: ["Sting", "Stu Copeland"])
+song.extend(SongRepresenter)
+
+song.to_json #=> {"title":"Roxanne","composers":["Sting","Stu Copeland"]}
+```
+
+And, yes, this also works for parsing: `from_json` will create and populate the array of the `composers` attribute.
+
+
+## Nesting
+
+Now what if we need to tackle with collections of `Song`s? We need to implement an `Album` class.
+
+```ruby
+class Album < ActiveRecord
+  has_many :songs
+end
+```
+
+Another representer is needed to represent.
+
+```ruby
+module AlbumRepresenter
+  include Roar::Representer::JSON
+
+  property :title
+  collection :songs, extend: SongRepresenter, class: Song
+end
+```
+
+Both `::property` and `::collection` accept options for nesting representers into representers.
+
+The `extend:` option tells Roar which representer to use for the nested objects (here, the array items of the `album.songs` field). When parsing a document `class:` defines the nested object type.
+
+Consider the following object setup.
+
+```ruby
+album = Album.new(title: "True North")
+album.songs << Song.new(title: "The Island")
+album.songs << Song.new(:title => "Changing Tide")
+```
+
+You apply the `AlbumRepresenter` and you get a nested document.
+
+```ruby
+album.extend(AlbumRepresenter)
+
+album.to_json #=> {"title":"True North","songs":[{"title":"The Island"},{"title":"Changing Tide"}]}
+```
+
+That also works vice-versa.
+
+```ruby
+album = Album.new
+album.extend(AlbumRepresenter)
+
+album.from_json('{"title":"Indestructible","songs":[{"title":"Tropical London"},{"title":"Roadblock"}]}')
+
+puts album.songs[1] #=> #<Song title="Roadblock">
+```
+
+The nesting of two representers can map composed object as you cind them in many many APIs.
+
+
+## Inline Representer
+
+Sometimes you don't wanna create two separate representers - although it makes them reusable across your app. Use inline representers if you're not intending this.
+
+```ruby
+module AlbumRepresenter
+  include Roar::Representer::JSON
+
+  property :title
+
+  collection :songs, class: Song do
+    property :title
+  end
+end
+```
+
+This will give you the same rendering and parsing behaviour as in the previous example with just one module.
+
+
+## Syncing Objects
+
 
 Say your webshop consists of two completely separated apps. The REST backend, a Sinatra app, serves articles and processes orders. The frontend, being browsed by your clients, is a rich Rails application. It queries the services for articles, renders them nicely and reads or writes orders with REST calls. That being said, the frontend turns out to be a pure REST client.
 
