@@ -202,6 +202,115 @@ This will give you the same rendering and parsing behaviour as in the previous e
 
 ## Syncing Objects
 
+Usually, when parsing, nested objects are created from scratch. If you want nested objects to be updated instead of being newly created, use `sync_strategy:`.
+
+```ruby
+module AlbumRepresenter
+  include Roar::Representer::JSON
+
+  property :title
+
+  collection :songs, extend: SongRepresenter, parse_strategy: :sync
+end
+```
+
+This will advise Roar to update existing `songs`.
+
+```ruby
+album.songs[0].object_id #=> 81431220
+
+album.from_json('{"title":"True North","songs":[{"title":"Secret Society"},{"title":"Changing Tide"}]}')
+
+album.songs[0].title #=> Secret Society
+album.songs[0].object_id #=> 81431220
+```
+Roar didn't create a new `Song` instance but updated its attributes, only.
+
+We're currently working on better strategies to easily implement `POST` and `PUT` semantics in your APIs without having to worry about the nitty-gritties.
+
+
+## More Features
+
+Roar/representable gives you many more mapping features like [renaming attributes](), [coercion](), [passing options](), etc.
+
+
+## Hypermedia
+
+Roar comes with built-in support for embedding and processing hypermedia in your documents.
+
+```ruby
+module SongRepresenter
+  include Roar::Representer::JSON
+  include Roar::Representer::Feature::Hypermedia
+
+  property :title
+
+  link :self do
+    "http://songs/#{title}"
+  end
+end
+```
+
+The `Hypermedia` feature allows declaring links using the `::link` method.
+
+```ruby
+song.extend(SongRepresenter)
+song.to_json #=> {"title":"Roxanne","links":[{"rel":"self","href":"http://songs/Roxanne"}]}
+```
+
+Per default, links are pushed into the hash using the `links` key. Link blocks are executed in represented context, allowing you to call any instance method of your model (here, we call `#title`).
+
+Also, note that [roar-rails](https://github.com/apotonick/roar-rails) allows using URL helpers in link blocks.
+
+
+## Passing Options
+
+Sometimes you need more data in the link block. Data that's not available from the represented model.
+
+```ruby
+module SongRepresenter
+  include Roar::Representer::JSON
+
+  property :title
+
+  link :self do |opts|
+    "http://#{opts[:base_url]}songs/#{title}"
+  end
+end
+```
+
+Pass this data to the rendering method.
+
+```ruby
+song.to_json(base_url: "localhost:3001/")
+```
+
+Any options passed to `#to_json` will be available as block arguments in the link blocks.
+
+
+## Consuming Hypermedia
+
+Since we defined hypermedia attributes in the representer we can also consume this hypermedia when we parse documents.
+
+```ruby
+song.from_json('{"title":"Roxanne","links":[{"rel":"self","href":"http://songs/Roxanne"}]}')
+
+song.links[:self].href #=> "http://songs/Roxanne"
+```
+
+Reading link attributes works by using `#links[]` on the consuming instance.
+
+This allows an easy way to discover hypermedia and build navigational logic on top.
+
+
+# Media Formats: HAL
+
+
+
+
+
+## XML
+
 
 Say your webshop consists of two completely separated apps. The REST backend, a Sinatra app, serves articles and processes orders. The frontend, being browsed by your clients, is a rich Rails application. It queries the services for articles, renders them nicely and reads or writes orders with REST calls. That being said, the frontend turns out to be a pure REST client.
 
