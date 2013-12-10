@@ -79,6 +79,12 @@ album = Album.new(title: "True North", songs: [Song.new(title: "The Island"), So
 album.extend(AlbumRepresenter)
 puts album.to_json
 
+album = Album.new
+album.extend(AlbumRepresenter)
+
+album.from_json('{"title":"Indestructible","songs":[{"title":"Tropical London"},{"title":"Roadblock"}]}')
+
+puts album.songs.last.inspect
 
 # Inline Representers # FIXME: what about collections?
 
@@ -122,10 +128,12 @@ end
 album = Album.new(title: "True North", songs: [Song.new(title: "The Island"), Song.new(:title => "Changing Tide")])
 album.extend(AlbumRepresenter)
 
-puts album.songs.first.object_id
+puts album.songs[0].object_id
 album.from_json('{"title":"True North","songs":[{"title":"Secret Society"},{"title":"Changing Tide"}]}')
-puts album.songs.first.title
-puts album.songs.first.object_id##
+puts album.songs[0].title
+puts album.songs[0].object_id##
+
+# Coercion, renaming, ..
 
 # Hypermedia
 
@@ -284,7 +292,27 @@ song.get("http://localhost:4567/songs/1", "application/json")
 puts song.title
 puts song.links[:self].href
 
+# XML
 
+require 'roar/representer/xml'
+
+module XML
+  module SongRepresenter
+    include Roar::Representer::XML
+    include Roar::Representer::Feature::Hypermedia
+
+    property :title
+    property :id
+
+    link :self do
+      "http://songs/#{title}"
+    end
+  end
+end
+
+song = Song.new(title: "Roxanne", id: 42)
+song.extend(XML::SongRepresenter)
+puts song.to_xml
 
 class LinkOptionsCollection < Array
 
