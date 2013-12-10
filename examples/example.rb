@@ -314,6 +314,27 @@ song = Song.new(title: "Roxanne", id: 42)
 song.extend(XML::SongRepresenter)
 puts song.to_xml
 
+# Coercion
+
+reset_representer(SongRepresenter)
+
+require 'roar/representer/feature/coercion'
+
+module SongRepresenter
+  include Roar::Representer::JSON
+  include Roar::Representer::Feature::Coercion
+
+  property :title
+  property :released_at, type: DateTime
+end
+
+song = Song.new
+song.extend(SongRepresenter)
+song.from_json('{"released_at":"1981/03/31"}')
+
+puts song.released_at
+
+
 class LinkOptionsCollection < Array
 
 end
