@@ -226,12 +226,40 @@ album.songs[0].object_id #=> 81431220
 ```
 Roar didn't create a new `Song` instance but updated its attributes, only.
 
-We're currently working on better strategies to easily implement `POST` and `PUT` semantics in your APIs without having to worry about the nitty-gritties.
+We're currently [working on](https://github.com/apotonick/roar/issues/85) better strategies to easily implement `POST` and `PUT` semantics in your APIs without having to worry about the nitty-gritties.
+
+
+## Coercion
+
+Roar provides coercion with the [virtus](https://github.com/solnic/virtus) gem.
+
+```ruby
+require 'roar/representer/feature/coercion'
+
+module SongRepresenter
+  include Roar::Representer::JSON
+  include Roar::Representer::Feature::Coercion
+
+  property :title
+  property :released_at, type: DateTime
+end
+```
+
+The `:type` option allows to set a virtus-compatible type.
+
+```ruby
+song = Song.new
+song.extend(SongRepresenter)
+
+song.from_json('{"released_at":"1981/03/31"}')
+
+song.released_at #=> 1981-03-31T00:00:00+00:00
+```
 
 
 ## More Features
 
-Roar/representable gives you many more mapping features like [renaming attributes](), [coercion](), [passing options](), etc.
+Roar/representable gives you many more mapping features like [renaming attributes](https://github.com/apotonick/representable/#aliasing), [wrapping](https://github.com/apotonick/representable/#wrapping), [passing options](https://github.com/apotonick/representable/#passing-options), etc.
 
 
 ## Hypermedia
@@ -305,13 +333,13 @@ This allows an easy way to discover hypermedia and build navigational logic on t
 
 ## Media Formats
 
-While Roar comes with a built-in hypermedia format, there's official media types that are widely recognized. Roar currently supports [HAL]() and [Collection+JSON] (experimental). Support for Siren and JSON-API is planned when we found sponsors.
+While Roar comes with a built-in hypermedia format, there's official media types that are widely recognized. Roar currently supports HAL and Collection+JSON. Support for Siren and JSON-API is planned when there's sponsors.
 
 Simply by including a module you make your representer understand the media type. This makes it easy to change formats during evaluation.
 
 ## HAL-JSON
 
-The [HAL] format is a simple media type that defines embedded resources and hypermedia.
+The [HAL](http://stateless.co/hal_specification.html) format is a simple media type that defines embedded resources and hypermedia.
 
 ```ruby
 require 'roar/representer/json/hal'
@@ -338,6 +366,8 @@ song.to_json
 
 According to the HAL specification, links are now key with their `rel` attribute under the `_links` key.
 
+Parsing works like-wise: Roar will use the same setters as before but it knows how to read HAL.
+
 ### Nesting
 
 Nested, or embedded, resources can be defined using the `:embedded` option.
@@ -354,7 +384,7 @@ module AlbumRepresenter
 end
 ```
 
-To embed a resource, you can use an inline representer or use `:extend` to specify the name.
+To embed a resource, you can use an inline representer or use `:extend` to specify the representer name.
 
 ```ruby
 album.to_json
@@ -365,6 +395,7 @@ album.to_json
 HAL keys nested resources under the `_embedded` key and then by their type.
 
 All HAL features in Roar are discussed in the [API docs](http://rdoc.info/github/apotonick/roar/Roar/Representer/JSON/HAL), including [array links](https://github.com/apotonick/roar/blob/master/lib/roar/representer/json/hal.rb#L176).
+
 
 ## Collection+JSON
 
@@ -410,6 +441,8 @@ It renders a document following the Collection+JSON specs.
   "items":null}}
 ```
 
+We have big plans with this media format, as the object model in Roar plays nicely with Collection+JSON's API semantics.
+
 
 ## Client-Side Support
 
@@ -449,7 +482,6 @@ The `Feature::Client` module mixes all necessary methods into the client class, 
 
 ```ruby
 song = Song.new(title: "Roxanne")
-
 song.post("http://localhost:4567/songs", "application/json")
 
 song.id #=> 42
@@ -517,11 +549,11 @@ Note that you now use `#to_xml` and `#from_xml`.
 Please consult the [representable XML documentation](https://github.com/apotonick/representable/#more-on-xml) for all its great features.
 
 
-h2. Support
+## Support
 
 Questions? Need help? Free 1st Level Support on irc.freenode.org#roar !
 We also have a "mailing list":https://groups.google.com/forum/?fromgroups#!forum/roar-talk, yiha!
 
-h2. License
+## License
 
 Roar is released under the "MIT License":http://www.opensource.org/licenses/MIT.
