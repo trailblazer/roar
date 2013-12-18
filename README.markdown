@@ -552,8 +552,8 @@ Please consult the [representable XML documentation](https://github.com/apotonic
 ## Support
 
 Questions? Need help? Free 1st Level Support on irc.freenode.org#roar !
-We also have a "mailing list":https://groups.google.com/forum/?fromgroups#!forum/roar-talk, yiha!
+We also have a [mailing list](https://groups.google.com/forum/?fromgroups#!forum/roar-talk), yiha!
 
 ## License
 
-Roar is released under the "MIT License":http://www.opensource.org/licenses/MIT.
+Roar is released under the [MIT License](http://www.opensource.org/licenses/MIT).
