@@ -42,6 +42,10 @@ MiniTest::Spec.class_eval do
       end
     end
   end
+
+  def self.representer!(*args)
+    representer_for(*args)
+  end
 end
 
 Roar::Representer::Feature::Hypermedia::Hyperlink.class_eval do
