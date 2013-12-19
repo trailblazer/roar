@@ -1,3 +1,7 @@
+# 0.12.2
+
+* Fix a bug where hyperlinks from nested objects weren't rendered in XML.
+
 # 0.12.1
 
 Allow representable >= 1.6.
