@@ -18,7 +18,7 @@ module Roar
       end
 
       module InstanceMethods
-        def to_xml(*args)
+        def to_node(*args)
           before_serialize(*args)
           super
         end

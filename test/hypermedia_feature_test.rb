@@ -1,10 +1,9 @@
 require 'test_helper'
-require 'roar/representer/feature/hypermedia'
-require 'roar/representer/json'
 
 class HypermediaTest < MiniTest::Spec
   describe "Hypermedia Feature" do
 
+    let (:song) { Song.new(:title => "Brandy Wine") }
 
     before do
       @bookmarks = Class.new do
@@ -29,23 +28,65 @@ class HypermediaTest < MiniTest::Spec
 
 
     describe "#to_xml" do
-      it "sets up links and renders <link> correctly in XML" do
-        assert_xml_equal '<bookmarks>
-                            <id>1</id>
-                            <link rel="self" href="http://bookmarks"/>
-                            <link rel="all" href="http://bookmarks/all"/>
-                          </bookmarks>', @bookmarks_with_links.new(:id => 1).to_xml
+      it "works when no links defined" do
+        repr = Module.new do
+          include Roar::Representer::XML
+          include Roar::Representer::Feature::Hypermedia
+
+          self.representation_wrap = "song"
+          property :title
+        end
+
+        song.extend(repr).to_xml.must_equal_xml "<song><title>Brandy Wine</title></song>"
       end
 
-      it "still works even if there are no links defined" do
-        assert_xml_equal '<bookmarks/>', @bookmarks.new.to_xml
+      let (:rpr) { Module.new do
+        include Roar::Representer::XML
+        include Roar::Representer::Feature::Hypermedia
+
+        self.representation_wrap = "song"
+        property :title
+
+        link(:self) { "/songs/#{title}" }
+        link(:all) { "/songs" }
+      end }
+
+      it "includes links in rendered document" do
+        song.extend(rpr).to_xml.must_equal_xml %{
+          <song>
+            <title>Brandy Wine</title>
+            <link rel="self" href="/songs/Brandy Wine"/>
+            <link rel="all" href="/songs"/>
+          </song>}
       end
 
-      it "doesn't render links with :links => false" do
-        assert_xml_equal '<bookmarks>
-                            <id>1</id>
-                          </bookmarks>',
-          @bookmarks_with_links.new(:id => 1).to_xml(:links => false)
+      it "suppresses links when links: false" do
+        song.extend(rpr).to_xml(:links => false).must_equal_xml "<song><title>Brandy Wine</title></song>"
+      end
+
+      it "renders nested links" do
+        song_rpr = rpr
+
+        album_rpr = Module.new do
+          include Roar::Representer::XML
+          include Roar::Representer::Feature::Hypermedia
+
+          self.representation_wrap = "album"
+          collection :songs, :extend => song_rpr
+
+          link(:self) { "/albums/mixed" }
+        end
+
+        Album.new(:songs => [song]).extend(album_rpr).to_xml.must_equal_xml %{
+          <album>
+            <song>
+              <title>Brandy Wine</title>
+              <link rel="self" href="/songs/Brandy Wine"/>
+              <link rel="all" href="/songs"/>
+            </song>
+            <link rel="self" href="/albums/mixed"/>
+          </album>
+        }
       end
     end
 
@@ -122,7 +163,7 @@ end
 class LinkCollectionTest < MiniTest::Spec
   describe "LinkCollection" do
     subject { Roar::Representer::Feature::Hypermedia::LinkCollection.new }
-    
+
     describe "#add" do
       it "keys by using rel string" do
         subject.size.must_equal 0
