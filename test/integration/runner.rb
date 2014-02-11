@@ -12,7 +12,7 @@ class ServerRunner# < IntegrationHelper::Server
   end
 
   def command
-    "cd #{File.expand_path("..", __FILE__)} && bundle exec ruby #{app_file} -p 4567 -e production"
+    "bundle exec ruby #{app_file} -p 4567 -e production"
   end
 
   def kill
