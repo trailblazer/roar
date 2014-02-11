@@ -40,7 +40,9 @@ module Roar
           req["accept"]     = as  # TODO: test me. # DISCUSS: if Accept is not set, rails treats this request as as "text/html".
           req.body          = body if body
 
-          http.request(req)
+          http.request(req).tap do |res|
+            raise UnauthorizedError if res.is_a?(Net::HTTPUnauthorized) # FIXME: make this better. # DISCUSS: abstract all that crap here?
+          end
         end
 
         def parse_uri(url)
@@ -48,6 +50,10 @@ module Roar
           raise "Incorrect URL `#{url}`. Maybe you forgot http://?" if uri.instance_of?(URI::Generic)
           uri
         end
+      end
+
+      class UnauthorizedError < RuntimeError
+
       end
     end
   end
