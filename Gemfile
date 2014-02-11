@@ -4,4 +4,4 @@ source "http://rubygems.org"
 gemspec
 
 #gem "representable", :path => "../representable"
-gem "sinatra-contrib", :git => "git@github.com:apotonick/sinatra-contrib.git"
+gem "sinatra-contrib", :git => "git@github.com:apotonick/sinatra-contrib.git", :branch => "runner"
