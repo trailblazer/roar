@@ -1,8 +1,8 @@
 matrix:
   include:
     - rvm: 1.9.3
-      gemfile: gemfiles/Gemfile.representable-1.6.ruby-1.9
+      gemfile: gemfiles/Gemfile.representable-1.7
     - rvm: 2.0.0
-      gemfile: gemfiles/Gemfile.representable-1.6.ruby-1.9
+      gemfile: gemfiles/Gemfile.representable-1.7
 notifications:
   irc: "irc.freenode.org#cells"
