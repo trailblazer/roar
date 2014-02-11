@@ -120,7 +120,9 @@ class HalJsonTest < MiniTest::Spec
     it "doesn't require _links and _embedded to be present" do
       @album.from_json("{\"id\":2}")
       assert_equal 2, @album.id
-      assert_equal [], @album.songs
+
+      # in newer representables, this is not overwritten to an empty [] anymore.
+      assert_equal ["Beer"], @album.songs.map(&:title)
       @album.links.must_equal({})
     end
   end
