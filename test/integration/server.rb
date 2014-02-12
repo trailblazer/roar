@@ -90,10 +90,14 @@ helpers do
   end
 end
 
-get "/protected/bands/bodyjar" do
+basic = lambda do
   protected!
 
   OpenStruct.new(:name => "Bodyjar").
     extend(Integration::BandRepresenter).
     to_json
 end
+get "/protected/bands/bodyjar", &basic
+post "/protected/bands/bodyjar", &basic
+put "/protected/bands/bodyjar", &basic
+delete "/protected/bands/bodyjar", &basic

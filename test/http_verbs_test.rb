@@ -3,6 +3,10 @@ require 'roar/representer/feature/http_verbs'
 require 'roar/representer/json'
 
 class HttpVerbsTest < MiniTest::Spec
+  def self.verbs(&block)
+    %w(get post put delete).each(&block)
+  end
+
   BandRepresenter = Integration::BandRepresenter
 
   # keep this class clear of Roar modules.
@@ -105,7 +109,20 @@ class HttpVerbsTest < MiniTest::Spec
       end
     end
 
-    # HEAD, OPTIONs?
+    describe "Basic Auth: passing manually" do
+      let (:song) { OpenStruct.new(:name => "bodyjar").extend(Roar::Representer::Feature::HttpVerbs, BandRepresenter) }
+      verbs do |verb|
+        it "allows #{verb}" do
+          song.send(verb, "http://localhost:4567/protected/bands/bodyjar", "application/json", :basic_auth => [:admin, :password])
+
+          if verb == "delete"
+            song.name.must_equal "bodyjar"
+          else
+            song.name.must_equal "Bodyjar"
+          end
+        end
+      end
+    end
 
   end
 end

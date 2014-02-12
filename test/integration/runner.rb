@@ -15,9 +15,8 @@ class ServerRunner < Sinatra::Runner
   end
 
 end
-runner = ServerRunner.new
-#at_exit { puts "killing it:"; runner.kill }
 
+runner = ServerRunner.new
 runner.run
 
 MiniTest::Unit.after_tests do

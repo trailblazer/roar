@@ -8,33 +8,33 @@ module Roar
       # Definitions: every call returns a Response object responding to #body.
       class NetHTTP
         # TODO: generically handle return codes.
-        def get_uri(uri, as)
-          do_request(Net::HTTP::Get, uri, as)
+        def get_uri(uri, as, *args)
+          do_request(Net::HTTP::Get, uri, as, nil, *args)
         end
 
-        def post_uri(uri, body, as)
-          do_request(Net::HTTP::Post, uri, as, body)
+        def post_uri(uri, body, as, *args)
+          do_request(Net::HTTP::Post, uri, as, body, *args)
         end
 
-        def put_uri(uri, body, as)
-          do_request(Net::HTTP::Put, uri, as, body)
+        def put_uri(uri, body, as, *args)
+          do_request(Net::HTTP::Put, uri, as, body, *args)
         end
 
-        def patch_uri(uri, body, as)
-          do_request(Net::HTTP::Patch, uri, as, body)
+        def patch_uri(uri, body, as, *args)
+          do_request(Net::HTTP::Patch, uri, as, body, *args)
         end
 
-        def delete_uri(uri, as)
-          do_request(Net::HTTP::Delete, uri, as)
+        def delete_uri(uri, as, *args)
+          do_request(Net::HTTP::Delete, uri, as, nil, *args)
         end
 
       private
-        def do_request(what, uri, as, body="")
-          # DISCUSS: can this be made easier?
+        def do_request(what, uri, as, body="", options={}) # TODO: make Request object only argument.
           uri   = parse_uri(uri)
           http  = Net::HTTP.new(uri.host, uri.port)
           req   = what.new(uri.request_uri)
 
+          req.basic_auth(*options[:basic_auth]) if options[:basic_auth]
 
           req.content_type  = as
           req["accept"]     = as  # TODO: test me. # DISCUSS: if Accept is not set, rails treats this request as as "text/html".
@@ -52,8 +52,7 @@ module Roar
         end
       end
 
-      class UnauthorizedError < RuntimeError
-
+      class UnauthorizedError < RuntimeError # TODO: raise this from Faraday, too.
       end
     end
   end

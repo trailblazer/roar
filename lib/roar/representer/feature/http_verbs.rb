@@ -31,33 +31,33 @@ module Roar
 
         # Serializes the object, POSTs it to +url+ with +format+, deserializes the returned document
         # and updates properties accordingly.
-        def post(url, format)
-          response = http.post_uri(url, serialize, format)
+        def post(url, format, options={})
+          response = http.post_uri(url, serialize, format, options)
           handle_response(response)
         end
 
         # GETs +url+ with +format+, deserializes the returned document and updates properties accordingly.
-        def get(url, format)
-          response = http.get_uri(url, format)
+        def get(url, format, options={})
+          response = http.get_uri(url, format, options)
           handle_response(response)
         end
 
         # Serializes the object, PUTs it to +url+ with +format+, deserializes the returned document
         # and updates properties accordingly.
-        def put(url, format)
-          response = http.put_uri(url, serialize, format)
+        def put(url, format, options={})
+          response = http.put_uri(url, serialize, format, options)
           handle_response(response)
           self
         end
 
-        def patch(url, format)
-          response = http.patch_uri(url, serialize, format)
+        def patch(url, format, options={})
+          response = http.patch_uri(url, serialize, format, options)
           handle_response(response)
           self
         end
 
-        def delete(url, format)
-          http.delete_uri(url, format)
+        def delete(url, format, options={})
+          http.delete_uri(url, format, options)
           self
         end
 

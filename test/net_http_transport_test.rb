@@ -34,21 +34,29 @@ class NetHTTPTransportTest < MiniTest::Spec
   end
 
   describe "basic auth" do
-    it "what" do
+    it "raises when no credentials provided" do
       assert_raises Roar::Representer::Transport::UnauthorizedError do
-        puts transport.get_uri("http://localhost:4567/protected/bands/bodyjar", "application/json")
+        transport.get_uri("http://localhost:4567/protected/bands/bodyjar", "application/json")
       end
+    end
+
+    it "raises when wrong credentials provided" do
+      assert_raises Roar::Representer::Transport::UnauthorizedError do
+        transport.get_uri("http://localhost:4567/protected/bands/bodyjar", "application/json", :basic_auth => ["admin", "wrong--!!!--password"])
+      end
+    end
+
+    it "what" do
+      transport.get_uri("http://localhost:4567/protected/bands/bodyjar", "application/json", :basic_auth => ["admin", "password"])
     end
   end
 end
 
 module MiniTest::Assertions
-
   def assert_net_response(type, response, url, as, body = nil)
     # TODO: Assert headers
     assert_equal "<method>#{type}#{(' - ' + body) if body}</method>", response.body
   end
-
 end
 
 Net::HTTPOK.infect_an_assertion :assert_net_response, :must_match_net_response
