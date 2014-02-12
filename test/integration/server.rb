@@ -2,6 +2,7 @@ require "bundler/setup"
 require "sinatra"
 require "ostruct"
 require "roar/representer/json"
+require "sinatra/multi_route"
 
 require File.expand_path("../band_representer.rb", __FILE__)
 
@@ -90,14 +91,14 @@ helpers do
   end
 end
 
-basic = lambda do
+route :get, :post, :put, :delete, "/protected/bands/bodyjar" do
   protected!
 
   OpenStruct.new(:name => "Bodyjar").
     extend(Integration::BandRepresenter).
     to_json
 end
-get "/protected/bands/bodyjar", &basic
-post "/protected/bands/bodyjar", &basic
-put "/protected/bands/bodyjar", &basic
-delete "/protected/bands/bodyjar", &basic
+
+# class SslApp < Sinatra::App
+
+# end
