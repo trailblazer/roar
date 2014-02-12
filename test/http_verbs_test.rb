@@ -124,5 +124,22 @@ class HttpVerbsTest < MiniTest::Spec
       end
     end
 
+    describe "HTTPS: passing manually" do
+      let (:song) { OpenStruct.new(:name => "bodyjar").extend(Roar::Representer::Feature::HttpVerbs, BandRepresenter) }
+      verbs do |verb|
+        it "allows #{verb}" do
+          song.send(verb, "http://localhost:8443/bands/bodyjar", "application/json", :ssl => true)
+
+          if verb == "delete"
+            song.name.must_equal "bodyjar"
+          else
+            song.name.must_equal "Bodyjar"
+          end
+        end
+      end
+    end
+
+    # TODO: test https+auth.
+
   end
 end

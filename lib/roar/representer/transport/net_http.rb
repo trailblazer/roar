@@ -31,10 +31,27 @@ module Roar
       private
         def do_request(what, uri, as, body="", options={}) # TODO: make Request object only argument.
           uri   = parse_uri(uri)
+
+
+          # if options[:ssl]
+          #   uri.port = Net::HTTP.https_default_port()
+          # end
+
+
           http  = Net::HTTP.new(uri.host, uri.port)
+
+
+
+          if options[:ssl]
+            http.use_ssl = true
+            http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+          end
+
+
+
           req   = what.new(uri.request_uri)
 
-          req.basic_auth(*options[:basic_auth]) if options[:basic_auth]
+          req.basic_auth(*options[:basic_auth]) if options[:basic_auth] # TODO: make this nicer.
 
           req.content_type  = as
           req["accept"]     = as  # TODO: test me. # DISCUSS: if Accept is not set, rails treats this request as as "text/html".

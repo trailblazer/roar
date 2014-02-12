@@ -99,6 +99,6 @@ route :get, :post, :put, :delete, "/protected/bands/bodyjar" do
     to_json
 end
 
-# class SslApp < Sinatra::App
-
-# end
+get "/ping" do
+  "1"
+end

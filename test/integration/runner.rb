@@ -11,14 +11,31 @@ class ServerRunner < Sinatra::Runner
   end
 
   def ping_path # to be overwritten
-    '/method'
+    '/ping'
+  end
+end
+
+class SslServerRunner < ServerRunner
+  def command
+    "bundle exec ruby #{File.expand_path("../ssl_server.rb", __FILE__)}"
   end
 
+  def port
+    8443
+  end
+
+  def protocol
+    "https"
+  end
 end
 
 runner = ServerRunner.new
 runner.run
 
+ssl_runner = SslServerRunner.new
+ssl_runner.run
+
 MiniTest::Unit.after_tests do
   runner.kill
+  ssl_runner.kill
 end
