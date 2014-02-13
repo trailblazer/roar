@@ -32,7 +32,26 @@ class SslServer < Sinatra::Base
   end
 
   route :get, :post, :put, :delete, "/bands/bodyjar" do
-    #protected!
+    %{{"name": "Bodyjar"}}
+  end
+
+  # FIXME: redundant with server.rb.
+  helpers do
+    def protected!
+      return if authorized?
+      headers['WWW-Authenticate'] = 'Basic realm="Restricted Area"'
+      halt 401, "Not authorized\n"
+    end
+
+    def authorized?
+      @auth ||=  Rack::Auth::Basic::Request.new(request.env)
+      @auth.provided? and @auth.basic? and @auth.credentials and @auth.credentials == ['admin', 'password']
+    end
+  end
+
+  get "/protected" do
+    protected!
+
     %{{"name": "Bodyjar"}}
   end
 end
