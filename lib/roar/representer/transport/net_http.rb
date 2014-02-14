@@ -7,29 +7,47 @@ module Roar
     module Transport
       # Definitions: every call returns a Response object responding to #body.
       class NetHTTP
+        class Request # TODO: implement me.
+          def initialize(options)
+            @uri  = parse_uri(options[:url]) # TODO: add :uri.
+            @as   = options[:as]
+            @body = options[:body]
+          end
+
+          def get
+            call(Net::HTTP::Get)
+          end
+
+        private
+          attr_reader :uri, :as, :body
+
+          def parse_uri(url)
+            uri = URI(url)
+            raise "Incorrect URL `#{url}`. Maybe you forgot http://?" if uri.instance_of?(URI::Generic)
+            uri
+          end
+        end
+
+
+
         # TODO: generically handle return codes.
-        def get_uri(uri, as, *args, &block)
-          do_request(Net::HTTP::Get, uri, as, nil, *args, &block)
-        end
-
-        def post_uri(uri, body, as, *args, &block)
-          do_request(Net::HTTP::Post, uri, as, body, *args, &block)
-        end
-
-        def put_uri(uri, body, as, *args, &block)
-          do_request(Net::HTTP::Put, uri, as, body, *args, &block)
-        end
-
-        def patch_uri(uri, body, as, *args, &block)
-          do_request(Net::HTTP::Patch, uri, as, body, *args, &block)
-        end
-
-        def delete_uri(uri, as, *args, &block)
-          do_request(Net::HTTP::Delete, uri, as, nil, *args, &block)
+        { :get    => Net::HTTP::Get,
+          :post   => Net::HTTP::Post,
+          :put    => Net::HTTP::Put,
+          :delete => Net::HTTP::Delete,
+          :patch  => Net::HTTP::Patch
+        }.each do |method, mod|
+          define_method("#{method}_uri") do |options, &block| # gives us #get_uri, #post_uri and friends.
+            call(mod, options, &block)
+          end
         end
 
       private
-        def do_request(what, uri, as, body="", options={}) # TODO: make Request object only argument.
+        def call(what, options)
+          do_request(what, options[:uri], options[:as], options[:body], options)
+        end
+
+        def do_request(what, uri, as, body="", options={}) # TODO: remove me.
           uri   = parse_uri(uri)
 
 
@@ -65,10 +83,11 @@ module Roar
         end
 
         def parse_uri(url)
-          uri = URI(url)
-          raise "Incorrect URL `#{url}`. Maybe you forgot http://?" if uri.instance_of?(URI::Generic)
-          uri
-        end
+            uri = URI(url)
+            raise "Incorrect URL `#{url}`. Maybe you forgot http://?" if uri.instance_of?(URI::Generic)
+            uri
+          end
+
       end
 
       class UnauthorizedError < RuntimeError # TODO: raise this from Faraday, too.

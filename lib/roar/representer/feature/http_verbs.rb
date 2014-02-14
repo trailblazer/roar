@@ -32,32 +32,32 @@ module Roar
         # Serializes the object, POSTs it to +url+ with +format+, deserializes the returned document
         # and updates properties accordingly.
         def post(url, format, options={}, &block)
-          response = http.post_uri(url, serialize, format, options, &block)
+          response = http.post_uri(options.merge(:uri => url, :body => serialize, :as => format), &block)
           handle_response(response)
         end
 
         # GETs +url+ with +format+, deserializes the returned document and updates properties accordingly.
         def get(url, format, options={}, &block)
-          response = http.get_uri(url, format, options, &block)
+          response = http.get_uri(options.merge(:uri => url, :as => format), &block)
           handle_response(response)
         end
 
         # Serializes the object, PUTs it to +url+ with +format+, deserializes the returned document
         # and updates properties accordingly.
         def put(url, format, options={}, &block)
-          response = http.put_uri(url, serialize, format, options, &block)
+          response = http.put_uri(options.merge(:uri => url, :body => serialize, :as => format), &block)
           handle_response(response)
           self
         end
 
         def patch(url, format, options={}, &block)
-          response = http.patch_uri(url, serialize, format, options, &block)
+          response = http.patch_uri(options.merge(:uri => url, :body => serialize, :as => format), &block)
           handle_response(response)
           self
         end
 
         def delete(url, format, options={}, &block)
-          http.delete_uri(url, format, options, &block)
+          http.delete_uri(options.merge(:uri => url, :as => format), &block)
           self
         end
 
