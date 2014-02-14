@@ -99,6 +99,10 @@ route :get, :post, :put, :delete, "/protected/bands/bodyjar" do
     to_json
 end
 
+route :get, :post, :put, :delete, "/cookies" do
+  %{{"name": "Bodyjar"}}
+end
+
 get "/ping" do
   "1"
 end

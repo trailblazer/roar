@@ -46,6 +46,10 @@ MiniTest::Spec.class_eval do
   def self.representer!(*args)
     representer_for(*args)
   end
+
+  def self.verbs(&block)
+    %w(get post put delete).each(&block)
+  end
 end
 
 Roar::Representer::Feature::Hypermedia::Hyperlink.class_eval do

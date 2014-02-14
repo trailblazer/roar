@@ -3,16 +3,14 @@ require 'roar/representer/feature/http_verbs'
 require 'roar/representer/json'
 
 class HttpVerbsTest < MiniTest::Spec
-  def self.verbs(&block)
-    %w(get post put delete).each(&block)
-  end
-
   BandRepresenter = Integration::BandRepresenter
 
   # keep this class clear of Roar modules.
   class Band
     attr_accessor :name, :label
   end
+
+  let (:band) { OpenStruct.new(:name => "bodyjar").extend(Roar::Representer::Feature::HttpVerbs, BandRepresenter) }
 
 
   describe "HttpVerbs" do
@@ -109,22 +107,11 @@ class HttpVerbsTest < MiniTest::Spec
       end
     end
 
-
     describe "HTTPS and Authentication" do
       let (:song) { OpenStruct.new(:name => "bodyjar").extend(Roar::Representer::Feature::HttpVerbs, BandRepresenter) }
 
       describe "Basic Auth: passing manually" do
-        verbs do |verb|
-          it "allows #{verb}" do
-            song.send(verb, "https://localhost:4567/protected/bands/bodyjar", "application/json", :basic_auth => [:admin, :password])
 
-            if verb == "delete"
-              song.name.must_equal "bodyjar"
-            else
-              song.name.must_equal "Bodyjar"
-            end
-          end
-        end
       end
 
       describe "HTTPS: passing manually" do
@@ -147,6 +134,14 @@ class HttpVerbsTest < MiniTest::Spec
 
           song.name.must_equal "Bodyjar"
         end
+      end
+    end
+
+    describe "request customization" do
+      it "yields the request object" do
+        band.get("http://localhost:4567/cookies", "application/json") do |req|
+          req.add_field("Cookie", "Yumyum")
+        end.name.must_equal "Bodyjar"
       end
     end
   end

@@ -33,6 +33,18 @@ class NetHTTPTransportTest < MiniTest::Spec
     end
   end
 
+  # TODO: test all verbs.
+  describe "request customization" do
+    #verbs do |verb|
+    verb = "get"
+      it "#{verb} yields the request object" do
+        transport.send("#{verb}_uri", "http://localhost:4567/cookies", "application/json") do |req|
+          req.add_field("Cookie", "Yumyum")
+        end.body.must_equal %{{"name": "Bodyjar"}}
+      end
+    #end
+  end
+
   describe "basic auth" do
     it "raises when no credentials provided" do
       assert_raises Roar::Representer::Transport::UnauthorizedError do

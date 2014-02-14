@@ -8,24 +8,24 @@ module Roar
       # Definitions: every call returns a Response object responding to #body.
       class NetHTTP
         # TODO: generically handle return codes.
-        def get_uri(uri, as, *args)
-          do_request(Net::HTTP::Get, uri, as, nil, *args)
+        def get_uri(uri, as, *args, &block)
+          do_request(Net::HTTP::Get, uri, as, nil, *args, &block)
         end
 
-        def post_uri(uri, body, as, *args)
-          do_request(Net::HTTP::Post, uri, as, body, *args)
+        def post_uri(uri, body, as, *args, &block)
+          do_request(Net::HTTP::Post, uri, as, body, *args, &block)
         end
 
-        def put_uri(uri, body, as, *args)
-          do_request(Net::HTTP::Put, uri, as, body, *args)
+        def put_uri(uri, body, as, *args, &block)
+          do_request(Net::HTTP::Put, uri, as, body, *args, &block)
         end
 
-        def patch_uri(uri, body, as, *args)
-          do_request(Net::HTTP::Patch, uri, as, body, *args)
+        def patch_uri(uri, body, as, *args, &block)
+          do_request(Net::HTTP::Patch, uri, as, body, *args, &block)
         end
 
-        def delete_uri(uri, as, *args)
-          do_request(Net::HTTP::Delete, uri, as, nil, *args)
+        def delete_uri(uri, as, *args, &block)
+          do_request(Net::HTTP::Delete, uri, as, nil, *args, &block)
         end
 
       private
@@ -56,6 +56,8 @@ module Roar
           req.content_type  = as
           req["accept"]     = as  # TODO: test me. # DISCUSS: if Accept is not set, rails treats this request as as "text/html".
           req.body          = body if body
+
+          yield req if block_given?
 
           http.request(req).tap do |res|
             raise UnauthorizedError if res.is_a?(Net::HTTPUnauthorized) # FIXME: make this better. # DISCUSS: abstract all that crap here?
