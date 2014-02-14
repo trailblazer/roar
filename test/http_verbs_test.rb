@@ -117,7 +117,7 @@ class HttpVerbsTest < MiniTest::Spec
       describe "HTTPS: passing manually" do
         verbs do |verb|
           it "allows #{verb}" do
-            song.send(verb, "https://localhost:8443/bands/bodyjar", "application/json", :ssl => true)
+            song.send(verb, "https://localhost:8443/bands/bodyjar", "application/json")
 
             if verb == "delete"
               song.name.must_equal "bodyjar"
@@ -130,7 +130,7 @@ class HttpVerbsTest < MiniTest::Spec
 
       describe "HTTPS+Basic Auth: passing manually" do
         it "allows GET" do
-          song.get("https://localhost:8443/protected", "application/json", :ssl => true, :basic_auth => [:admin, :password])
+          song.get("https://localhost:8443/protected", "application/json", :basic_auth => [:admin, :password])
 
           song.name.must_equal "Bodyjar"
         end
