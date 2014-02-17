@@ -28,22 +28,29 @@ module Roar
           end
         end
 
+        def get_uri(options, &block)
+          call(Net::HTTP::Get, options, &block)
+        end
 
+        def post_uri(options, &block)
+          call(Net::HTTP::Post, options, &block)
+        end
 
-        # TODO: generically handle return codes.
-        { :get    => Net::HTTP::Get,
-          :post   => Net::HTTP::Post,
-          :put    => Net::HTTP::Put,
-          :delete => Net::HTTP::Delete,
-          :patch  => Net::HTTP::Patch
-        }.each do |method, mod|
-          define_method("#{method}_uri") do |options, &block| # gives us #get_uri, #post_uri and friends.
-            call(mod, options, &block)
-          end
+        def put_uri(options, &block)
+          call(Net::HTTP::Put, options, &block)
+        end
+
+        def delete_uri(options, &block)
+          call(Net::HTTP::Delete, options, &block)
+        end
+
+        def patch_uri(options, &block)
+          call(Net::HTTP::Patch, options, &block)
         end
 
       private
         def call(what, options, &block)
+          # TODO: generically handle return codes.
           do_request(what, options[:uri], options[:as], options[:body], options, &block)
         end
 
