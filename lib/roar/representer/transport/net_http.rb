@@ -43,8 +43,8 @@ module Roar
         end
 
       private
-        def call(what, options)
-          do_request(what, options[:uri], options[:as], options[:body], options)
+        def call(what, options, &block)
+          do_request(what, options[:uri], options[:as], options[:body], options, &block)
         end
 
         def do_request(what, uri, as, body="", options={}) # TODO: remove me.

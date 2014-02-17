@@ -100,6 +100,7 @@ route :get, :post, :put, :delete, "/protected/bands/bodyjar" do
 end
 
 route :get, :post, :put, :delete, "/cookies" do
+  raise "No cookies!" unless request.env["HTTP_COOKIE"] == "Yumyum"
   %{{"name": "Bodyjar"}}
 end
 
