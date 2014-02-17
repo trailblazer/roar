@@ -12,9 +12,36 @@ module Roar
       class NetHTTP
         class Request # TODO: implement me.
           def initialize(options)
-            @uri  = parse_uri(options[:url]) # TODO: add :uri.
+            @uri  = parse_uri(options[:uri]) # TODO: add :uri.
             @as   = options[:as]
             @body = options[:body]
+            @options = options
+          end
+
+          def call(what)
+            # if options[:ssl]
+            #   uri.port = Net::HTTP.https_default_port()
+            # end
+            http  = Net::HTTP.new(uri.host, uri.port)
+
+            if uri.scheme == 'https'
+              http.use_ssl = true
+              http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+            end
+
+            req   = what.new(uri.request_uri)
+
+            req.basic_auth(*options[:basic_auth]) if options[:basic_auth] # TODO: make this nicer.
+
+            req.content_type  = as
+            req["accept"]     = as  # TODO: test me. # DISCUSS: if Accept is not set, rails treats this request as as "text/html".
+            req.body          = body if body
+
+            yield req if block_given?
+
+            http.request(req).tap do |res|
+              raise UnauthorizedError if res.is_a?(Net::HTTPUnauthorized) # FIXME: make this better. # DISCUSS: abstract all that crap here?
+            end
           end
 
           def get
@@ -22,7 +49,7 @@ module Roar
           end
 
         private
-          attr_reader :uri, :as, :body
+          attr_reader :uri, :as, :body, :options
 
           def parse_uri(url)
             uri = URI(url)
@@ -55,48 +82,7 @@ module Roar
         def call(what, *args, &block)
           options = handle_deprecated_args(args)
           # TODO: generically handle return codes.
-          do_request(what, options[:uri], options[:as], options[:body], options, &block)
-        end
-
-        def do_request(what, uri, as, body="", options={}) # TODO: remove me.
-          uri   = parse_uri(uri)
-
-
-          # if options[:ssl]
-          #   uri.port = Net::HTTP.https_default_port()
-          # end
-
-
-          http  = Net::HTTP.new(uri.host, uri.port)
-
-
-
-          if uri.scheme == 'https'
-            http.use_ssl = true
-            http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-          end
-
-
-
-          req   = what.new(uri.request_uri)
-
-          req.basic_auth(*options[:basic_auth]) if options[:basic_auth] # TODO: make this nicer.
-
-          req.content_type  = as
-          req["accept"]     = as  # TODO: test me. # DISCUSS: if Accept is not set, rails treats this request as as "text/html".
-          req.body          = body if body
-
-          yield req if block_given?
-
-          http.request(req).tap do |res|
-            raise UnauthorizedError if res.is_a?(Net::HTTPUnauthorized) # FIXME: make this better. # DISCUSS: abstract all that crap here?
-          end
-        end
-
-        def parse_uri(url)
-          uri = URI(url)
-          raise "Incorrect URL `#{url}`. Maybe you forgot http://?" if uri.instance_of?(URI::Generic)
-          uri
+          Request.new(options).call(what, &block)
         end
 
         def handle_deprecated_args(args) # TODO: remove in 1.0.
