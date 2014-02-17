@@ -16,22 +16,18 @@ module Roar
             @as   = options[:as]
             @body = options[:body]
             @options = options
+
+            @http = Net::HTTP.new(uri.host, uri.port)
           end
 
           def call(what)
+            @req = what.new(uri.request_uri)
+
             # if options[:ssl]
             #   uri.port = Net::HTTP.https_default_port()
             # end
-            http  = Net::HTTP.new(uri.host, uri.port)
-
-            if uri.scheme == 'https'
-              http.use_ssl = true
-              http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-            end
-
-            req   = what.new(uri.request_uri)
-
-            req.basic_auth(*options[:basic_auth]) if options[:basic_auth] # TODO: make this nicer.
+            https!
+            basic_auth!
 
             req.content_type  = as
             req["accept"]     = as  # TODO: test me. # DISCUSS: if Accept is not set, rails treats this request as as "text/html".
@@ -49,14 +45,28 @@ module Roar
           end
 
         private
-          attr_reader :uri, :as, :body, :options
+          attr_reader :uri, :as, :body, :options, :req, :http
 
           def parse_uri(url)
             uri = URI(url)
             raise "Incorrect URL `#{url}`. Maybe you forgot http://?" if uri.instance_of?(URI::Generic)
             uri
           end
+
+          def https!
+            return unless uri.scheme == 'https'
+
+            @http.use_ssl = true
+            @http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+          end
+
+          def basic_auth!
+            return unless options[:basic_auth]
+
+            @req.basic_auth(*options[:basic_auth])
+          end
         end
+
 
         def get_uri(*options, &block)
           call(Net::HTTP::Get, *options, &block)
