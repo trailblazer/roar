@@ -1,3 +1,15 @@
+# 0.12.3
+
+* Allow basic authentication with `basic_auth: [:admin, :password]`.
+* Allow HTTPS.
+* Removed `NetHTTP#do_request`. It is in `NetHTTP::Request` now.
+
+### Changes for `HttpVerbs#get` and friends:
+
+* They now yield the request object to add headers etc before request is sent.
+* They NO LONGER support positional arguments but one hash with `uri: "https://roar.de", body:, .. as: ..` and so on.
+
+
 # 0.12.2
 
 * Fix a bug where hyperlinks from nested objects weren't rendered in XML.
