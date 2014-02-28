@@ -476,13 +476,13 @@ class Song < OpenStruct
 end
 ```
 
-### HTTP Support
+## HTTP Support
 
 The `Feature::Client` module mixes all necessary methods into the client class, e.g. it provides HTTP support
 
 ```ruby
 song = Song.new(title: "Roxanne")
-song.post("http://localhost:4567/songs", "application/json")
+song.post(uri: "http://localhost:4567/songs", as: "application/json")
 
 song.id #=> 42
 ```
@@ -500,7 +500,7 @@ Roar works with all HTTP request types, check out `GET`.
 
 ```ruby
 song = Client::Song.new
-song.get("http://localhost:4567/songs/1", "application/json")
+song.get(uri: "http://localhost:4567/songs/1", as: "application/json")
 
 song.title #=> "Roxanne"
 song.links[:self].href #=> http://localhost/songs/1
@@ -508,6 +508,27 @@ song.links[:self].href #=> http://localhost/songs/1
 
 As `GET` is not supposed to send any data, you can use `#get` on an empty object to populate it with the server data.
 
+### HTTPS
+
+Roar supports SSL connections - they are automatically detected via the protocol, e.g. `song.get(uri: "https://localhost:4567/songs/1")`
+
+### Basic Authentication
+
+The HTTP verbs allow you to specify credentials for HTTP basic auth.
+
+```ruby
+song.get(uri: "http://localhost:4567/songs/1", as: "application/json", basic_auth: ["username", "secret_password"])
+```
+
+### Request customization
+
+All verbs yield the request object before the request is sent. That allows to modify it. It is a `Net::HTTP::Request` instance (unless you use Faraday).
+
+ ```ruby
+song.get(uri: "http://localhost:4567/songs/1") do |req|
+  req.add_field("Cookie", "Yumyum")
+end
+```
 
 ## XML
 
