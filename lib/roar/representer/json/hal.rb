@@ -9,6 +9,10 @@ module Roar::Representer
     # Embedded resources can be specified when calling #property or +collection using the
     # :embedded => true option.
     #
+    # Link arrays can be defined using +::links+.
+    #
+    # CURIEs are specified with the - surprise - +::curie+ class method.
+    #
     # Example:
     #
     #   module OrderRepresenter
@@ -19,6 +23,18 @@ module Roar::Representer
     #
     #     link :self do
     #       "http://orders/#{id}"
+    #     end
+    #
+    #     links :self do
+    #       [{:lang => "en", :href => "http://en.hit"},
+    #        {:lang => "de", :href => "http://de.hit"}]
+    #     end
+    #
+    #     curies do
+    #       [{:name => :doc,
+    #         :href => "//docs/{rel}",
+    #         :templated => true}
+    #       ]
     #     end
     #   end
     #

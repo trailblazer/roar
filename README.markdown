@@ -355,6 +355,8 @@ module SongRepresenter
 end
 ```
 
+Documentation for HAL can be found in the [API docs](http://rdoc.info/github/apotonick/roar/Roar/Representer/JSON/HAL).
+
 ### Hypermedia
 
 Including the `Roar::Representer::JSON::HAL` module adds some more DSL methods to your module. It still allows using `::link` but treats them slightly different.
@@ -510,19 +512,23 @@ As `GET` is not supposed to send any data, you can use `#get` on an empty object
 
 ### HTTPS
 
-Roar supports SSL connections - they are automatically detected via the protocol, e.g. `song.get(uri: "https://localhost:4567/songs/1")`
+Roar supports SSL connections - they are automatically detected via the protocol.
+
+```ruby
+song.get(uri: "https://localhost:4567/songs/1")`
+```
 
 ### Basic Authentication
 
 The HTTP verbs allow you to specify credentials for HTTP basic auth.
 
 ```ruby
-song.get(uri: "http://localhost:4567/songs/1", as: "application/json", basic_auth: ["username", "secret_password"])
+song.get(uri: "http://localhost:4567/songs/1", basic_auth: ["username", "secret_password"])
 ```
 
 ### Request customization
 
-All verbs yield the request object before the request is sent. That allows to modify it. It is a `Net::HTTP::Request` instance (unless you use Faraday).
+All verbs yield the request object before the request is sent, allowing to modify it. It is a `Net::HTTP::Request` instance (unless you use Faraday).
 
  ```ruby
 song.get(uri: "http://localhost:4567/songs/1") do |req|
