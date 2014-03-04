@@ -184,6 +184,18 @@ module Roar::Representer
             options[:array] = true  # FIXME: we need to save this information somewhere.
             link(options, &block)
           end
+
+          # Add a CURIEs link section as defined in
+          #
+          # curies do
+          #   [{:name => :doc,
+          #     :href => "//docs/{rel}",
+          #     :templated => true}
+          #   ]
+          # end
+          def curies(&block)
+            links(:curies, &block)
+          end
         end
       end
     end

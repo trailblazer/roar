@@ -141,3 +141,20 @@ class LinkCollectionTest < MiniTest::Spec
     end
   end
 end
+
+
+class HalCurieTest < MiniTest::Spec
+  representer!([Roar::Representer::JSON::HAL]) do
+    link "doc:self" do
+      "/"
+    end
+
+    curies do
+      [{:name => :doc,
+        :href => "//docs/{rel}",
+        :templated => true}]
+    end
+  end
+
+  it { Object.new.extend(rpr).to_hash.must_equal({"_links"=>{"doc:self"=>{:href=>"/"}, "curies"=>[{:name=>:doc, :href=>"//docs/{rel}", :templated=>true}]}}) }
+end
