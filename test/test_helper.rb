@@ -43,8 +43,8 @@ MiniTest::Spec.class_eval do
     end
   end
 
-  def self.representer!(*args)
-    representer_for(*args)
+  def self.representer!(*args, &block)
+    representer_for(*args, &block)
   end
 
   def self.verbs(&block)
