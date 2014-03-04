@@ -180,6 +180,7 @@ puts album.songs[1] #=> #<Song title="Roadblock">
 
 The nesting of two representers can map composed object as you find them in many many APIs.
 
+In case you're after virtual nesting, where a nested block in your document still maps to the same outer object, [check out the `::nested` method](https://github.com/apotonick/representable#document-nesting).
 
 ## Inline Representer
 
