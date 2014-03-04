@@ -1,6 +1,6 @@
 # 0.12.4
 
-* The `HAL` module supports [CURIE links](https://github.com/mikekelly/hal_specification/blob/master/hal_specification.md#curies) now using the `::curie` method.
+* The `HAL` module supports [CURIE links](https://github.com/mikekelly/hal_specification/blob/f937dbc9f9e1fa25be824834794407fdcb8f116f/hal_specification.md#curies) now using the `::curie` method.
 
 # 0.12.3
 
