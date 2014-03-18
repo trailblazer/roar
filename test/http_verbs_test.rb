@@ -38,6 +38,14 @@ class HttpVerbsTest < MiniTest::Spec
     end
 
 
+    describe "deprecations" do
+      it "old #get API still works" do
+        @band.get("http://localhost:4567/bands/slayer", "application/json")
+        assert_equal ["Slayer", "Canadian Maple"], [@band.name, @band.label]
+      end
+    end
+
+
     describe "HttpVerbs.get" do
       it "returns instance from incoming representation" do
         band = @band.get("http://localhost:4567/bands/slayer", "application/json")
@@ -66,9 +74,8 @@ class HttpVerbsTest < MiniTest::Spec
 
     describe "#get" do
       it "updates instance with incoming representation" do
-        @band.get("http://localhost:4567/bands/slayer", "application/json")
-        assert_equal "Slayer", @band.name
-        assert_equal "Canadian Maple", @band.label
+        @band.get(:uri => "http://localhost:4567/bands/slayer", :as => "application/json")
+        assert_equal ["Slayer", "Canadian Maple"], [@band.name, @band.label]
       end
     end
 
@@ -77,7 +84,7 @@ class HttpVerbsTest < MiniTest::Spec
         @band.name = "Strung Out"
         assert_equal nil, @band.label
 
-        @band.post("http://localhost:4567/bands", "application/xml")
+        @band.post(:uri => "http://localhost:4567/bands", :as => "application/xml")
         assert_equal "STRUNG OUT", @band.name
         assert_equal nil, @band.label
       end
@@ -87,7 +94,7 @@ class HttpVerbsTest < MiniTest::Spec
       it "updates instance with incoming representation" do
         @band.name   = "Strung Out"
         @band.label  = "Fat Wreck"
-        @band.put("http://localhost:4567/bands/strungout", "application/xml")
+        @band.put(:uri => "http://localhost:4567/bands/strungout", :as => "application/xml")
         assert_equal "STRUNG OUT", @band.name
         assert_equal "FAT WRECK", @band.label
       end
@@ -96,16 +103,17 @@ class HttpVerbsTest < MiniTest::Spec
     describe "#patch" do
       it 'does something' do
         @band.label  = 'Fat Mike'
-        @band.patch("http://localhost:4567/bands/strungout", "application/xml")
+        @band.patch(:uri => "http://localhost:4567/bands/strungout", :as => "application/xml")
         assert_equal 'FAT MIKE', @band.label
       end
     end
 
     describe "#delete" do
       it 'does something' do
-        @band.delete("http://localhost:4567/bands/metallica", "application/xml")
+        @band.delete(:uri => "http://localhost:4567/bands/metallica", :as => "application/xml")
       end
     end
+
 
     describe "HTTPS and Authentication" do
       let (:song) { OpenStruct.new(:name => "bodyjar").extend(Roar::Representer::Feature::HttpVerbs, BandRepresenter) }
@@ -117,7 +125,7 @@ class HttpVerbsTest < MiniTest::Spec
       describe "HTTPS: passing manually" do
         verbs do |verb|
           it "allows #{verb}" do
-            song.send(verb, "https://localhost:8443/bands/bodyjar", "application/json")
+            song.send(verb, :uri => "https://localhost:8443/bands/bodyjar", :as => "application/json")
 
             if verb == "delete"
               song.name.must_equal "bodyjar"
@@ -130,7 +138,7 @@ class HttpVerbsTest < MiniTest::Spec
 
       describe "HTTPS+Basic Auth: passing manually" do
         it "allows GET" do
-          song.get("https://localhost:8443/protected", "application/json", :basic_auth => [:admin, :password])
+          song.get(:uri => "https://localhost:8443/protected", :as => "application/json", :basic_auth => [:admin, :password])
 
           song.name.must_equal "Bodyjar"
         end
@@ -139,7 +147,7 @@ class HttpVerbsTest < MiniTest::Spec
 
     describe "request customization" do
       it "yields the request object" do
-        band.get("http://localhost:4567/cookies", "application/json") do |req|
+        band.get(:uri => "http://localhost:4567/cookies", :as => "application/json") do |req|
           req.add_field("Cookie", "Yumyum")
         end.name.must_equal "Bodyjar"
       end

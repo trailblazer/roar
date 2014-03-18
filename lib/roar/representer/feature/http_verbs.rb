@@ -31,33 +31,36 @@ module Roar
 
         # Serializes the object, POSTs it to +url+ with +format+, deserializes the returned document
         # and updates properties accordingly.
-        def post(url, format, options={}, &block)
-          response = http.post_uri(options.merge(:uri => url, :body => serialize, :as => format), &block)
+        def post(*args, &block)
+          options  = handle_deprecated_args(serialize, *args)
+          response = http.post_uri(options, &block)
           handle_response(response)
         end
 
         # GETs +url+ with +format+, deserializes the returned document and updates properties accordingly.
-        def get(url, format, options={}, &block)
-          response = http.get_uri(options.merge(:uri => url, :as => format), &block)
+        def get(*args, &block)
+          response = http.get_uri(*args, &block)
           handle_response(response)
         end
 
         # Serializes the object, PUTs it to +url+ with +format+, deserializes the returned document
         # and updates properties accordingly.
-        def put(url, format, options={}, &block)
-          response = http.put_uri(options.merge(:uri => url, :body => serialize, :as => format), &block)
+        def put(*args, &block)
+          options  = handle_deprecated_args(serialize, *args)
+          response = http.put_uri(options, &block)
           handle_response(response)
           self
         end
 
-        def patch(url, format, options={}, &block)
-          response = http.patch_uri(options.merge(:uri => url, :body => serialize, :as => format), &block)
+        def patch(*args, &block)
+          options  = handle_deprecated_args(serialize, *args)
+          response = http.patch_uri(options, &block)
           handle_response(response)
           self
         end
 
-        def delete(url, format, options={}, &block)
-          http.delete_uri(options.merge(:uri => url, :as => format), &block)
+        def delete(*args, &block)
+          http.delete_uri(*args, &block)
           self
         end
 
@@ -69,6 +72,22 @@ module Roar
 
         def http
           transport_engine.new
+        end
+
+        def handle_deprecated_args(body, *args) # TODO: remove in 1.0.
+          options = args.first
+
+          if args.size > 1
+            warn %{DEPRECATION WARNING: #get, #post, #put, #delete and #patch no longer accept positional arguments. Please call them as follows:
+     get(uri: "http://localhost/songs", as: "application/json")
+    post(uri: "http://localhost/songs", as: "application/json")
+Thank you and have a beautiful day.}
+            options = {:uri => args[0], :as => args[1]} if args.size == 2
+            options = {:uri => args[0], :as => args[2]}
+          end
+
+          options[:body] = body
+          options
         end
       end
     end
