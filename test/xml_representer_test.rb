@@ -153,7 +153,7 @@ class XMLRepresenterFunctionalTest < MiniTest::Spec
 
           self.representation_wrap= :order
           property :id
-          collection :items, :class => ItemRepresenter, :from => :item
+          collection :items, :class => ItemRepresenter, :as => :item
           attr_accessor :id, :items
         end
 

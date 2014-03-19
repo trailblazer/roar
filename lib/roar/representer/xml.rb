@@ -39,7 +39,7 @@ module Roar
 
         def links_definition_options
           # FIXME: this doesn't belong into the generic XML representer.
-          [:links_array, {:from => :link, :class => Feature::Hypermedia::Hyperlink, :collection => true, :extend => XML::HyperlinkRepresenter,
+          [:links_array, {:as => :link, :class => Feature::Hypermedia::Hyperlink, :collection => true, :extend => XML::HyperlinkRepresenter,
             :decorator_scope => true}] # TODO: merge with JSON.
         end
 

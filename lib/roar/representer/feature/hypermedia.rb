@@ -72,7 +72,7 @@ module Roar
       private
         def links_definition_options
           # TODO: this method is never called.
-          [:links_array, {:from => :link, :class => Feature::Hypermedia::Hyperlink, :collection => true,
+          [:links_array, {:as => :link, :class => Feature::Hypermedia::Hyperlink, :collection => true,
             :decorator_scope => true}] # TODO: merge with JSON.
         end
 

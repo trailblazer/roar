@@ -72,7 +72,7 @@ module Roar::Representer
 
       module ClassMethods
         def links_definition_options
-          super.tap { |options| options[1].merge!(:from => :_links) }
+          super.tap { |options| options[1].merge!(:as => :_links) }
         end
       end
 
