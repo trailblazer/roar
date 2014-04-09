@@ -1,5 +1,6 @@
 # 0.12.5
 
+* Roar runs with representable <= 1.8.
 
 # 0.12.4
 
