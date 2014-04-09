@@ -34,9 +34,11 @@ class CollectionJsonTest < MiniTest::Spec
 
   describe "#to_json" do
     it "renders document" do
+      collection_key = Representable::VERSION =~ /^1.8/ ? "collection" : :collection
+
       [song].extend(rpr).to_hash.must_equal(
       {
-        :collection=>{
+        collection_key=>{
           "version"=>"1.0",
           "href"=>"//songs/",
 
@@ -48,7 +50,7 @@ class CollectionJsonTest < MiniTest::Spec
           },
 
           "queries"=>[
-            {:rel=>:search, :href=>"//search", 
+            {:rel=>:search, :href=>"//search",
               :data=>[
                 {:name=>"q", :value=>""}
               ]
