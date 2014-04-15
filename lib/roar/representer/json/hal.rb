@@ -60,12 +60,14 @@ module Roar::Representer
       module Resources
         # Write the property to the +_embedded+ hash when it's a resource.
         def compile_fragment(bin, doc)
-          return super unless bin.options[:embedded]
+          embedded = ::Roar.representable_1_8? ? bin[:embedded] : bin.options[:embedded]
+          return super unless embedded
           super(bin, doc[:_embedded] ||= {})
         end
 
         def uncompile_fragment(bin, doc)
-          return super unless bin.options[:embedded]
+          embedded = Roar.representable_1_8? ? bin[:embedded] : bin.options[:embedded]
+          return super unless embedded
           super(bin, doc["_embedded"] || {})
         end
       end
@@ -132,7 +134,7 @@ module Roar::Representer
           include Representable::JSON::Hash
 
           values :extend => lambda { |item, *| item.is_a?(Array) ? LinkArrayRepresenter : Roar::Representer::JSON::HyperlinkRepresenter },
-            :class => lambda { |hsh, *| hsh.is_a?(LinkArray) ? nil : Roar::Representer::Feature::Hypermedia::Hyperlink }
+            :instance => lambda { |fragment, *| fragment.is_a?(LinkArray) ? fragment : Roar::Representer::Feature::Hypermedia::Hyperlink.new }
 
           def to_hash(options)
             super.tap do |hsh|  # TODO: cool: super(:exclude => [:rel]).

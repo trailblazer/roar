@@ -137,7 +137,15 @@ module Roar
         private
           def create_links_definition
             return if representable_attrs.find { |d| d.is_a?(LinksDefinition) }
-            representable_attrs << LinksDefinition.new(*links_definition_options)
+
+            options = links_definition_options # TODO: remove in 1.0.
+            if Roar.representable_1_8?
+              opt = options.last
+              opt[:exec_context] = :decorator
+              opt.delete(:decorator_scope)
+            end
+
+            representable_attrs << LinksDefinition.new(*options)
           end
         end
 
