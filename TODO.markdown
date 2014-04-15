@@ -4,3 +4,8 @@
 * remove #before_serialize and just overwrite #serialize
 * abstract ::links_definition_options and move them out of the generic representers (JSON, XML).
 * make 1.8 tests work, again (hash ordering!)
+
+* release 1.0
+* representable 1.8, only.
+* revise Hypermedia
+* work on HAL-Object

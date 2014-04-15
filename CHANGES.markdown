@@ -1,3 +1,7 @@
+# 0.12.6
+
+* Remove deprecations (most of 'em) from representable-1.8. Sorry for that.
+
 # 0.12.5
 
 * Roar runs with representable <= 1.8.
