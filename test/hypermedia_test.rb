@@ -56,7 +56,7 @@ class HypermediaTest < MiniTest::Spec
     describe "#from_json" do
       it "parses" do
         subject.from_json "{\"links\":[{\"rel\":\"self\",\"href\":\"//self\"}]}"
-        subject.links.must_equal({"self" => link(:rel => :self, :href => "//self")})
+        subject.links.must_equal({"self" => link("rel" => "self", "href" => "//self")})
       end
     end
 

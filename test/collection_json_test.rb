@@ -108,12 +108,12 @@ class CollectionJsonTest < MiniTest::Spec
       song = subject.items.first
       song.title.must_equal "scarifice"
       song.length.must_equal 43
-      song.links.must_equal("download" => link({:rel=>:download, :href=>"//songs/scarifice.mp3"}), "stats" => link({:rel=>:stats, :href=>"//songs/scarifice/stats"}))
+      song.links.must_equal("download" => link({:rel=>"download", :href=>"//songs/scarifice.mp3"}), "stats" => link({:rel=>"stats", :href=>"//songs/scarifice/stats"}))
       song.href.must_equal link(:href => "//songs/scarifice")
     end
 
     it "provides #links" do
-      subject.links.must_equal({"feed" => link(:rel => :feed, :href => "//songs/feed")})
+      subject.links.must_equal({"feed" => link(:rel => "feed", :href => "//songs/feed")})
     end
   end
 

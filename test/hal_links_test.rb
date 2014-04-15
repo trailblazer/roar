@@ -24,7 +24,7 @@ class HalLinkTest < MiniTest::Spec
 
   describe "#from_json" do
     it "uses 'links' key" do
-      subject.from_json("{\"links\":{\"self\":{\"href\":\"//lifer\"}}}").links.values.must_equal [link(:href => "//lifer", :rel => :self)]
+      subject.from_json("{\"links\":{\"self\":{\"href\":\"//lifer\"}}}").links.values.must_equal [link("href" => "//lifer", "rel" => "self")]
     end
   end
 end

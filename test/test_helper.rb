@@ -51,15 +51,3 @@ MiniTest::Spec.class_eval do
     %w(get post put delete).each(&block)
   end
 end
-
-Roar::Representer::Feature::Hypermedia::Hyperlink.class_eval do
-  def ==(other)
-    stringify_hash(table) == stringify_hash(other.table)
-  end
-
-  def stringify_hash(hash)
-    hash.collect do |k,v|
-      [k.to_s, v.to_s]
-    end.sort
-  end
-end

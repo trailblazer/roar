@@ -24,17 +24,17 @@ class HalJsonTest < MiniTest::Spec
     describe "parsing" do
       it "parses link array" do # TODO: remove me.
         obj = subject.from_json("{\"_links\":{\"self\":[{\"lang\":\"en\",\"href\":\"http://en.hit\"},{\"lang\":\"de\",\"href\":\"http://de.hit\"}]}}")
-        obj.links.must_equal "self" => [link(:rel => :self, :href => "http://en.hit", :lang => :en), link(:rel => :self, :href => "http://de.hit", :lang => :de)]
+        obj.links.must_equal "self" => [link("rel" => "self", "href" => "http://en.hit", "lang" => "en"), link("rel" => "self", "href" => "http://de.hit", "lang" => "de")]
       end
 
       it "parses single links" do # TODO: remove me.
         obj = subject.from_json("{\"_links\":{\"next\":{\"href\":\"http://next\"}}}")
-        obj.links.must_equal "next" => link(:rel => :next, :href => "http://next")
+        obj.links.must_equal "next" => link("rel" => "next", "href" => "http://next")
       end
 
       it "parses link and link array" do
         obj = subject.from_json("{\"_links\":{\"next\":{\"href\":\"http://next\"}, \"self\":[{\"lang\":\"en\",\"href\":\"http://en.hit\"},{\"lang\":\"de\",\"href\":\"http://de.hit\"}]}}")
-        obj.links.must_equal "next" => link(:rel => :next, :href => "http://next"), "self" => [link(:rel => :self, :href => "http://en.hit", :lang => :en), link(:rel => :self, :href => "http://de.hit", :lang => :de)]
+        obj.links.must_equal "next" => link("rel" => "next", "href" => "http://next"), "self" => [link("rel" => "self", "href" => "http://en.hit", "lang" => "en"), link("rel" => "self", "href" => "http://de.hit", "lang" => "de")]
       end
 
       it "parses empty link array" do
@@ -73,7 +73,7 @@ class HalJsonTest < MiniTest::Spec
   describe "#prepare_links!" do
     it "should map link arrays correctly" do
       subject.send :prepare_links!
-      subject.links.must_equal "self" => [link(:rel => :self, :href => "http://en.hit", :lang => "en"),link(:rel => :self, :href => "http://de.hit", :lang => "de")], "next" => link(:href => "http://next", :rel => :next)
+      subject.links.must_equal "self" => [link("rel" => :self, "href" => "http://en.hit", "lang" => "en"),link("rel" => :self, "href" => "http://de.hit", "lang" => "de")], "next" => link("href" => "http://next", "rel" => :next)
     end
   end
 

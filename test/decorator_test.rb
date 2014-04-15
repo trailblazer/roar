@@ -78,7 +78,7 @@ class DecoratorTest < MiniTest::Spec
 
       it "sets links on decorator" do
         decorator.from_xml(%{<song><link rel="self" href="http://next"/></song>})
-        decorator.links.must_equal("self"=>link(:rel=>:self, :href=>"http://next"))
+        decorator.links.must_equal("self"=>link(:rel=>"self", :href=>"http://next"))
       end
     end
 
@@ -100,7 +100,7 @@ class DecoratorTest < MiniTest::Spec
 
       it "sets links on decorator" do
         decorator.from_hash({"_links"=>{"self"=>{:href=>"http://next"}}})
-        decorator.links.must_equal("self"=>link(:rel=>:self, :href=>"http://next"))
+        decorator.links.must_equal("self"=>link(:rel=>"self", :href=>"http://next"))
       end
 
       describe "Decorator::HypermediaClient" do
@@ -112,7 +112,7 @@ class DecoratorTest < MiniTest::Spec
 
         it "propagates links to represented" do
           decorator.new(model_with_links).from_hash("_links"=>{"self"=>{:href=>"http://self"}})
-          model_with_links.links[:self].must_equal(link(:rel=>:self, :href=>"http://self"))
+          model_with_links.links[:self].must_equal(link(:rel=>"self", :href=>"http://self"))
         end
       end
     end
