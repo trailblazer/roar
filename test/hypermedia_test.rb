@@ -107,10 +107,20 @@ class HypermediaTest < MiniTest::Spec
       describe "returning option hash from block" do
         representer_for do
           link(:self) do {:href => "//self", :type => "image/jpg"} end
+          link(:other) do |params|
+            hash = { :href => "//other" }
+            hash.merge!(:type => 'image/jpg') if params[:type]
+            hash
+          end
         end
 
         it "is rendered as link attributes" do
-          subject.to_json.must_equal "{\"links\":[{\"rel\":\"self\",\"href\":\"//self\",\"type\":\"image/jpg\"}]}"
+          subject.to_json.must_equal "{\"links\":[{\"rel\":\"self\",\"href\":\"//self\",\"type\":\"image/jpg\"},{\"rel\":\"other\",\"href\":\"//other\"}]}"
+        end
+
+        it "is rendered according to context" do
+          subject.to_json(type: true).must_equal "{\"links\":[{\"rel\":\"self\",\"href\":\"//self\",\"type\":\"image/jpg\"},{\"rel\":\"other\",\"href\":\"//other\",\"type\":\"image/jpg\"}]}"
+          subject.to_json.must_equal "{\"links\":[{\"rel\":\"self\",\"href\":\"//self\",\"type\":\"image/jpg\"},{\"rel\":\"other\",\"href\":\"//other\"}]}"
         end
       end
 
