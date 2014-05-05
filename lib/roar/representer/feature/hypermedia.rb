@@ -94,7 +94,7 @@ module Roar
         end
 
         def prepare_link_for(href, options)
-          options.merge! href.is_a?(Hash) ? href : {:href => href}
+          options = options.merge(href.is_a?(Hash) ? href : {:href => href})
           Hyperlink.new(options)
         end
 
