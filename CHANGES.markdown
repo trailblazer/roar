@@ -1,3 +1,7 @@
+# 0.12.7
+
+* Bug fix where hypermedia links were wrong when invoking serialization multiple times on the same instance.
+
 # 0.12.6
 
 * Remove deprecations (most of 'em) from representable-1.8. Sorry for that.
