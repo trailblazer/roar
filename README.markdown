@@ -2,6 +2,8 @@
 
 _Resource-Oriented Architectures in Ruby._
 
+[![Build Status](https://travis-ci.org/apotonick/roar.svg?branch=master)](https://travis-ci.org/apotonick/roar)
+
 ## Introduction
 
 Roar is a framework for parsing and rendering REST documents. Nothing more.

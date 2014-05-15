@@ -1,3 +1,7 @@
+# Next
+
+* Roar runs on Rubinius.
+
 # 0.12.7
 
 * Bug fix where hypermedia links were wrong when invoking serialization multiple times on the same instance.

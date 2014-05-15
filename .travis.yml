@@ -4,9 +4,17 @@ matrix:
       gemfile: gemfiles/Gemfile.representable-1.7
     - rvm: 2.0.0
       gemfile: gemfiles/Gemfile.representable-1.7
+    - rvm: 2.1.1
+      gemfile: gemfiles/Gemfile.representable-1.7
+    - rvm: rbx-2
+      gemfile: gemfiles/Gemfile.representable-1.7
     - rvm: 1.9.3
       gemfile: gemfiles/Gemfile.representable-1.8
     - rvm: 2.0.0
       gemfile: gemfiles/Gemfile.representable-1.8
+    - rvm: 2.1.1
+      gemfile: gemfiles/Gemfile.representable-1.8
+    - rvm: rbx-2
+      gemfile: gemfiles/Gemfile.representable-head
 notifications:
   irc: "irc.freenode.org#cells"
