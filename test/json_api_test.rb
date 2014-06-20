@@ -3,20 +3,25 @@ require 'roar/representer/json/json_api'
 
 class JsonApiTest < MiniTest::Spec
   let(:song) { OpenStruct.new(
-                          title: 'Computadores Fazem Arte',
-                          album: OpenStruct.new(id: 1),
-                          musicians: [OpenStruct.new(id: 1), OpenStruct.new(id: 2)] 
-                        ) }
+    title: 'Computadores Fazem Arte',
+    album: OpenStruct.new(id: 1),
+    musicians: [OpenStruct.new(id: 1), OpenStruct.new(id: 2)]
+  ) }
 
   representer!([Roar::Representer::JSON::JsonApi]) do
     property :id
     property :title
 
-    link :album
-    link :musicians
+    link "songs.album" do
+      {
+        type: "album",
+        href: "http://example.com/albums/{songs.album}"
+      }
+    end
+    # link :musicians
   end
 
-  subject { [song].extend(rpr) }
+  subject { song.extend(rpr) }
 
   describe "#to_json" do
     it "renders document" do
