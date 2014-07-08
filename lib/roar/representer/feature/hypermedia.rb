@@ -62,7 +62,7 @@ module Roar
 
         module LinkConfigsMethod
           def link_configs
-            representable_attrs.options[:links] ||= Representable::InheritableArray.new
+            representable_attrs[:links] ||= Representable::InheritableArray.new
             # representable_attrs.inheritable_array(:links)
           end
         end
