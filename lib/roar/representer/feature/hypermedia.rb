@@ -37,7 +37,6 @@ module Roar
       module Hypermedia
         def self.included(base)
           base.extend ClassMethods
-          base.extend InheritableArray
         end
 
         def before_serialize(options={})
@@ -63,7 +62,8 @@ module Roar
 
         module LinkConfigsMethod
           def link_configs
-            representable_attrs.inheritable_array(:links)
+            representable_attrs.options[:links] ||= Representable::InheritableArray.new
+            # representable_attrs.inheritable_array(:links)
           end
         end
 
@@ -145,7 +145,7 @@ module Roar
               opt.delete(:decorator_scope)
             end
 
-            representable_attrs << LinksDefinition.new(*options)
+            representable_attrs[:definitions][options.first] = LinksDefinition.new(*options)
           end
         end
 
