@@ -1,6 +1,7 @@
 require 'test_helper'
 
 class HypermediaTest < MiniTest::Spec
+
   describe "Hypermedia Feature" do
 
     let (:song) { Song.new(:title => "Brandy Wine") }
@@ -126,11 +127,11 @@ class HypermediaTest < MiniTest::Spec
 
         assert_kind_of Roar::Representer::Feature::Hypermedia::LinkCollection, doc.links
         assert_equal 1, doc.links.size
-        assert_equal(["self", "http://bookmarks"], [doc.links_array.first.rel, doc.links_array.first.href])
+        assert_equal(["self", "http://bookmarks"], [doc.links["self"].rel, doc.links["self"].href])
       end
 
       it "sets up an empty link list if no links found in the document" do
-        assert_equal [], @bookmarks_with_links.from_xml(%{<bookmarks/>}).links_array
+        @bookmarks_with_links.from_xml(%{<bookmarks/>}).links.must_equal({})
       end
     end
 

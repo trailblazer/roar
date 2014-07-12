@@ -3,15 +3,10 @@ require 'representable/decorator'
 
 class Roar::Decorator < Representable::Decorator
   module HypermediaConsumer
-    def links_array=(*args)
-      super # TODO: this currently sets #links which is not obvious.
-      represented.links = links
-    end
-
-    # TODO: what is the deal with #links_array and #links?
-    def links=(*args)
+    def links=(args)
+      puts "-------------------> #{args.inspect}"
       super
-      represented.links = links
+      represented.links = args
     end
   end
 end

@@ -132,18 +132,6 @@ class HypermediaTest < MiniTest::Spec
         end
       end
     end
-
-    # private tests:
-
-    it "returns array of links for rendering" do
-      subject.send :prepare_links!
-      subject.links_array.must_equal [link(:rel => :self, :href => "//self")]
-    end
-
-    it "#links_array maps array to LinkCollection hash" do
-      subject.links_array= [link(:rel => :self, :href => "//self")]
-      subject.links.must_equal({"self" => link(:rel => :self, :href => "//self")})
-    end
   end
 end
 

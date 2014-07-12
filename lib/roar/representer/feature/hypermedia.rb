@@ -50,15 +50,6 @@ module Roar
           @links ||= LinkCollection.new
         end
 
-        def links_array
-          links.values  # FIXME: move to LinkCollection#to_a.
-        end
-
-        def links_array=(ary)
-          # FIXME: move to LinkCollection
-          self.links= LinkCollection.new
-          ary.each { |lnk| links.add(lnk) }
-        end
 
         module LinkConfigsMethod
           def link_configs
@@ -69,12 +60,6 @@ module Roar
         include LinkConfigsMethod
 
       private
-        def links_definition_options
-          # TODO: this method is never called.
-          [:links_array, {:as => :link, :class => Feature::Hypermedia::Hyperlink, :collection => true,
-            :decorator_scope => true}] # TODO: merge with JSON.
-        end
-
         # Setup hypermedia links by invoking their blocks. Usually called by #serialize.
         def prepare_links!(*args)
           # TODO: move this method to _links or something so it doesn't need to be called in #serialize.
@@ -126,16 +111,17 @@ module Roar
           # The block is executed in instance context, so you may call properties or other accessors.
           # Note that you're free to put decider logic into #link blocks, too.
           def link(options, &block)
+            create_links_definition! # this assures the links are rendered at the right position.
+
             options = {:rel => options} unless options.is_a?(Hash)
-            create_links_definition # this assures the links are rendered at the right position.
             link_configs << [options, block]
           end
 
           include LinkConfigsMethod
 
         private
-          def create_links_definition
-            representable_attrs.add(:links_array, links_definition_options)
+          def create_links_definition!
+            representable_attrs.add(:links, links_definition_options) unless representable_attrs.get(:links)
           end
         end
 
