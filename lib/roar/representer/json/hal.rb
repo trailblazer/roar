@@ -74,7 +74,7 @@ module Roar::Representer
 
       module ClassMethods
         def links_definition_options
-          super.tap { |options| options[1].merge!(:as => :_links) }
+          super.merge(:as => :_links)
         end
       end
 
@@ -106,11 +106,9 @@ module Roar::Representer
       # Note that the HAL::Links module alone doesn't prepend an underscore to +links+. Use the JSON::HAL module for that.
       module Links
         def self.included(base)
-          base.class_eval do
-            extend Links::ClassMethods  # ::links_definition_options
-            include Roar::Representer::Feature::Hypermedia
-            include InstanceMethods
-          end
+          base.extend ClassMethods  # ::links_definition_options
+          base.send :include, Feature::Hypermedia
+          base.send :include, InstanceMethods
         end
 
         module InstanceMethods
@@ -133,11 +131,16 @@ module Roar::Representer
         module LinkCollectionRepresenter
           include Representable::JSON::Hash
 
-          values :extend => lambda { |item, *| item.is_a?(Array) ? LinkArrayRepresenter : Roar::Representer::JSON::HyperlinkRepresenter },
+          values :extend => lambda { |item, *|
+            puts "representing #{item.inspect} ++++++++++++++++ "
+
+            item.is_a?(Array) ? LinkArrayRepresenter : Roar::Representer::JSON::HyperlinkRepresenter },
             :instance => lambda { |fragment, *| fragment.is_a?(LinkArray) ? fragment : Roar::Representer::Feature::Hypermedia::Hyperlink.new }
 
           def to_hash(options)
+            puts "%%%%%%%%%%%%%%%%%%%%%%%%5 #{self.class.inspect}"
             super.tap do |hsh|  # TODO: cool: super(:exclude => [:rel]).
+              puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #{hsh.inspect}"
               hsh.each { |k,v| v.delete(:rel) }
             end
           end
@@ -182,13 +185,16 @@ module Roar::Representer
 
         module ClassMethods
           def links_definition_options
-            [:links,
-              {
-                :extend   => HAL::Links::LinkCollectionRepresenter,
-                :instance => lambda { |*| LinkCollection.new(link_array_rels) }, # defined in InstanceMethods as this is executed in represented context.
-                :decorator_scope => true
-              }
-            ]
+            # property :links_array,
+            {
+              :as       => :links,
+              :extend   => HAL::Links::LinkCollectionRepresenter,
+              :instance => lambda { |*| LinkCollection.new(link_array_rels) }, # defined in InstanceMethods as this is executed in represented context.
+              :decorator_scope => true,
+              # TODO: make it always a hash so we don't need links_array and links.
+              :getter => lambda { |*| links },
+              :setter => lambda { |v, *| self.links=v }
+            }
           end
 
           # Use this to define link arrays. It accepts the shared rel attribute and an array of options per link object.

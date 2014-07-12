@@ -62,8 +62,7 @@ module Roar
 
         module LinkConfigsMethod
           def link_configs
-            representable_attrs[:links] ||= Representable::InheritableArray.new
-            # representable_attrs.inheritable_array(:links)
+            representable_attrs[:links] ||= Representable::Inheritable::Array.new
           end
         end
 
@@ -136,20 +135,8 @@ module Roar
 
         private
           def create_links_definition
-            return if representable_attrs.find { |d| d.is_a?(LinksDefinition) }
-
-            options = links_definition_options # TODO: remove in 1.0.
-            if Roar.representable_1_8?
-              opt = options.last
-              opt[:exec_context] = :decorator
-              opt.delete(:decorator_scope)
-            end
-
-            representable_attrs[:definitions][options.first] = LinksDefinition.new(*options)
+            representable_attrs.add(:links_array, links_definition_options)
           end
-        end
-
-        class LinksDefinition < Representable::Definition
         end
 
 
