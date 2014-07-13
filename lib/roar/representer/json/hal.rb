@@ -60,13 +60,13 @@ module Roar::Representer
       module Resources
         # Write the property to the +_embedded+ hash when it's a resource.
         def compile_fragment(bin, doc)
-          embedded = ::Roar.representable_1_8? ? bin[:embedded] : bin.options[:embedded]
+          embedded = bin[:embedded]
           return super unless embedded
           super(bin, doc[:_embedded] ||= {})
         end
 
         def uncompile_fragment(bin, doc)
-          embedded = Roar.representable_1_8? ? bin[:embedded] : bin.options[:embedded]
+          embedded = bin[:embedded]
           return super unless embedded
           super(bin, doc["_embedded"] || {})
         end
@@ -132,15 +132,12 @@ module Roar::Representer
           include Representable::JSON::Hash
 
           values :extend => lambda { |item, *|
-            puts "representing #{item.inspect} ++++++++++++++++ "
 
             item.is_a?(Array) ? LinkArrayRepresenter : Roar::Representer::JSON::HyperlinkRepresenter },
             :instance => lambda { |fragment, *| fragment.is_a?(LinkArray) ? fragment : Roar::Representer::Feature::Hypermedia::Hyperlink.new }
 
           def to_hash(options)
-            puts "%%%%%%%%%%%%%%%%%%%%%%%%5 #{self.class.inspect}"
             super.tap do |hsh|  # TODO: cool: super(:exclude => [:rel]).
-              puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #{hsh.inspect}"
               hsh.each { |k,v| v.delete(:rel) }
             end
           end
@@ -152,6 +149,7 @@ module Roar::Representer
             hsh = super(hash) # this is where :class and :extend do the work.
 
             hsh.each { |k, v| v.rel = k }
+            hsh.values # links= expects [Hyperlink, Hyperlink]
           end
         end
 
@@ -193,7 +191,6 @@ module Roar::Representer
               :decorator_scope => true,
               # TODO: make it always a hash so we don't need links_array and links.
               :getter => lambda { |*| links },
-              :setter => lambda { |v, *| self.links=v }
             }
           end
 

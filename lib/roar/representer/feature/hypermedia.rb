@@ -35,6 +35,7 @@ module Roar
       #
       #   model.to_json(:id => 1)
       module Hypermedia
+        # links= [Hyperlink, Hyperlink] is where parsing happens.
         def self.included(base)
           base.extend ClassMethods
         end
@@ -44,7 +45,9 @@ module Roar
           prepare_links!(options) unless options[:links] == false  # DISCUSS: doesn't work when links are already setup (e.g. from #deserialize).
         end
 
-        attr_writer :links
+        def links=(arr)
+          @links = LinkCollection[*arr]
+        end
 
         def links
           @links ||= LinkCollection.new
@@ -52,7 +55,7 @@ module Roar
 
 
         module LinkConfigsMethod
-          def link_configs
+          def link_configs # we could store the ::link configs in links Definition.
             representable_attrs[:links] ||= Representable::Inheritable::Array.new
           end
         end
@@ -60,12 +63,10 @@ module Roar
         include LinkConfigsMethod
 
       private
-        # Setup hypermedia links by invoking their blocks. Usually called by #serialize.
+        # Create hypermedia links by invoking their blocks. Usually called by #serialize.
         def prepare_links!(*args)
           # TODO: move this method to _links or something so it doesn't need to be called in #serialize.
-          compile_links_for(link_configs, *args).each do |lnk|
-            links.add(lnk)  # TODO: move to LinkCollection.new.
-          end
+          self.links = compile_links_for(link_configs, *args)
         end
 
         def compile_links_for(configs, *args)
@@ -88,13 +89,14 @@ module Roar
 
 
         class LinkCollection < Hash
+          def self.[](*arr)
+            hash = arr.inject({}) { |hsh, link| hsh[link.rel.to_s] = link; hsh }
+            super hash
+          end
+
           # DISCUSS: make Link#rel return string always.
           def [](rel)
             self.fetch(rel.to_s, nil)
-          end
-
-          def add(link)
-            self[link.rel.to_s] = link
           end
         end
 
@@ -120,6 +122,7 @@ module Roar
           include LinkConfigsMethod
 
         private
+          # Add a :links Definition to the representable_attrs so they get rendered/parsed.
           def create_links_definition!
             representable_attrs.add(:links, links_definition_options) unless representable_attrs.get(:links)
           end

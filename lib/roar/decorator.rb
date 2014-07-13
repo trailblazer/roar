@@ -3,10 +3,9 @@ require 'representable/decorator'
 
 class Roar::Decorator < Representable::Decorator
   module HypermediaConsumer
-    def links=(args)
-      puts "-------------------> #{args.inspect}"
-      super
-      represented.links = args
+    def links=(arr)
+      links = super
+      represented.instance_variable_set :@links, links
     end
   end
 end

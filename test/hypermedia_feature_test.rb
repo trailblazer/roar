@@ -163,15 +163,15 @@ end
 
 class LinkCollectionTest < MiniTest::Spec
   describe "LinkCollection" do
-    subject { Roar::Representer::Feature::Hypermedia::LinkCollection.new }
+    subject {
+      Roar::Representer::Feature::Hypermedia::LinkCollection[
+        @self_link = link(:rel => :self), @next_link = link(:rel => :next)
+      ]
+    }
 
-    describe "#add" do
+    describe "::[]" do
       it "keys by using rel string" do
-        subject.size.must_equal 0
-        subject.add(link = link(:rel => :self))
-        subject.values.must_equal [link]
-        subject.add(link = link(:rel => "self"))
-        subject.values.must_equal [link]
+        subject.values.must_equal [@self_link, @next_link]
       end
     end
   end

@@ -3,11 +3,6 @@ require 'roar/representer/feature/hypermedia'
 require 'representable/json'
 
 module Roar
-  require 'representable/version'
-  def self.representable_1_8? # TODO: remove me in 1.0.
-    Representable::VERSION =~ /^1.8/
-  end
-
   module Representer
     module JSON
       def self.included(base)
@@ -57,7 +52,6 @@ module Roar
             :extend         => HyperlinkRepresenter,
             :exec_context   => :decorator,
             :getter         => lambda { |*| links.values }, # links is LinkCollection, we just render a list of Hyperlinks.
-            :setter         => lambda { |arr, *| arr.each { |v| links.add(v) } }
           }
         end
       end

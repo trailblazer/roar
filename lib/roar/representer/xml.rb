@@ -46,7 +46,6 @@ module Roar
             :extend       => XML::HyperlinkRepresenter,
             :exec_context => :decorator,
             :getter         => lambda { |*| links.values }, # links is LinkCollection, we just render a list of Hyperlinks.
-            :setter         => lambda { |arr, *| arr.each { |v| links.add(v) } }
             } # TODO: merge with JSON.
         end
 
