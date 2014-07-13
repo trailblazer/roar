@@ -138,7 +138,7 @@ module Roar::Representer
 
           def to_hash(options)
             super.tap do |hsh|  # TODO: cool: super(:exclude => [:rel]).
-              hsh.each { |k,v| v.delete(:rel) }
+              hsh.each { |k,v| v.delete("rel") }
             end
           end
 
@@ -148,7 +148,13 @@ module Roar::Representer
 
             hsh = super(hash) # this is where :class and :extend do the work.
 
-            hsh.each { |k, v| v.rel = k }
+puts
+            puts hsh.inspect
+
+            hsh.each { |k, v| v.merge!(:rel => k) }
+
+
+            puts "better: #{hsh.values.inspect}"
             hsh.values # links= expects [Hyperlink, Hyperlink]
           end
         end
@@ -161,8 +167,8 @@ module Roar::Representer
 
           attr_reader :rel
 
-          def rel=(rel)
-            each { |lnk| lnk.rel = rel }
+          def merge!(attrs)
+            each { |lnk| lnk.merge!(attrs) }
           end
         end
 
@@ -175,7 +181,7 @@ module Roar::Representer
 
           def to_hash(*)
             super.tap do |ary|
-              ary.each { |lnk| rel = lnk.delete(:rel) }
+              ary.each { |lnk| rel = lnk.delete("rel") }
             end
           end
         end

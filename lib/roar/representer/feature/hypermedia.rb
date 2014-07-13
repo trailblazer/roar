@@ -41,12 +41,16 @@ module Roar
         end
 
         def before_serialize(options={})
-          super(options) # Representer::Base
-          prepare_links!(options) unless options[:links] == false  # DISCUSS: doesn't work when links are already setup (e.g. from #deserialize).
+          super # Representer::Base
+          return if options[:links] == false
+
+          prepare_links!(options) # DISCUSS: doesn't work when links are already setup (e.g. from #deserialize).
         end
 
         def links=(arr)
           @links = LinkCollection[*arr]
+puts "updated: ========================= #{@links.inspect}"
+          @links
         end
 
         def links
@@ -89,14 +93,18 @@ module Roar
 
 
         class LinkCollection < Hash
+          # The only way to create is LinkCollection[<Hyperlink>, <Hyperlink>]
           def self.[](*arr)
-            hash = arr.inject({}) { |hsh, link| hsh[link.rel.to_s] = link; hsh }
-            super hash
+            hash = arr.inject({}) { |hsh, link|
+              puts "------------> #{link.rel.inspect} #{link.inspect}"
+
+             hsh[link.rel] = link; hsh }
+            super(hash)
           end
 
           # DISCUSS: make Link#rel return string always.
           def [](rel)
-            self.fetch(rel.to_s, nil)
+            super(rel.to_s)
           end
         end
 
@@ -129,20 +137,33 @@ module Roar
         end
 
 
-        require "ostruct"
         # An abstract hypermedia link with arbitrary attributes.
-        class Hyperlink < OpenStruct
-          include Enumerable
+        class Hyperlink
+          extend Forwardable
+          def_delegators :@attrs, :each, :collect
 
-          def each(*args, &block)
-            marshal_dump.each(*args, &block)
+           def initialize(attrs={})
+             @attrs = attributes!(attrs)
+           end
+
+          def method_missing(name, value=nil)
+            return @attrs[name.to_s] unless value
+            @attrs[name.to_s.sub("=", "")] = value
           end
 
-          # FIXME: do we need this method any longer?
-          def replace(hash)
-            # #marshal_load requires symbol keys: http://apidock.com/ruby/v1_9_3_125/OpenStruct/marshal_load
-            marshal_load(hash.inject({}) { |h, (k,v)| h[k.to_sym] = v; h })
+          def replace(attrs) # makes it work with Hash::Hash.
+            @attrs = attributes!(attrs)
             self
+          end
+
+          def merge!(attrs)
+            @attrs.merge!(attributes!(attrs))
+          end
+
+        private
+          def attributes!(attrs)
+            attrs.inject({}) { |hsh, kv| hsh[kv.first.to_s] = kv.last; hsh }
+            # raise "Hyperlink without rel doesn't work!" unless @attrs["rel"]
           end
         end
       end
