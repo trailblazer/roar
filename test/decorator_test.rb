@@ -32,7 +32,7 @@ class DecoratorTest < MiniTest::Spec
       let (:decorator) { decorator_class.new(model) }
 
       it "rendering links works" do
-        decorator.to_hash.must_equal({"links"=>[{:rel=>:self, :href=>"http://self"}]})
+        decorator.to_hash.must_equal({"links"=>[{"rel"=>"self", "href"=>"http://self"}]})
       end
 
       it "sets links on decorator" do
@@ -108,12 +108,12 @@ class DecoratorTest < MiniTest::Spec
       let (:decorator) { decorator_class.new(model) }
 
       it "rendering links works" do
-        decorator.to_hash.must_equal({"_links"=>{"self"=>{:href=>"http://self"}}})
+        decorator.to_hash.must_equal({"_links"=>{"self"=>{"href"=>"http://self"}}})
       end
 
       it "sets links on decorator" do
-        decorator.from_hash({"_links"=>{"self"=>{:href=>"http://next"}}})
-        decorator.links.must_equal("self"=>link(:rel=>"self", :href=>"http://next"))
+        decorator.from_hash({"_links"=>{"self"=>{"href"=>"http://next"}}})
+        decorator.links.must_equal("self"=>link("rel"=>"self", "href"=>"http://next"))
       end
 
       describe "Decorator::HypermediaClient" do

@@ -184,7 +184,7 @@ class HyperlinkTest < MiniTest::Spec
                   property :blow
                   include Roar::Representer::Feature::Hypermedia
                   link(:bla) { "boo" }
-                end).to_hash.must_equal({"links"=>[{:rel=>:self, :href=>"bo"}, {:rel=>:bla, :href=>"boo"}]})
+                end).to_hash.must_equal({"links"=>[{"rel"=>"self", "href"=>"bo"}, {"rel"=>"bla", "href"=>"boo"}]})
     end
   end
 end

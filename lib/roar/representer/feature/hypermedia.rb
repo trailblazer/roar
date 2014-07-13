@@ -155,6 +155,7 @@ puts "updated: ========================= #{@links.inspect}"
             self
           end
 
+          # Only way to write to Hyperlink after creation.
           def merge!(attrs)
             @attrs.merge!(attributes!(attrs))
           end

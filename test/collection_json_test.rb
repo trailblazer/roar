@@ -48,8 +48,8 @@ class CollectionJsonTest < MiniTest::Spec
           },
 
           "queries"=>[
-            {:rel=>:search, :href=>"//search",
-              :data=>[
+            {"rel"=>"search", "href"=>"//search",
+              "data"=>[
                 {:name=>"q", :value=>""}
               ]
             }
@@ -58,11 +58,11 @@ class CollectionJsonTest < MiniTest::Spec
           "items"=>[
             {
               "links"=>[
-                {:rel=>:download, :href=>"//songs/scarifice.mp3"},
-                {:rel=>:stats, :href=>"//songs/scarifice/stats"}
+                {"rel"=>"download", "href"=>"//songs/scarifice.mp3"},
+                {"rel"=>"stats",    "href"=>"//songs/scarifice/stats"}
               ],
               "href"=>"//songs/scarifice",
-              :data=>[
+              "data"=>[
                 {:name=>"title", :value=>"scarifice"},
                 {:name=>"length", :value=>43}
               ]
@@ -70,7 +70,7 @@ class CollectionJsonTest < MiniTest::Spec
           ],
 
           "links"=>[
-            {:rel=>:feed, :href=>"//songs/feed"}
+            {"rel"=>"feed", "href"=>"//songs/feed"}
           ]
         }
       })# %{{"collection":{"version":"1.0","href":"//songs/","items":[{"href":"//songs/scarifice","links":[{"rel":"download","href":"//songs/scarifice.mp3"},{"rel":"stats","href":"//songs/scarifice/stats"}],"data":[{"name":"title","value":"scarifice"},{"name":"length","value":43}]}],"template":{"data":[{"name":"title","value":null},{"name":"length","value":null}]},"queries":[{"rel":"search","href":"//search","data":[{"name":"q","value":""}]}],"links":[{"rel":"feed","href":"//songs/feed"}]}}}
