@@ -146,9 +146,8 @@ puts "updated: ========================= #{@links.inspect}"
              @attrs = attributes!(attrs)
            end
 
-          def method_missing(name, value=nil)
-            return @attrs[name.to_s] unless value
-            @attrs[name.to_s.sub("=", "")] = value
+          def method_missing(name)
+            @attrs[name.to_s]
           end
 
           def replace(attrs) # makes it work with Hash::Hash.
@@ -162,7 +161,9 @@ puts "updated: ========================= #{@links.inspect}"
 
         private
           def attributes!(attrs)
-            attrs.inject({}) { |hsh, kv| hsh[kv.first.to_s] = kv.last; hsh }
+            attrs.inject({}) { |hsh, kv| hsh[kv.first.to_s] = kv.last; hsh }.tap do |hsh|
+              hsh["rel"] = hsh["rel"].to_s if hsh["rel"]
+            end
             # raise "Hyperlink without rel doesn't work!" unless @attrs["rel"]
           end
         end
