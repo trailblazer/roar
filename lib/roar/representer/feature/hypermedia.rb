@@ -141,10 +141,6 @@ module Roar
              @attrs = attributes!(attrs)
            end
 
-          def method_missing(name)
-            @attrs[name.to_s]
-          end
-
           def replace(attrs) # makes it work with Hash::Hash.
             @attrs = attributes!(attrs)
             self
@@ -156,6 +152,10 @@ module Roar
           end
 
         private
+          def method_missing(name)
+            @attrs[name.to_s]
+          end
+
           def attributes!(attrs)
             attrs.inject({}) { |hsh, kv| hsh[kv.first.to_s] = kv.last; hsh }.tap do |hsh|
               hsh["rel"] = hsh["rel"].to_s if hsh["rel"]
