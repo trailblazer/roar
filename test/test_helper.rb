@@ -51,3 +51,10 @@ MiniTest::Spec.class_eval do
     %w(get post put delete).each(&block)
   end
 end
+
+
+Roar::Representer::Feature::Hypermedia::Hyperlink.class_eval do
+  def ==(b)
+    @attrs == b.instance_variable_get(:@attrs)
+  end
+end

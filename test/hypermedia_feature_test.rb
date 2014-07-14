@@ -1,6 +1,7 @@
 require 'test_helper'
 
 class HypermediaTest < MiniTest::Spec
+
   describe "Hypermedia Feature" do
 
     let (:song) { Song.new(:title => "Brandy Wine") }
@@ -126,11 +127,11 @@ class HypermediaTest < MiniTest::Spec
 
         assert_kind_of Roar::Representer::Feature::Hypermedia::LinkCollection, doc.links
         assert_equal 1, doc.links.size
-        assert_equal(["self", "http://bookmarks"], [doc.links_array.first.rel, doc.links_array.first.href])
+        assert_equal(["self", "http://bookmarks"], [doc.links["self"].rel, doc.links["self"].href])
       end
 
       it "sets up an empty link list if no links found in the document" do
-        assert_equal [], @bookmarks_with_links.from_xml(%{<bookmarks/>}).links_array
+        @bookmarks_with_links.from_xml(%{<bookmarks/>}).links.must_equal({})
       end
     end
 
@@ -162,15 +163,15 @@ end
 
 class LinkCollectionTest < MiniTest::Spec
   describe "LinkCollection" do
-    subject { Roar::Representer::Feature::Hypermedia::LinkCollection.new }
+    subject {
+      Roar::Representer::Feature::Hypermedia::LinkCollection[
+        @self_link = link(:rel => :self), @next_link = link(:rel => :next)
+      ]
+    }
 
-    describe "#add" do
+    describe "::[]" do
       it "keys by using rel string" do
-        subject.size.must_equal 0
-        subject.add(link = link(:rel => :self))
-        subject.values.must_equal [link]
-        subject.add(link = link(:rel => "self"))
-        subject.values.must_equal [link]
+        subject.values.must_equal [@self_link, @next_link]
       end
     end
   end

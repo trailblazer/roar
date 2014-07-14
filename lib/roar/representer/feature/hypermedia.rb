@@ -35,53 +35,40 @@ module Roar
       #
       #   model.to_json(:id => 1)
       module Hypermedia
+        # links= [Hyperlink, Hyperlink] is where parsing happens.
         def self.included(base)
           base.extend ClassMethods
-          base.extend InheritableArray
         end
 
         def before_serialize(options={})
-          super(options) # Representer::Base
-          prepare_links!(options) unless options[:links] == false  # DISCUSS: doesn't work when links are already setup (e.g. from #deserialize).
+          super # Representer::Base
+          return if options[:links] == false
+
+          prepare_links!(options) # DISCUSS: doesn't work when links are already setup (e.g. from #deserialize).
         end
 
-        attr_writer :links
+        def links=(arr)
+          @links = LinkCollection[*arr]
+        end
 
         def links
           @links ||= LinkCollection.new
         end
 
-        def links_array
-          links.values  # FIXME: move to LinkCollection#to_a.
-        end
-
-        def links_array=(ary)
-          # FIXME: move to LinkCollection
-          self.links= LinkCollection.new
-          ary.each { |lnk| links.add(lnk) }
-        end
 
         module LinkConfigsMethod
-          def link_configs
-            representable_attrs.inheritable_array(:links)
+          def link_configs # we could store the ::link configs in links Definition.
+            representable_attrs[:links] ||= Representable::Inheritable::Array.new
           end
         end
 
         include LinkConfigsMethod
 
       private
-        def links_definition_options
-          # TODO: this method is never called.
-          [:links_array, {:as => :link, :class => Feature::Hypermedia::Hyperlink, :collection => true,
-            :decorator_scope => true}] # TODO: merge with JSON.
-        end
-
-        # Setup hypermedia links by invoking their blocks. Usually called by #serialize.
+        # Create hypermedia links by invoking their blocks. Usually called by #serialize.
         def prepare_links!(*args)
           # TODO: move this method to _links or something so it doesn't need to be called in #serialize.
-          compile_links_for(link_configs, *args).each do |lnk|
-            links.add(lnk)  # TODO: move to LinkCollection.new.
-          end
+          self.links = compile_links_for(link_configs, *args)
         end
 
         def compile_links_for(configs, *args)
@@ -103,14 +90,18 @@ module Roar
         end
 
 
+        # LinkCollection keeps an array of Hyperlinks to be rendered (setup via #prepare_links!)
+        # or parsed (array is passed to #links= which transforms it into a LinkCollection).
         class LinkCollection < Hash
-          # DISCUSS: make Link#rel return string always.
-          def [](rel)
-            self.fetch(rel.to_s, nil)
+          # The only way to create is LinkCollection[<Hyperlink>, <Hyperlink>]
+          def self.[](*arr)
+            hash = arr.inject({}) { |hsh, link| hsh[link.rel] = link; hsh }
+            super(hash)
           end
 
-          def add(link)
-            self[link.rel.to_s] = link
+          # DISCUSS: make Link#rel return string always.
+          def [](rel)
+            super(rel.to_s)
           end
         end
 
@@ -127,46 +118,51 @@ module Roar
           # The block is executed in instance context, so you may call properties or other accessors.
           # Note that you're free to put decider logic into #link blocks, too.
           def link(options, &block)
+            create_links_definition! # this assures the links are rendered at the right position.
+
             options = {:rel => options} unless options.is_a?(Hash)
-            create_links_definition # this assures the links are rendered at the right position.
             link_configs << [options, block]
           end
 
           include LinkConfigsMethod
 
         private
-          def create_links_definition
-            return if representable_attrs.find { |d| d.is_a?(LinksDefinition) }
-
-            options = links_definition_options # TODO: remove in 1.0.
-            if Roar.representable_1_8?
-              opt = options.last
-              opt[:exec_context] = :decorator
-              opt.delete(:decorator_scope)
-            end
-
-            representable_attrs << LinksDefinition.new(*options)
+          # Add a :links Definition to the representable_attrs so they get rendered/parsed.
+          def create_links_definition!
+            representable_attrs.add(:links, links_definition_options) unless representable_attrs.get(:links)
           end
         end
 
-        class LinksDefinition < Representable::Definition
-        end
 
-
-        require "ostruct"
         # An abstract hypermedia link with arbitrary attributes.
-        class Hyperlink < OpenStruct
-          include Enumerable
+        class Hyperlink
+          extend Forwardable
+          def_delegators :@attrs, :each, :collect
 
-          def each(*args, &block)
-            marshal_dump.each(*args, &block)
+           def initialize(attrs={})
+             @attrs = attributes!(attrs)
+           end
+
+          def replace(attrs) # makes it work with Hash::Hash.
+            @attrs = attributes!(attrs)
+            self
           end
 
-          # FIXME: do we need this method any longer?
-          def replace(hash)
-            # #marshal_load requires symbol keys: http://apidock.com/ruby/v1_9_3_125/OpenStruct/marshal_load
-            marshal_load(hash.inject({}) { |h, (k,v)| h[k.to_sym] = v; h })
-            self
+          # Only way to write to Hyperlink after creation.
+          def merge!(attrs)
+            @attrs.merge!(attributes!(attrs))
+          end
+
+        private
+          def method_missing(name)
+            @attrs[name.to_s]
+          end
+
+          def attributes!(attrs)
+            attrs.inject({}) { |hsh, kv| hsh[kv.first.to_s] = kv.last; hsh }.tap do |hsh|
+              hsh["rel"] = hsh["rel"].to_s if hsh["rel"]
+            end
+            # raise "Hyperlink without rel doesn't work!" unless @attrs["rel"]
           end
         end
       end

@@ -3,11 +3,6 @@ require 'roar/representer/feature/hypermedia'
 require 'representable/json'
 
 module Roar
-  require 'representable/version'
-  def self.representable_1_8? # TODO: remove me in 1.0.
-    Representable::VERSION =~ /^1.8/
-  end
-
   module Representer
     module JSON
       def self.included(base)
@@ -51,8 +46,13 @@ module Roar
         # TODO: move to instance method, or remove?
         def links_definition_options
           # FIXME: this doesn't belong into the generic JSON representer.
-          [:links_array, {:as => :links, :class => Feature::Hypermedia::Hyperlink, :extend => HyperlinkRepresenter, :collection => true,
-            :decorator_scope => true}]
+          {
+            :collection     => true,
+            :class          => Feature::Hypermedia::Hyperlink,
+            :extend         => HyperlinkRepresenter,
+            :exec_context   => :decorator,
+            :getter         => lambda { |*| links.values }, # links is LinkCollection, we just render a list of Hyperlinks.
+          }
         end
       end
 

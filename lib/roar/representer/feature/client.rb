@@ -10,8 +10,8 @@ module Roar
         def self.extended(base)
           base.instance_eval do
             representable_attrs.each do |attr|
-              next unless attr.instance_of? Representable::Definition # ignore hyperlinks etc for now.
               name = attr.name
+              next if name == "links" # ignore hyperlinks for now.
 
               # TODO: could anyone please make this better?
               instance_eval %Q{

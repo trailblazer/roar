@@ -39,8 +39,14 @@ module Roar
 
         def links_definition_options
           # FIXME: this doesn't belong into the generic XML representer.
-          [:links_array, {:as => :link, :class => Feature::Hypermedia::Hyperlink, :collection => true, :extend => XML::HyperlinkRepresenter,
-            :decorator_scope => true}] # TODO: merge with JSON.
+          {
+            :as => :link,
+            :collection   => true,
+            :class        => Feature::Hypermedia::Hyperlink,
+            :extend       => XML::HyperlinkRepresenter,
+            :exec_context => :decorator,
+            :getter         => lambda { |*| links.values }, # links is LinkCollection, we just render a list of Hyperlinks.
+            } # TODO: merge with JSON.
         end
 
         # Generic entry-point for parsing.

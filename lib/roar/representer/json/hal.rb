@@ -60,13 +60,13 @@ module Roar::Representer
       module Resources
         # Write the property to the +_embedded+ hash when it's a resource.
         def compile_fragment(bin, doc)
-          embedded = ::Roar.representable_1_8? ? bin[:embedded] : bin.options[:embedded]
+          embedded = bin[:embedded]
           return super unless embedded
           super(bin, doc[:_embedded] ||= {})
         end
 
         def uncompile_fragment(bin, doc)
-          embedded = Roar.representable_1_8? ? bin[:embedded] : bin.options[:embedded]
+          embedded = bin[:embedded]
           return super unless embedded
           super(bin, doc["_embedded"] || {})
         end
@@ -74,7 +74,7 @@ module Roar::Representer
 
       module ClassMethods
         def links_definition_options
-          super.tap { |options| options[1].merge!(:as => :_links) }
+          super.merge(:as => :_links)
         end
       end
 
@@ -106,11 +106,9 @@ module Roar::Representer
       # Note that the HAL::Links module alone doesn't prepend an underscore to +links+. Use the JSON::HAL module for that.
       module Links
         def self.included(base)
-          base.class_eval do
-            extend Links::ClassMethods  # ::links_definition_options
-            include Roar::Representer::Feature::Hypermedia
-            include InstanceMethods
-          end
+          base.extend ClassMethods  # ::links_definition_options
+          base.send :include, Feature::Hypermedia
+          base.send :include, InstanceMethods
         end
 
         module InstanceMethods
@@ -133,25 +131,29 @@ module Roar::Representer
         module LinkCollectionRepresenter
           include Representable::JSON::Hash
 
-          values :extend => lambda { |item, *| item.is_a?(Array) ? LinkArrayRepresenter : Roar::Representer::JSON::HyperlinkRepresenter },
-            :instance => lambda { |fragment, *| fragment.is_a?(LinkArray) ? fragment : Roar::Representer::Feature::Hypermedia::Hyperlink.new }
+          values :extend => lambda { |item, *|
+            item.is_a?(Array) ? LinkArrayRepresenter : Roar::Representer::JSON::HyperlinkRepresenter },
+            :instance => lambda { |fragment, *| fragment.is_a?(LinkArray) ? fragment : Roar::Representer::Feature::Hypermedia::Hyperlink.new
+          }
 
           def to_hash(options)
             super.tap do |hsh|  # TODO: cool: super(:exclude => [:rel]).
-              hsh.each { |k,v| v.delete(:rel) }
+              hsh.each { |k,v| v.delete("rel") }
             end
           end
 
 
-          def from_hash(hash, options={})
+          def from_hash(hash, *args)
             hash.each { |k,v| hash[k] = LinkArray.new(v, k) if is_array?(k) }
 
             hsh = super(hash) # this is where :class and :extend do the work.
 
-            hsh.each { |k, v| v.rel = k }
+            hsh.each { |k, v| v.merge!(:rel => k) }
+            hsh.values # links= expects [Hyperlink, Hyperlink]
           end
         end
 
+        # DISCUSS: we can probably get rid of this asset.
         class LinkArray < Array
           def initialize(elems, rel)
             super(elems)
@@ -160,8 +162,8 @@ module Roar::Representer
 
           attr_reader :rel
 
-          def rel=(rel)
-            each { |lnk| lnk.rel = rel }
+          def merge!(attrs)
+            each { |lnk| lnk.merge!(attrs) }
           end
         end
 
@@ -174,7 +176,7 @@ module Roar::Representer
 
           def to_hash(*)
             super.tap do |ary|
-              ary.each { |lnk| rel = lnk.delete(:rel) }
+              ary.each { |lnk| rel = lnk.delete("rel") }
             end
           end
         end
@@ -182,13 +184,13 @@ module Roar::Representer
 
         module ClassMethods
           def links_definition_options
-            [:links,
-              {
-                :extend   => HAL::Links::LinkCollectionRepresenter,
-                :instance => lambda { |*| LinkCollection.new(link_array_rels) }, # defined in InstanceMethods as this is executed in represented context.
-                :decorator_scope => true
-              }
-            ]
+            # property :links_array,
+            {
+              :as       => :links,
+              :extend   => HAL::Links::LinkCollectionRepresenter,
+              :instance => lambda { |*| LinkCollection.new(link_array_rels) }, # defined in InstanceMethods as this is executed in represented context.
+              :exec_context => :decorator,
+            }
           end
 
           # Use this to define link arrays. It accepts the shared rel attribute and an array of options per link object.
@@ -199,7 +201,7 @@ module Roar::Representer
           #   end
           def links(options, &block)
             options = {:rel => options} if options.is_a?(Symbol)
-            options[:array] = true  # FIXME: we need to save this information somewhere.
+            options[:array] = true
             link(options, &block)
           end
 

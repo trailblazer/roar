@@ -73,7 +73,7 @@ class HalJsonTest < MiniTest::Spec
   describe "#prepare_links!" do
     it "should map link arrays correctly" do
       subject.send :prepare_links!
-      subject.links.must_equal "self" => [link("rel" => :self, "href" => "http://en.hit", "lang" => "en"),link("rel" => :self, "href" => "http://de.hit", "lang" => "de")], "next" => link("href" => "http://next", "rel" => :next)
+      subject.links.must_equal :self => [link("rel" => "self", "href" => "http://en.hit", "lang" => "en"),link("rel" => :self, "href" => "http://de.hit", "lang" => "de")], "next" => link("href" => "http://next", "rel" => "next")
     end
   end
 
@@ -156,5 +156,5 @@ class HalCurieTest < MiniTest::Spec
     end
   end
 
-  it { Object.new.extend(rpr).to_hash.must_equal({"_links"=>{"doc:self"=>{:href=>"/"}, "curies"=>[{:name=>:doc, :href=>"//docs/{rel}", :templated=>true}]}}) }
+  it { Object.new.extend(rpr).to_hash.must_equal({"_links"=>{"doc:self"=>{"href"=>"/"}, :curies=>[{"name"=>:doc, "href"=>"//docs/{rel}", "templated"=>true}]}}) }
 end

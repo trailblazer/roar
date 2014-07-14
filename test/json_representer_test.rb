@@ -121,8 +121,8 @@ class JsonHypermediaTest
     it "extracts links from JSON" do
       r = @c.from_json('{"links":[{"rel":"self","href":"http://self"}]}')
 
-      assert_equal 1, r.links_array.size
-      link = r.links_array.first
+      assert_equal 1, r.links.size
+      link = r.links["self"]
       assert_equal(["self", "http://self"], [link.rel, link.href])
     end
 

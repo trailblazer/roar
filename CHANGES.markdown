@@ -1,3 +1,13 @@
+# 1.0.0
+
+## Changes
+
+Hyperlink#to_hash now returns string keys.
+
+## Internals
+
+* Remove the concept of ´links_array`. `Hyperlink` instances for rendering or that have been parsed are always stored in a `LinkCollection` that is available via `#links`.
+
 # 0.12.7
 
 * Bug fix where hypermedia links were wrong when invoking serialization multiple times on the same instance.
