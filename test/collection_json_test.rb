@@ -62,7 +62,7 @@ class CollectionJsonTest < MiniTest::Spec
                 {"rel"=>"stats",    "href"=>"//songs/scarifice/stats"}
               ],
               "href"=>"//songs/scarifice",
-              "data"=>[
+              :data=>[
                 {:name=>"title", :value=>"scarifice"},
                 {:name=>"length", :value=>43}
               ]
