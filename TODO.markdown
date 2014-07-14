@@ -1,4 +1,5 @@
 * alias Roar::Representer to Representer
+Roar::Hypermedia
 * Hyperlink representers => decrators. test hash representer with decorator (rpr)
 
 

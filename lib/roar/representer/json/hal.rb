@@ -132,9 +132,9 @@ module Roar::Representer
           include Representable::JSON::Hash
 
           values :extend => lambda { |item, *|
-
             item.is_a?(Array) ? LinkArrayRepresenter : Roar::Representer::JSON::HyperlinkRepresenter },
-            :instance => lambda { |fragment, *| fragment.is_a?(LinkArray) ? fragment : Roar::Representer::Feature::Hypermedia::Hyperlink.new }
+            :instance => lambda { |fragment, *| fragment.is_a?(LinkArray) ? fragment : Roar::Representer::Feature::Hypermedia::Hyperlink.new
+          }
 
           def to_hash(options)
             super.tap do |hsh|  # TODO: cool: super(:exclude => [:rel]).
@@ -143,7 +143,7 @@ module Roar::Representer
           end
 
 
-          def from_hash(hash, options={})
+          def from_hash(hash, *args)
             hash.each { |k,v| hash[k] = LinkArray.new(v, k) if is_array?(k) }
 
             hsh = super(hash) # this is where :class and :extend do the work.
@@ -153,6 +153,7 @@ module Roar::Representer
           end
         end
 
+        # DISCUSS: we can probably get rid of this asset.
         class LinkArray < Array
           def initialize(elems, rel)
             super(elems)
@@ -188,9 +189,7 @@ module Roar::Representer
               :as       => :links,
               :extend   => HAL::Links::LinkCollectionRepresenter,
               :instance => lambda { |*| LinkCollection.new(link_array_rels) }, # defined in InstanceMethods as this is executed in represented context.
-              :decorator_scope => true,
-              # TODO: make it always a hash so we don't need links_array and links.
-              :getter => lambda { |*| links },
+              :exec_context => :decorator,
             }
           end
 
@@ -202,7 +201,7 @@ module Roar::Representer
           #   end
           def links(options, &block)
             options = {:rel => options} if options.is_a?(Symbol)
-            options[:array] = true  # FIXME: we need to save this information somewhere.
+            options[:array] = true
             link(options, &block)
           end
 
