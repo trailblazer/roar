@@ -148,13 +148,7 @@ module Roar::Representer
 
             hsh = super(hash) # this is where :class and :extend do the work.
 
-puts
-            puts hsh.inspect
-
             hsh.each { |k, v| v.merge!(:rel => k) }
-
-
-            puts "better: #{hsh.values.inspect}"
             hsh.values # links= expects [Hyperlink, Hyperlink]
           end
         end

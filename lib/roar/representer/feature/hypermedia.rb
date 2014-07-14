@@ -49,8 +49,6 @@ module Roar
 
         def links=(arr)
           @links = LinkCollection[*arr]
-puts "updated: ========================= #{@links.inspect}"
-          @links
         end
 
         def links
@@ -95,10 +93,7 @@ puts "updated: ========================= #{@links.inspect}"
         class LinkCollection < Hash
           # The only way to create is LinkCollection[<Hyperlink>, <Hyperlink>]
           def self.[](*arr)
-            hash = arr.inject({}) { |hsh, link|
-              puts "------------> #{link.rel.inspect} #{link.inspect}"
-
-             hsh[link.rel] = link; hsh }
+            hash = arr.inject({}) { |hsh, link| hsh[link.rel] = link; hsh }
             super(hash)
           end
 
