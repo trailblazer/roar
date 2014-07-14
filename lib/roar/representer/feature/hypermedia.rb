@@ -90,6 +90,8 @@ module Roar
         end
 
 
+        # LinkCollection keeps an array of Hyperlinks to be rendered (setup via #prepare_links!)
+        # or parsed (array is passed to #links= which transforms it into a LinkCollection).
         class LinkCollection < Hash
           # The only way to create is LinkCollection[<Hyperlink>, <Hyperlink>]
           def self.[](*arr)
