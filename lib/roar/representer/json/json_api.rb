@@ -44,13 +44,11 @@ module Roar::Representer::JSON
 
     module ClassMethods
       def links_definition_options
-        [:links,
-          {
-            :extend   => LinkCollectionRepresenter,
-            #:instance => lambda { |*| LinkCollection.new(link_array_rels) }, # defined in InstanceMethods as this is executed in represented context.
-            :decorator_scope => true
-          }
-        ]
+        {
+          :extend   => LinkCollectionRepresenter,
+          #:instance => lambda { |*| LinkCollection.new(link_array_rels) }, # defined in InstanceMethods as this is executed in represented context.
+          :decorator_scope => true
+        }
       end
     end
   end
