@@ -37,21 +37,20 @@ class JsonApiTest < MiniTest::Spec
 
     subject { song.extend(rpr) }
 
-    describe "#to_json" do
-      it "renders document" do
-        subject.to_hash.must_equal(
-          {
-            "songs" => {
-              "id" => "1",
-              "title" => "Computadores Fazem Arte",
-              "links" => {
-                "album" => "9",
-                "musicians" => [ "1", "2" ]
-              }
+    # to_json
+    it do
+      subject.to_hash.must_equal(
+        {
+          "songs" => {
+            "id" => "1",
+            "title" => "Computadores Fazem Arte",
+            "links" => {
+              "album" => "9",
+              "musicians" => [ "1", "2" ]
             }
           }
-        )
-      end
+        }
+      )
     end
   end
 
@@ -77,30 +76,93 @@ class JsonApiTest < MiniTest::Spec
 
     subject { [song, song].extend(rpr) }
 
-    describe "#to_json" do
-      it "renders document" do
-        subject.to_hash.must_equal(
-          {
-            "songs" => [
-              {
-                "id" => "1",
-                "title" => "Computadores Fazem Arte",
-                "links" => {
-                  "album" => "9",
-                  "musicians" => [ "1", "2" ]
-                }
-              }, {
-                "id" => "1",
-                "title" => "Computadores Fazem Arte",
-                "links" => {
-                  "album" => "9",
-                  "musicians" => [ "1", "2" ]
-                }
+    # to_json
+    it do
+      subject.to_hash.must_equal(
+        {
+          "songs" => [
+            {
+              "id" => "1",
+              "title" => "Computadores Fazem Arte",
+              "links" => {
+                "album" => "9",
+                "musicians" => [ "1", "2" ]
               }
-            ]
+            }, {
+              "id" => "1",
+              "title" => "Computadores Fazem Arte",
+              "links" => {
+                "album" => "9",
+                "musicians" => [ "1", "2" ]
+              }
+            }
+          ]
+        }
+      )
+    end
+  end
+
+
+  # collection with links
+  describe "collection with links" do
+    representer!([Representable::Hash]) do
+      include Representable::Hash::Collection
+
+      items({}) do
+        property :id
+        property :title
+
+        # this will be abstracted once i understand the requirements.
+        nested :private_links do
+          property :album_id, :as => :album
+          collection :musician_ids, :as => :musicians
+        end
+
+        include Roar::Representer::JSON::JsonApi
+
+        link "songs.album" do
+          {
+            type: "album",
+            href: "http://example.com/albums/{songs.album}"
           }
-        )
+        end
+        # link :musicians
       end
+
+      self.representation_wrap = :songs
+    end
+
+    subject { [song, song].extend(rpr) }
+
+    # to_json
+    it do
+      subject.to_hash.must_equal(
+        {
+          "songs" => [
+            {
+              "id" => "1",
+              "title" => "Computadores Fazem Arte",
+              "links" => {
+                "album" => "9",
+                "musicians" => [ "1", "2" ]
+              }
+            }, {
+              "id" => "1",
+              "title" => "Computadores Fazem Arte",
+              "links" => {
+                "album" => "9",
+                "musicians" => [ "1", "2" ]
+              }
+            }
+          ],
+          "links" => {
+            "songs.album" => {
+              "href" => "http://example.com/albums/{songs.album}",
+              "type" => "albums"
+            },
+          },
+        }
+      )
     end
   end
 

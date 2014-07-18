@@ -8,6 +8,13 @@ module Roar::Representer::JSON
         include Roar::Representer::Feature::Hypermedia
         extend ClassMethods
       end
+
+      # def to_hash(options)
+      #   super.tap do |hash|
+      #      hash[:_links] = v[:links]
+      #      v[:links] = v[:private_links] # FIXME: this is too much work we're doing (rendering links for every element).
+      #   end
+      # end
     end
 
 
