@@ -16,6 +16,7 @@ class JsonApiTest < MiniTest::Spec
       property :id
       property :title
 
+      # this will be abstracted once i understand the requirements.
       nested :links do
         property :album_id, :as => :album
         collection :musician_ids, :as => :musicians
@@ -48,6 +49,55 @@ class JsonApiTest < MiniTest::Spec
                 "musicians" => [ "1", "2" ]
               }
             }
+          }
+        )
+      end
+    end
+  end
+
+
+  # collection
+  describe "minimal collection" do
+    representer!([Representable::Hash]) do
+      include Representable::Hash::Collection
+
+      items( {}) do
+        property :id
+        property :title
+
+        # this will be abstracted once i understand the requirements.
+        nested :links do
+          property :album_id, :as => :album
+          collection :musician_ids, :as => :musicians
+        end
+      end
+
+      self.representation_wrap = :songs
+    end
+
+    subject { [song, song].extend(rpr) }
+
+    describe "#to_json" do
+      it "renders document" do
+        subject.to_hash.must_equal(
+          {
+            "songs" => [
+              {
+                "id" => "1",
+                "title" => "Computadores Fazem Arte",
+                "links" => {
+                  "album" => "9",
+                  "musicians" => [ "1", "2" ]
+                }
+              }, {
+                "id" => "1",
+                "title" => "Computadores Fazem Arte",
+                "links" => {
+                  "album" => "9",
+                  "musicians" => [ "1", "2" ]
+                }
+              }
+            ]
           }
         )
       end
