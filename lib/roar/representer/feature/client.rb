@@ -11,7 +11,7 @@ module Roar
           base.instance_eval do
             representable_attrs.each do |attr|
               name = attr.name
-              next if name == "links" # ignore hyperlinks for now.
+              next if name == "links" # ignore hyperlinks.
 
               # TODO: could anyone please make this better?
               instance_eval %Q{
@@ -27,10 +27,13 @@ module Roar
           end
         end
 
-        # DISCUSS: should we just override #serialize here? otherwise if you later include Hypermedia, it'll run before that method.
-        def before_serialize(options={})
+        def to_hash(options={})
           options[:links] ||= false
+          super(options)
+        end
 
+        def to_xml(options={}) # sorry, but i'm not even sure if anyone uses this module.
+          options[:links] ||= false
           super(options)
         end
       end

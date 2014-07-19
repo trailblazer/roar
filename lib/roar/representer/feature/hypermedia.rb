@@ -40,20 +40,11 @@ module Roar
           base.extend ClassMethods
         end
 
-        def before_serialize(options={})
-          super # Representer::Base
-          return if options[:links] == false
-
-          prepare_links!(options) # DISCUSS: doesn't work when links are already setup (e.g. from #deserialize).
-        end
-
-        def links=(arr)
+        def links=(arr) # called when assigning parsed links.
           @links = LinkCollection[*arr]
         end
 
-        def links
-          @links ||= LinkCollection.new
-        end
+        attr_reader :links # this is only useful after parsing.
 
 
         module LinkConfigsMethod
@@ -65,10 +56,12 @@ module Roar
         include LinkConfigsMethod
 
       private
-        # Create hypermedia links by invoking their blocks. Usually called by #serialize.
-        def prepare_links!(*args)
-          # TODO: move this method to _links or something so it doesn't need to be called in #serialize.
-          self.links = compile_links_for(link_configs, *args)
+        # Create hypermedia links for this instance by invoking their blocks.
+        # This is called in links: getter: {}.
+        def prepare_links!(options)
+          return [] if options[:links] == false
+
+          LinkCollection[*compile_links_for(link_configs, options)]
         end
 
         def compile_links_for(configs, *args)
@@ -90,18 +83,26 @@ module Roar
         end
 
 
-        # LinkCollection keeps an array of Hyperlinks to be rendered (setup via #prepare_links!)
+        # LinkCollection keeps an array of Hyperlinks to be rendered (setup in #prepare_links!)
         # or parsed (array is passed to #links= which transforms it into a LinkCollection).
+        # It is implemented as a hash and keys links by their rel value.
+        #
+        #   {"self" => <Hyperlink ..>, ..}
         class LinkCollection < Hash
           # The only way to create is LinkCollection[<Hyperlink>, <Hyperlink>]
           def self.[](*arr)
-            hash = arr.inject({}) { |hsh, link| hsh[link.rel] = link; hsh }
-            super(hash)
+            super(arr.collect { |link| [link.rel, link] })
           end
 
-          # DISCUSS: make Link#rel return string always.
           def [](rel)
             super(rel.to_s)
+          end
+
+          # Iterating links. Block parameters: |link| or |rel, link|.
+          # This is used Hash::HashBinding#serialize.
+          def collect(&block)
+            return values.collect(&block) if block.arity == 1
+            super(&block)
           end
         end
 
@@ -129,7 +130,12 @@ module Roar
         private
           # Add a :links Definition to the representable_attrs so they get rendered/parsed.
           def create_links_definition!
-            representable_attrs.add(:links, links_definition_options) unless representable_attrs.get(:links)
+            return if representable_attrs.get(:links) # only create it once.
+
+            options = links_definition_options
+            options.merge!(:getter => lambda { |opts| prepare_links!(opts) })
+
+            representable_attrs.add(:links, options)
           end
         end
 
@@ -158,6 +164,7 @@ module Roar
             @attrs[name.to_s]
           end
 
+          # Converts keys to strings.
           def attributes!(attrs)
             attrs.inject({}) { |hsh, kv| hsh[kv.first.to_s] = kv.last; hsh }.tap do |hsh|
               hsh["rel"] = hsh["rel"].to_s if hsh["rel"]

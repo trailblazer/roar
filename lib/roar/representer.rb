@@ -7,9 +7,5 @@ module Roar
       super
       base.send(:include, Representable)
     end
-
-  private
-    def before_serialize(*)
-    end
   end
 end
