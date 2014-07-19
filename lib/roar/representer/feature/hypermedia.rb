@@ -93,8 +93,7 @@ module Roar
         class LinkCollection < Hash
           # The only way to create is LinkCollection[<Hyperlink>, <Hyperlink>]
           def self.[](*arr)
-            hash = arr.inject({}) { |hsh, link| hsh[link.rel] = link; hsh }
-            super(hash)
+            super(arr.collect { |link| [link.rel, link] })
           end
 
           def [](rel)
