@@ -134,29 +134,6 @@ class HypermediaTest < MiniTest::Spec
         @bookmarks_with_links.from_xml(%{<bookmarks/>}).links.must_equal nil
       end
     end
-
-
-    describe "#links" do
-      subject { Object.new.extend(rpr).tap do |obj|
-        obj.send :prepare_links!
-      end }
-
-      representer_for do
-        link(:self) { "//self" }
-        link(:next) { "//next" }
-      end
-
-        it "returns link object" do
-          subject.links["self"].href.must_equal "//self"
-          subject.links[:self].href.must_equal "//self"
-          subject.links[:next].href.must_equal "//next"
-          subject.links["unknown"].must_equal nil
-        end
-
-#      it "returns an empty list when no links present" do
- #       assert_equal Roar::Representer::Feature::Hypermedia::LinkCollection.new, @bookmarks.new.links
-  #    end
-    end
   end
 end
 
