@@ -18,11 +18,6 @@ module Roar
       end
 
       module InstanceMethods
-        def to_node(*args)
-          before_serialize(*args)
-          super
-        end
-
         # Generic entry-point for rendering.
         def serialize(*args)
           to_xml(*args)
@@ -45,7 +40,6 @@ module Roar
             :class        => Feature::Hypermedia::Hyperlink,
             :extend       => XML::HyperlinkRepresenter,
             :exec_context => :decorator,
-            :getter         => lambda { |*| links.values }, # links is LinkCollection, we just render a list of Hyperlinks.
             } # TODO: merge with JSON.
         end
 
