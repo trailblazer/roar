@@ -9,7 +9,6 @@ module Roar
     module XML
       def self.included(base)
         base.class_eval do
-          include Representer
           include Representable::XML
 
           extend ClassMethods
