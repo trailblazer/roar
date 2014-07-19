@@ -20,7 +20,7 @@ class JsonApiTest < MiniTest::Spec
         property :title
 
         # this will be abstracted once i understand the requirements.
-        nested :links, decorator: true do
+        nested :links do
           property :album_id, :as => :album
           collection :musician_ids, :as => :musicians
         end
