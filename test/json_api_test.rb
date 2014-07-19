@@ -2,29 +2,33 @@ require 'test_helper'
 require 'roar/representer/json/json_api'
 
 class JsonApiTest < MiniTest::Spec
-  let(:song) { OpenStruct.new(
+  let(:song) { s = OpenStruct.new(
     id: "1",
     title: 'Computadores Fazem Arte',
     album: OpenStruct.new(id: 9),
     :album_id => "9",
     :musician_ids => ["1","2"],
     musicians: [OpenStruct.new(id: 1), OpenStruct.new(id: 2)]
-  ) }
+  )
+
+   }
 
   describe "singular" do
     representer!([Roar::Representer::JSON::JsonApi]) do
-      property :id
-      property :title
+      property :songs, getter: lambda { |*| self }, use_decorator: true do
+        property :id
+        property :title
 
-      # this will be abstracted once i understand the requirements.
-      nested :_links do
-        property :album_id, :as => :album
-        collection :musician_ids, :as => :musicians
+        # this will be abstracted once i understand the requirements.
+        nested :links, decorator: true do
+          property :album_id, :as => :album
+          collection :musician_ids, :as => :musicians
+        end
       end
       # has_one :album
       # has_many :musicians
 
-      self.representation_wrap = :songs
+      # self.representation_wrap = :songs
 
       link "songs.album" do
         {
