@@ -40,14 +40,11 @@ module Roar
           base.extend ClassMethods
         end
 
-        def links=(arr)
+        def links=(arr) # called when assigning parsed links.
           @links = LinkCollection[*arr]
         end
 
-        # TODO: remove this, this is wrong here.
-        def links
-          @links ||= LinkCollection.new
-        end
+        attr_reader :links # this is only useful after parsing.
 
 
         module LinkConfigsMethod
@@ -59,7 +56,8 @@ module Roar
         include LinkConfigsMethod
 
       private
-        # Create hypermedia links by invoking their blocks. Usually called by #serialize.
+        # Create hypermedia links for this instance by invoking their blocks.
+        # This is called in links: getter: {}.
         def prepare_links!(options)
           return [] if options[:links] == false
 
@@ -132,7 +130,7 @@ module Roar
         private
           # Add a :links Definition to the representable_attrs so they get rendered/parsed.
           def create_links_definition!
-            return if representable_attrs.get(:links)
+            return if representable_attrs.get(:links) # only create it once.
 
             options = links_definition_options
             options.merge!(:getter => lambda { |opts| prepare_links!(opts) })

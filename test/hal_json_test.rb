@@ -123,7 +123,7 @@ class HalJsonTest < MiniTest::Spec
 
       # in newer representables, this is not overwritten to an empty [] anymore.
       assert_equal ["Beer"], @album.songs.map(&:title)
-      @album.links.must_equal({})
+      @album.links.must_equal nil
     end
   end
 end
