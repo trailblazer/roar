@@ -118,11 +118,10 @@ class JsonApiTest < MiniTest::Spec
         # link :musicians
 
       self.representable_attrs[:definitions][:links] = Singular.representable_attrs.get(:links)
-      def links
-        first.links # fixme.
-      end
+      self.representable_attrs[:links] = Singular.representable_attrs[:links]
 
       include Roar::Representer::JSON::JsonApi::Document
+      include Roar::Representer::Feature::Hypermedia # to implement #prepare_links!
     end
 
     subject { [song, song].extend(rpr) }

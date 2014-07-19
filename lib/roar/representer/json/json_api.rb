@@ -39,7 +39,7 @@ module Roar::Representer::JSON
           representable_attrs.inherit!(__links) # FIXME: we only want links and linked!!
           self.representation_wrap = false # FIXME: we only want links and linked!!
 
-
+          # this calls [].prepare_links! when collection.
         end.new(represented).to_hash(:include => [:links])
 
         hash = links_hash
