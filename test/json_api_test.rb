@@ -11,13 +11,13 @@ class JsonApiTest < MiniTest::Spec
     musicians: [OpenStruct.new(id: 1), OpenStruct.new(id: 2)]
   ) }
 
-  describe "minimal singular" do
+  describe "singular" do
     representer!([Roar::Representer::JSON::JsonApi]) do
       property :id
       property :title
 
       # this will be abstracted once i understand the requirements.
-      nested :links do
+      nested :_links do
         property :album_id, :as => :album
         collection :musician_ids, :as => :musicians
       end
@@ -26,12 +26,12 @@ class JsonApiTest < MiniTest::Spec
 
       self.representation_wrap = :songs
 
-      # link "songs.album" do
-      #   {
-      #     type: "album",
-      #     href: "http://example.com/albums/{songs.album}"
-      #   }
-      # end
+      link "songs.album" do
+        {
+          type: "album",
+          href: "http://example.com/albums/{songs.album}"
+        }
+      end
       # link :musicians
     end
 
@@ -47,6 +47,11 @@ class JsonApiTest < MiniTest::Spec
             "links" => {
               "album" => "9",
               "musicians" => [ "1", "2" ]
+            }
+          },
+          "links" => {
+            "songs.album"=> {
+              "href"=>"http://example.com/albums/{songs.album}", "type"=>"album"
             }
           }
         }
