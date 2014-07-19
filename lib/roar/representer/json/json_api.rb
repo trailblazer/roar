@@ -21,7 +21,7 @@ module Roar::Representer::JSON
       end
     end
 
-    module ToHash
+    module Document
       def to_hash(options={})
         # per resource:
         res = super

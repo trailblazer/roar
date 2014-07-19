@@ -20,7 +20,7 @@ class JsonApiTest < MiniTest::Spec
     include Roar::Representer::Feature::Hypermedia
     extend Roar::Representer::JSON::JsonApi::ClassMethods
     include Roar::Representer::JSON::JsonApi::Singular
-    include Roar::Representer::JSON::JsonApi::ToHash
+    #include Roar::Representer::JSON::JsonApi::Document
 
     property :id
     property :title
@@ -45,7 +45,7 @@ class JsonApiTest < MiniTest::Spec
    end
 
   describe "singular" do
-    subject { song.extend(Singular) }
+    subject { song.extend(Singular).extend(Roar::Representer::JSON::JsonApi::Document) }
 
     # to_json
     it do
@@ -80,7 +80,7 @@ class JsonApiTest < MiniTest::Spec
       # self.representation_wrap = :songs
     end
 
-    subject { [song, song].extend(rpr) }
+    subject { [song, song].extend(rpr).extend(Roar::Representer::JSON::JsonApi::Document) }
 
     # to_json
     it do
