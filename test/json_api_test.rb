@@ -15,20 +15,20 @@ class JsonApiTest < MiniTest::Spec
 
   describe "singular" do
     representer!([Roar::Representer::JSON::JsonApi]) do
-      property :songs, getter: lambda { |*| self }, use_decorator: true do
+      # property :songs, getter: lambda { |*| self }, use_decorator: true do
         property :id
         property :title
 
         # this will be abstracted once i understand the requirements.
-        nested :links do
+        nested :_links do
           property :album_id, :as => :album
           collection :musician_ids, :as => :musicians
         end
-      end
+      # end
       # has_one :album
       # has_many :musicians
 
-      # self.representation_wrap = :songs
+      self.representation_wrap = :songs
 
       link "songs.album" do
         {
