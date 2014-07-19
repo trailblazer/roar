@@ -13,33 +13,39 @@ class JsonApiTest < MiniTest::Spec
 
    }
 
-  describe "singular" do
-    representer!([Roar::Representer::JSON::JsonApi]) do
-      # property :songs, getter: lambda { |*| self }, use_decorator: true do
-        property :id
-        property :title
 
-        # this will be abstracted once i understand the requirements.
-        nested :_links do
-          property :album_id, :as => :album
-          collection :musician_ids, :as => :musicians
-        end
-      # end
-      # has_one :album
-      # has_many :musicians
+  module Singular
+    include Representable::Hash
+    include Roar::Representer::JSON # activates prepare_links
+    include Roar::Representer::Feature::Hypermedia
+    extend Roar::Representer::JSON::JsonApi::ClassMethods
+    include Roar::Representer::JSON::JsonApi::Singular
+    include Roar::Representer::JSON::JsonApi::ToHash
 
-      self.representation_wrap = :songs
+    property :id
+    property :title
 
-      link "songs.album" do
-        {
-          type: "album",
-          href: "http://example.com/albums/{songs.album}"
-        }
-      end
-      # link :musicians
+      # this will be abstracted once i understand the requirements.
+    nested :_links do
+      property :album_id, :as => :album
+      collection :musician_ids, :as => :musicians
     end
+    # end
+    # has_one :album
+    # has_many :musicians
 
-    subject { song.extend(rpr) }
+    # self.representation_wrap = :songs
+
+    link "songs.album" do
+      {
+        type: "album",
+        href: "http://example.com/albums/{songs.album}"
+      }
+    end
+   end
+
+  describe "singular" do
+    subject { song.extend(Singular) }
 
     # to_json
     it do
@@ -69,18 +75,9 @@ class JsonApiTest < MiniTest::Spec
     representer!([Representable::Hash]) do
       include Representable::Hash::Collection
 
-      items( {}) do
-        property :id
-        property :title
+      items extend: Singular
 
-        # this will be abstracted once i understand the requirements.
-        nested :links do
-          property :album_id, :as => :album
-          collection :musician_ids, :as => :musicians
-        end
-      end
-
-      self.representation_wrap = :songs
+      # self.representation_wrap = :songs
     end
 
     subject { [song, song].extend(rpr) }
