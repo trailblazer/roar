@@ -16,7 +16,6 @@ class JsonApiTest < MiniTest::Spec
 
   module Singular
     include Representable::Hash
-    include Roar::Representer::JSON # activates prepare_links
     include Roar::Representer::Feature::Hypermedia
     extend Roar::Representer::JSON::JsonApi::ClassMethods
     include Roar::Representer::JSON::JsonApi::Singular
