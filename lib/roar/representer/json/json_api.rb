@@ -60,13 +60,7 @@ module Roar::Representer::JSON
     module LinkCollectionRepresenter
       include Representable::JSON::Hash
 
-      values :extend => LinkRepresenter#,
-        # :instance => lambda { |fragment, *| fragment.is_a?(LinkArray) ? fragment : Roar::Representer::Feature::Hypermedia::Hyperlink.new }
-      #   super.tap do |hsh|  # TODO: cool: super(:exclude => [:rel]).
-      #     hsh.each { |k,v| v.delete(:rel) }
-      #   end
-      # end
-
+      values :extend => LinkRepresenter # TODO: parsing.
 
       def from_hash(hash, options={})
         hash.each { |k,v| hash[k] = LinkArray.new(v, k) if is_array?(k) }
