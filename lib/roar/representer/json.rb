@@ -16,11 +16,6 @@ module Roar
       end
 
       module InstanceMethods
-        def to_hash(*args)
-          before_serialize(*args)
-          super
-        end
-
         def from_json(document, options={})
           document = '{}' if document.nil? or document.empty?
 
@@ -51,7 +46,6 @@ module Roar
             :class          => Feature::Hypermedia::Hyperlink,
             :extend         => HyperlinkRepresenter,
             :exec_context   => :decorator,
-            :getter         => lambda { |*| links.values }, # links is LinkCollection, we just render a list of Hyperlinks.
           }
         end
       end

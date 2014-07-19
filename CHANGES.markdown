@@ -2,7 +2,8 @@
 
 ## Changes
 
-Hyperlink#to_hash now returns string keys.
+* `Hyperlink#to_hash` now returns stringified keys.
+* Removed `Representer#before_serialize` hook.
 
 ## Internals
 
