@@ -78,13 +78,7 @@ class JsonApiTest < MiniTest::Spec
       # self.representable_attrs[:definitions][:links] = Singular.representable_attrs.get(:links)
       # self.representable_attrs[:links] = Singular.representable_attrs[:links]
       include Roar::JSON::JsonApi::Resource
-      link "songs.album" do
-        {
-          type: "album",
-          href: "http://example.com/albums/{songs.album}"
-        }
-      end
-
+      representable_attrs[:resource_representer] = Singular.send :resource_representer
 
       include Roar::JSON::JsonApi::Document
     end
