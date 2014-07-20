@@ -20,6 +20,7 @@ class JsonApiTest < MiniTest::Spec
     #include Roar::JSON::JsonApi::Document
     include Roar::JSON::JsonApi::Resource
     include Roar::JSON::JsonApi
+    include(Roar::JSON::JsonApi::Document)
 
     property :id
     property :title
@@ -43,7 +44,7 @@ class JsonApiTest < MiniTest::Spec
    end
 
   describe "singular" do
-    subject { song.extend(Singular).extend(Roar::JSON::JsonApi::Document) }
+    subject { song.extend(Singular) }
 
     # to_json
     it do
