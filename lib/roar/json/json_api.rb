@@ -35,7 +35,7 @@ module Roar
           def self.links_definition_options
             {
               :extend       => LinkCollectionRepresenter,
-              :exec_context => true
+              :exec_context => :decorator
             }
           end
         end
@@ -65,23 +65,8 @@ module Roar
 
 
           # per document:
-           # TODO: make this in ::link, so we don't need all that stuff below. this is just prototyping for the architecture.
-              # DISCUSS: do we need to inherit module here?
 
-          __links = representable_attrs
-          # puts "inherit: #{__links.inspect}"
-          links_hash = Class.new(Roar::Decorator) do
-            include Representable::Hash
-            # include Roar::Representer::Feature::Hypermedia
-            representable_attrs.inherit!(__links) # FIXME: we only want links and linked!!
-            self.representation_wrap = false # FIXME: we only want links and linked!!
-
-            # this calls [].prepare_links! when collection.
-          end.new(represented).to_hash(:include => [:links])
-
-
-          raise representable_attrs[:resource_representer].link_configs.inspect
-          puts representable_attrs[:resource_representer].new(represented).to_hash
+          links_hash = representable_attrs[:resource_representer].new(represented).to_hash
 
 
           hash = links_hash
