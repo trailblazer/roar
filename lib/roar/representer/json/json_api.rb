@@ -21,7 +21,23 @@ module Roar::Representer::JSON
       end
     end
 
+    # Include this to define your JSON-API document.
+    module Resource
+      class Representer < Roar::Decorator
+        include Roar::Representer::Feature::Hypermedia
+      end
+
+      def self.resource_representer
+        representable_attrs[:resource_representer] ||= Representer # TODO: make sure gets cloned!
+      end
+
+      def self.link(*args, &block)
+        resource_representer.link(*args, &block)
+      end
+    end
+
     module Document
+      # needs :links and :linked configs from resource representer (incl. main, :link calls, etc).
       def to_hash(options={})
         # per resource:
         res = super
