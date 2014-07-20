@@ -58,10 +58,9 @@ module Roar
 
 
       module Document
-        # needs :links and :linked configs from resource representer (incl. main, :link calls, etc).
         def to_hash(options={})
           # per resource:
-          res = super
+          res = super # render single resource or collection.
 
 
           # per document:
@@ -88,14 +87,6 @@ module Roar
         include Representable::JSON::Hash
 
         values :extend => LinkRepresenter # TODO: parsing.
-
-        def from_hash(hash, options={})
-          hash.each { |k,v| hash[k] = LinkArray.new(v, k) if is_array?(k) }
-
-          hsh = super(hash) # this is where :class and :extend do the work.
-
-          hsh.each { |k, v| v.rel = k }
-        end
       end
     end
   end

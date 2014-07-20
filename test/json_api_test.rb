@@ -28,7 +28,6 @@ class JsonApiTest < MiniTest::Spec
       property :album_id, :as => :album
       collection :musician_ids, :as => :musicians
     end
-    # end
     # has_one :album
     # has_many :musicians
 
@@ -68,45 +67,6 @@ class JsonApiTest < MiniTest::Spec
   end
 
 
-  # collection
-  # describe "minimal collection" do
-  #   representer!([Representable::Hash]) do
-  #     include Representable::Hash::Collection
-
-  #     items extend: Singular
-
-  #     # self.representation_wrap = :songs
-  #   end
-
-  #   subject { [song, song].extend(rpr).extend(Roar::Representer::JSON::JsonApi::Document) }
-
-  #   # to_json
-  #   it do
-  #     subject.to_hash.must_equal(
-  #       {
-  #         "songs" => [
-  #           {
-  #             "id" => "1",
-  #             "title" => "Computadores Fazem Arte",
-  #             "links" => {
-  #               "album" => "9",
-  #               "musicians" => [ "1", "2" ]
-  #             }
-  #           }, {
-  #             "id" => "1",
-  #             "title" => "Computadores Fazem Arte",
-  #             "links" => {
-  #               "album" => "9",
-  #               "musicians" => [ "1", "2" ]
-  #             }
-  #           }
-  #         ]
-  #       }
-  #     )
-  #   end
-  # end
-
-
   # collection with links
   describe "collection with links" do
     representer!([Representable::Hash]) do
@@ -115,11 +75,18 @@ class JsonApiTest < MiniTest::Spec
       items extend: Singular
         # link :musicians
 
-      self.representable_attrs[:definitions][:links] = Singular.representable_attrs.get(:links)
-      self.representable_attrs[:links] = Singular.representable_attrs[:links]
+      # self.representable_attrs[:definitions][:links] = Singular.representable_attrs.get(:links)
+      # self.representable_attrs[:links] = Singular.representable_attrs[:links]
+      include Roar::JSON::JsonApi::Resource
+      link "songs.album" do
+        {
+          type: "album",
+          href: "http://example.com/albums/{songs.album}"
+        }
+      end
+
 
       include Roar::JSON::JsonApi::Document
-      include Roar::Representer::Feature::Hypermedia # to implement #prepare_links!
     end
 
     subject { [song, song].extend(rpr) }
