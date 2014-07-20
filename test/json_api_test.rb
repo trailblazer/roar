@@ -1,5 +1,5 @@
 require 'test_helper'
-require 'roar/representer/json/json_api'
+require 'roar/json/json_api'
 
 class JsonApiTest < MiniTest::Spec
   let(:song) { s = OpenStruct.new(
@@ -16,9 +16,9 @@ class JsonApiTest < MiniTest::Spec
 
   module Singular
     include Representable::Hash
-    extend Roar::Representer::JSON::JsonApi::ClassMethods
-    include Roar::Representer::JSON::JsonApi::Singular
-    #include Roar::Representer::JSON::JsonApi::Document
+    include Roar::JSON::JsonApi::Singular
+    #include Roar::JSON::JsonApi::Document
+    include Roar::JSON::JsonApi::Resource
 
     property :id
     property :title
@@ -43,7 +43,7 @@ class JsonApiTest < MiniTest::Spec
    end
 
   describe "singular" do
-    subject { song.extend(Singular).extend(Roar::Representer::JSON::JsonApi::Document) }
+    subject { song.extend(Singular).extend(Roar::JSON::JsonApi::Document) }
 
     # to_json
     it do
@@ -118,7 +118,7 @@ class JsonApiTest < MiniTest::Spec
       self.representable_attrs[:definitions][:links] = Singular.representable_attrs.get(:links)
       self.representable_attrs[:links] = Singular.representable_attrs[:links]
 
-      include Roar::Representer::JSON::JsonApi::Document
+      include Roar::JSON::JsonApi::Document
       include Roar::Representer::Feature::Hypermedia # to implement #prepare_links!
     end
 
