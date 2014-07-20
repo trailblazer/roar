@@ -19,6 +19,7 @@ class JsonApiTest < MiniTest::Spec
     include Roar::JSON::JsonApi::Singular
     #include Roar::JSON::JsonApi::Document
     include Roar::JSON::JsonApi::Resource
+    include Roar::JSON::JsonApi
 
     property :id
     property :title
@@ -69,21 +70,7 @@ class JsonApiTest < MiniTest::Spec
 
   # collection with links
   describe "collection with links" do
-    representer!([Representable::Hash]) do
-      include Representable::Hash::Collection
-
-      items extend: Singular
-        # link :musicians
-
-      # self.representable_attrs[:definitions][:links] = Singular.representable_attrs.get(:links)
-      # self.representable_attrs[:links] = Singular.representable_attrs[:links]
-      include Roar::JSON::JsonApi::Resource
-      representable_attrs[:resource_representer] = Singular.send :resource_representer
-
-      include Roar::JSON::JsonApi::Document
-    end
-
-    subject { [song, song].extend(rpr) }
+    subject { [song, song].extend(Singular.for_collection) }
 
     # to_json
     it do

@@ -6,10 +6,22 @@ module Roar
     module JsonApi
       def self.included(base)
         base.class_eval do
-          include Roar::Representer::JSON
-          include Roar::Representer::Feature::Hypermedia
-          extend ClassMethods
-          include ToHash
+          extend ForCollection
+        end
+      end
+
+      module ForCollection
+        def for_collection
+          representer = self # e.g. Song::Representer
+
+          Module.new do
+            include Representable::Hash::Collection
+            items extend: representer
+
+            representable_attrs[:resource_representer] = representer.send :resource_representer
+
+            include Roar::JSON::JsonApi::Document
+          end
         end
       end
 
