@@ -17,7 +17,6 @@ class JsonApiTest < MiniTest::Spec
   module Singular
     include Representable::Hash
     include Roar::JSON::JsonApi::Singular
-    #include Roar::JSON::JsonApi::Document
     include Roar::JSON::JsonApi::Resource
     include Roar::JSON::JsonApi
     include(Roar::JSON::JsonApi::Document)

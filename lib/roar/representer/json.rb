@@ -33,10 +33,6 @@ module Roar
 
 
       module ClassMethods
-        def deserialize(*args)
-          from_json(*args)
-        end
-
         # TODO: move to instance method, or remove?
         def links_definition_options
           # FIXME: this doesn't belong into the generic JSON representer.

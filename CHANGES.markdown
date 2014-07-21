@@ -1,14 +1,17 @@
 # 1.0.0
 
-## Changes
+## Relevant
 
 * `Hyperlink#to_hash` now returns stringified keys.
-* Removed `Representer#before_serialize` hook.
+* Removed `Representer#before_serialize` hook. Override `#serialize` yourself.
 * Represented#links now returns `nil` when no parsing has happened.
+* Removed class methods `::from_json`, `::from_hash`, `::from_xml` and `::deserialize`. Please build the instance yourself and use something along `Song.new.from_json`.
+
 
 ## Internals
 
 * Remove the concept of ´links_array`. `Hyperlink` instances for rendering or that have been parsed are always stored in a `LinkCollection` that is available via `#links`.
+* `Hypermedia` is now 43% simpler.
 
 # 0.12.7
 

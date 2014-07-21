@@ -119,7 +119,7 @@ class HypermediaTest < MiniTest::Spec
 
     describe "#from_xml" do
       it "extracts links from document" do
-        doc = @bookmarks_with_links.from_xml(%{
+        doc = @bookmarks_with_links.new.from_xml(%{
         <bookmarks>
           <link rel="self" href="http://bookmarks">
         </bookmarks>
@@ -131,7 +131,7 @@ class HypermediaTest < MiniTest::Spec
       end
 
       it "sets up an empty link list if no links found in the document" do
-        @bookmarks_with_links.from_xml(%{<bookmarks/>}).links.must_equal nil
+        @bookmarks_with_links.new.from_xml(%{<bookmarks/>}).links.must_equal nil
       end
     end
   end

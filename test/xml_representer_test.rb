@@ -92,17 +92,17 @@ class XMLRepresenterFunctionalTest < MiniTest::Spec
       end
 
       it "is aliased to #deserialize" do
-        assert_equal TestXmlRepresenter.from_xml("<order/>").id, TestXmlRepresenter.deserialize("<order/>").id
+        assert_equal TestXmlRepresenter.new.from_xml("<order/>").id, TestXmlRepresenter.new.deserialize("<order/>").id
       end
 
       it "accepts :exclude option" do
-        order = Order.from_xml(%{<order><id>1</id><pending>1</pending></order>}, :exclude => [:id])
+        order = Order.new.from_xml(%{<order><id>1</id><pending>1</pending></order>}, :exclude => [:id])
         assert_equal nil, order.id
         assert_equal "1", order.pending
       end
 
       it "accepts :include option" do
-        order = Order.from_xml(%{<order><id>1</id><pending>1</pending></order>}, :include => [:id])
+        order = Order.new.from_xml(%{<order><id>1</id><pending>1</pending></order>}, :include => [:id])
         assert_equal "1", order.id
         assert_equal nil, order.pending
       end
@@ -111,7 +111,7 @@ class XMLRepresenterFunctionalTest < MiniTest::Spec
 
     describe "without options" do
       it ".from_xml returns the deserialized model" do
-        @m = TestXmlRepresenter.from_xml("<order><id>1</id></order>")
+        @m = TestXmlRepresenter.new.from_xml("<order><id>1</id></order>")
         assert_equal "1", @m.id
       end
 
@@ -137,7 +137,7 @@ class XMLRepresenterFunctionalTest < MiniTest::Spec
       end
 
       it ".from_xml typecasts :item" do
-        @m = PositionRepresenter.from_xml("<position><id>1</id><item><value>beer</value></item>\n</position>")
+        @m = PositionRepresenter.new.from_xml("<position><id>1</id><item><value>beer</value></item>\n</position>")
 
         assert_equal "1",     @m.id
         assert_equal "beer",  @m.item.value
@@ -172,7 +172,7 @@ class XMLRepresenterFunctionalTest < MiniTest::Spec
       end
 
       it ".from_xml typecasts list" do
-        @m = @c.from_xml("<order><id>1</id><item><value>beer</value></item>\n</order>")
+        @m = @r.from_xml("<order><id>1</id><item><value>beer</value></item>\n</order>")
 
         assert_equal "1",     @m.id
         assert_equal 1,       @m.items.size

@@ -41,11 +41,6 @@ module Roar
             :exec_context => :decorator,
             } # TODO: merge with JSON.
         end
-
-        # Generic entry-point for parsing.
-        def deserialize(*args)
-          from_xml(*args)
-        end
       end
 
 

@@ -63,7 +63,7 @@ class JsonRepresenterTest < MiniTest::Spec
 
     describe "JSON.from_json" do
       it "is aliased by #deserialize" do
-        @order = Order.deserialize('{"id":1}')
+        @order = Order.new.deserialize('{"id":1}')
         assert_equal 1, @order.id
       end
     end
@@ -119,7 +119,7 @@ class JsonHypermediaTest
     end
 
     it "extracts links from JSON" do
-      r = @c.from_json('{"links":[{"rel":"self","href":"http://self"}]}')
+      r = @r.from_json('{"links":[{"rel":"self","href":"http://self"}]}')
 
       assert_equal 1, r.links.size
       link = r.links["self"]
