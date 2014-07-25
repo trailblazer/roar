@@ -21,7 +21,7 @@ module Roar::Representer::JSON
           OpenStruct.new  # TODO: handle preset values.
         end
 
-        collection :queries, :extend => Roar::Representer::JSON::HyperlinkRepresenter
+        collection :queries, :extend => Roar::Representer::JSON::HyperlinkRepresenter, :class => lambda { |fragment,*| Hash }
         def queries
           compile_links_for(representable_attrs.collection_representers[:queries].link_configs)
         end
@@ -45,9 +45,9 @@ module Roar::Representer::JSON
         def __href
           compile_links_for(representable_attrs.collection_representers[:href].link_configs).first.href
         end
-        
 
-        
+
+
         include ClientMethods
       end
     end
@@ -64,7 +64,7 @@ module Roar::Representer::JSON
         mod = representable_attrs.collection_representers[:object_template] = Module.new do
           include Roar::Representer::JSON
           include Roar::Representer::JSON::CollectionJSON::DataMethods
-          
+
           extend PropertyWithRenderNil
 
           module_exec(&block)
@@ -95,7 +95,7 @@ module Roar::Representer::JSON
         mod = representable_attrs.collection_representers[:queries] = Module.new do
           include Roar::Representer::JSON
           include Roar::Representer::Feature::Hypermedia
-          
+
           module_exec(&block)
 
           def to_hash(*)
