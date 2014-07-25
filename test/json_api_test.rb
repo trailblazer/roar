@@ -40,7 +40,7 @@ class JsonApiTest < MiniTest::Spec
         href: "http://example.com/albums/{songs.album}"
       }
     end
-   end
+  end
 
   describe "singular" do
     subject { song.extend(Singular) }
@@ -142,9 +142,45 @@ class JsonApiTest < MiniTest::Spec
   end
 
 
-  describe "#from_json" do
-    subject { [].extend(rpr).from_json [song].extend(rpr).to_json }
+  # from_json
+  it do
+    song1, song2 = [OpenStruct.new, OpenStruct.new].extend(Singular.for_collection).from_hash(
+      {
+        "songs" => [
+          {
+            "id" => "1",
+            "title" => "Computadores Fazem Arte",
+            "links" => {
+              "album" => "9",
+              "musicians" => [ "1", "2" ],
+              "composer"=>"10",
+              "listeners"=>["8"]
+            },
+          },
+          {
+            "id" => "2",
+            "title" => "Talking To Remind Me",
+            "links" => {
+              "album" => "1",
+              "musicians" => [ "3", "4" ],
+              "composer"=>"2",
+              "listeners"=>["6"]
+            }
+          },
+        ],
+        "links" => {
+          "songs.album"=> {
+            "href"=>"http://example.com/albums/{songs.album}", "type"=>"album"
+          }
+        }
+      }
+    )
 
-    # What should the object look like after parsing?
+    song1.id.must_equal "1"
+    song1.title.must_equal "Computadores Fazem Arte"
+    song1.album_id.must_equal "9"
+    song1.musician_ids.must_equal ["1", "2"]
+    song1.composer_id.must_equal "10"
+    song1.listener_ids.must_equal ["8"]
   end
 end

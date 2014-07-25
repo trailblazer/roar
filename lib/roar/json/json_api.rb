@@ -21,7 +21,7 @@ module Roar
 
           # this basically does Module.new { include Hash::Collection .. }
           build_inline(nil, [Document::Collection, Representable::Hash::Collection], "", {}) do
-            items extend: singular
+            items extend: singular, :parse_strategy => :sync
 
             representable_attrs[:resource_representer] = singular.send :resource_representer
           end
@@ -64,6 +64,7 @@ module Roar
           base.extend Declarative # inject our ::link.
         end
 
+        # New API for JSON-API representers.
         module Declarative
           # Define global document links in the links: directive.
           def link(*args, &block)
@@ -96,6 +97,7 @@ module Roar
       end
 
 
+      # TODO: don't use Document for singular+wrap AND singular in collection (this way, we can get rid of the only_body)
       module Document
         def to_hash(options={})
           # per resource:
@@ -107,7 +109,10 @@ module Roar
         end
 
         def from_hash(hash, options={})
-          super(hash["songs"]) # TODO: can't we do that with representation_wrap?
+
+          return super(hash, options) if options[:only_body] # singular
+
+          super(from_document(hash)) # singular
         end
 
       private
@@ -119,6 +124,10 @@ module Roar
           {"songs" => res}.merge(hash)
         end
 
+        def from_document(hash)
+          hash["songs"]
+        end
+
 
         module Collection
           include Document
@@ -126,6 +135,11 @@ module Roar
           def to_hash(options={})
             res = super(options.merge(:only_body => true))
             to_document(res)
+          end
+
+          def from_hash(hash, options={})
+            hash = from_document(hash)
+            super(hash, options.merge(:only_body => true))
           end
         end
       end
