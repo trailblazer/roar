@@ -36,6 +36,11 @@ module Roar
             hash["links"] = hash.delete("_links")
           end
         end
+
+        def from_hash(hash, options={})
+          hash["_links"] = hash["links"]
+          super
+        end
       end
 
 
@@ -70,6 +75,19 @@ module Roar
             nested(:_links, &block)
           end
 
+          # TODO: always create _links.
+          def has_one(name)
+            property :_links, :inherit => true, :use_decorator => true do # simply extend the Decorator _links.
+              property "#{name}_id", :as => name
+            end
+          end
+
+          def has_many(name)
+            property :_links, :inherit => true, :use_decorator => true do # simply extend the Decorator _links.
+              collection "#{name.to_s.sub(/s$/, "")}_ids", :as => name
+            end
+          end
+
         private
           def resource_representer
             representable_attrs[:resource_representer] ||= Representer # TODO: make sure gets cloned!
@@ -89,7 +107,7 @@ module Roar
         end
 
         def from_hash(hash, options={})
-          super(hash["songs"])
+          super(hash["songs"]) # TODO: can't we do that with representation_wrap?
         end
 
       private

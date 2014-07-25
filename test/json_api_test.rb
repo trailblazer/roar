@@ -2,16 +2,19 @@ require 'test_helper'
 require 'roar/json/json_api'
 
 class JsonApiTest < MiniTest::Spec
-  let(:song) { s = OpenStruct.new(
-    id: "1",
-    title: 'Computadores Fazem Arte',
-    album: OpenStruct.new(id: 9),
-    :album_id => "9",
-    :musician_ids => ["1","2"],
-    musicians: [OpenStruct.new(id: 1), OpenStruct.new(id: 2)]
-  )
+  let(:song) {
+    s = OpenStruct.new(
+      id: "1",
+      title: 'Computadores Fazem Arte',
+      album: OpenStruct.new(id: 9),
+      :album_id => "9",
+      :musician_ids => ["1","2"],
+      :composer_id => "10",
+      :listener_ids => ["8"],
+      musicians: [OpenStruct.new(id: 1), OpenStruct.new(id: 2)]
+    )
 
-   }
+  }
 
 
   module Singular
@@ -20,13 +23,13 @@ class JsonApiTest < MiniTest::Spec
     property :id
     property :title
 
-      # this will be abstracted once i understand the requirements.
+    # local per-model "id" links
     links do
       property :album_id, :as => :album
       collection :musician_ids, :as => :musicians
     end
-    # has_one :album
-    # has_many :musicians
+    has_one :composer
+    has_many :listeners
 
     # self.representation_wrap = :songs
 
@@ -51,7 +54,9 @@ class JsonApiTest < MiniTest::Spec
             "title" => "Computadores Fazem Arte",
             "links" => {
               "album" => "9",
-              "musicians" => [ "1", "2" ]
+              "musicians" => [ "1", "2" ],
+              "composer"=>"10",
+              "listeners"=>["8"]
             }
           },
           "links" => {
@@ -73,7 +78,9 @@ class JsonApiTest < MiniTest::Spec
             "title" => "Computadores Fazem Arte",
             "links" => {
               "album" => "9",
-              "musicians" => [ "1", "2" ]
+              "musicians" => [ "1", "2" ],
+              "composer"=>"10",
+              "listeners"=>["8"]
             }
           },
           "links" => {
@@ -86,7 +93,10 @@ class JsonApiTest < MiniTest::Spec
 
       song.id.must_equal "1"
       song.title.must_equal "Computadores Fazem Arte"
-
+      song.album_id.must_equal "9"
+      song.musician_ids.must_equal ["1", "2"]
+      song.composer_id.must_equal "10"
+      song.listener_ids.must_equal ["8"]
     end
   end
 
@@ -105,14 +115,18 @@ class JsonApiTest < MiniTest::Spec
               "title" => "Computadores Fazem Arte",
               "links" => {
                 "album" => "9",
-                "musicians" => [ "1", "2" ]
+                "musicians" => [ "1", "2" ],
+                "composer"=>"10",
+              "listeners"=>["8"]
               }
             }, {
               "id" => "1",
               "title" => "Computadores Fazem Arte",
               "links" => {
                 "album" => "9",
-                "musicians" => [ "1", "2" ]
+                "musicians" => [ "1", "2" ],
+                "composer"=>"10",
+              "listeners"=>["8"]
               }
             }
           ],
