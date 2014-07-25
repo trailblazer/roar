@@ -17,12 +17,11 @@ class JsonApiTest < MiniTest::Spec
   module Singular
     include Roar::JSON::JsonApi
 
-
     property :id
     property :title
 
       # this will be abstracted once i understand the requirements.
-    nested :_links do
+    links do
       property :album_id, :as => :album
       collection :musician_ids, :as => :musicians
     end
@@ -31,6 +30,7 @@ class JsonApiTest < MiniTest::Spec
 
     # self.representation_wrap = :songs
 
+    # global document links.
     link "songs.album" do
       {
         type: "album",

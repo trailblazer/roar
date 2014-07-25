@@ -60,8 +60,14 @@ module Roar
         end
 
         module Declarative
+          # Define global document links in the links: directive.
           def link(*args, &block)
             resource_representer.link(*args, &block)
+          end
+
+          # Per-model links.
+          def links(&block)
+            nested(:_links, &block)
           end
 
         private
