@@ -11,16 +11,14 @@ module Roar
       end
 
       module ForCollection
-        def for_collection
-          representer = self # e.g. Song::Representer
+        def for_collection # same API as representable. TODO: we could use ::collection_representer! here.
+          singular = self # e.g. Song::Representer
 
-          Module.new do
-            include Representable::Hash::Collection
-            items extend: representer
+          # this basically does Module.new { include Hash::Collection .. }
+          build_inline(nil, [Document::Collection, Representable::Hash::Collection], "", {}) do
+            items extend: singular
 
-            representable_attrs[:resource_representer] = representer.send :resource_representer
-
-            include Roar::JSON::JsonApi::Document::Collection
+            representable_attrs[:resource_representer] = singular.send :resource_representer
           end
         end
       end
