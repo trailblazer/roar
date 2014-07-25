@@ -77,6 +77,10 @@ module Roar
           to_document(res)
         end
 
+        def from_hash(hash, options={})
+          super(hash["songs"])
+        end
+
       private
         def to_document(res)
           links_hash = representable_attrs[:resource_representer].new(represented).to_hash

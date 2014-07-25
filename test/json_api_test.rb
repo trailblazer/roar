@@ -65,6 +65,32 @@ class JsonApiTest < MiniTest::Spec
         }
       )
     end
+
+    # from_json
+    it do
+      song = OpenStruct.new.extend(Singular)
+      song.from_hash(
+        {
+          "songs" => {
+            "id" => "1",
+            "title" => "Computadores Fazem Arte",
+            "links" => {
+              "album" => "9",
+              "musicians" => [ "1", "2" ]
+            }
+          },
+          "links" => {
+            "songs.album"=> {
+              "href"=>"http://example.com/albums/{songs.album}", "type"=>"album"
+            }
+          }
+        }
+      )
+
+      song.id.must_equal "1"
+      song.title.must_equal "Computadores Fazem Arte"
+
+    end
   end
 
 
