@@ -182,5 +182,12 @@ class JsonApiTest < MiniTest::Spec
     song1.musician_ids.must_equal ["1", "2"]
     song1.composer_id.must_equal "10"
     song1.listener_ids.must_equal ["8"]
+
+    song2.id.must_equal "2"
+    song2.title.must_equal "Talking To Remind Me"
+    song2.album_id.must_equal "1"
+    song2.musician_ids.must_equal ["3", "4"]
+    song2.composer_id.must_equal "2"
+    song2.listener_ids.must_equal ["6"]
   end
 end
