@@ -89,6 +89,10 @@ module Roar
             end
           end
 
+          def compound(&block)
+            nested(:linked, &block)
+          end
+
         private
           def resource_representer
             representable_attrs[:resource_representer] ||= Representer # TODO: make sure gets cloned!
@@ -117,11 +121,10 @@ module Roar
 
       private
         def to_document(res)
-          links_hash = representable_attrs[:resource_representer].new(represented).to_hash
+          links    = representable_attrs[:resource_representer].new(represented).to_hash
+          compound = res.delete("linked")
 
-          hash = links_hash
-
-          {"songs" => res}.merge(hash)
+          {"songs" => res}.merge( links).merge("linked" => compound)
         end
 
         def from_document(hash)

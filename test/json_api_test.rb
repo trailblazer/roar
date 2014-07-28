@@ -4,14 +4,15 @@ require 'roar/json/json_api'
 class JsonApiTest < MiniTest::Spec
   let(:song) {
     s = OpenStruct.new(
+      bla: "halo",
       id: "1",
       title: 'Computadores Fazem Arte',
-      album: OpenStruct.new(id: 9),
+      album: OpenStruct.new(id: 9, title: "Hackers"),
       :album_id => "9",
       :musician_ids => ["1","2"],
       :composer_id => "10",
       :listener_ids => ["8"],
-      musicians: [OpenStruct.new(id: 1), OpenStruct.new(id: 2)]
+      musicians: [OpenStruct.new(id: 1, name: "Eddie Van Halen"), OpenStruct.new(id: 2, name: "Greg Howe")]
     )
 
   }
@@ -40,13 +41,23 @@ class JsonApiTest < MiniTest::Spec
         href: "http://example.com/albums/{songs.album}"
       }
     end
+
+    compound do
+      property :album do
+        property :title
+      end
+
+      collection :musicians do
+        property :name
+      end
+    end
   end
 
   describe "singular" do
     subject { song.extend(Singular) }
 
     # to_json
-    it do
+    it "renders" do
       subject.to_hash.must_equal(
         {
           "songs" => {
@@ -63,13 +74,20 @@ class JsonApiTest < MiniTest::Spec
             "songs.album"=> {
               "href"=>"http://example.com/albums/{songs.album}", "type"=>"album"
             }
+          },
+          "linked" => {
+            "album"=> {"title"=>"Hackers"},
+            "musicians"=> [
+              {"name"=>"Eddie Van Halen"},
+              {"name"=>"Greg Howe"}
+            ]
           }
         }
       )
     end
 
     # from_json
-    it do
+    it "parses" do
       song = OpenStruct.new.extend(Singular)
       song.from_hash(
         {
