@@ -24,6 +24,7 @@ module Roar
             items extend: singular, :parse_strategy => :sync
 
             representable_attrs[:resource_representer] = singular.send :resource_representer
+            representable_attrs[:_wrap] = singular.representable_attrs[:_wrap]
           end
         end
       end
@@ -66,6 +67,11 @@ module Roar
 
         # New API for JSON-API representers.
         module Declarative
+          def name(name=nil)
+            return super unless name # original name.
+            representable_attrs[:_wrap] = name.to_s
+          end
+
           # Define global document links in the links: directive.
           def link(*args, &block)
             resource_representer.link(*args, &block)
@@ -124,11 +130,11 @@ module Roar
           links    = representable_attrs[:resource_representer].new(represented).to_hash
           compound = res.delete("linked")
 
-          {"songs" => res}.merge( links).merge("linked" => compound)
+          {representable_attrs[:_wrap] => res}.merge( links).merge("linked" => compound)
         end
 
         def from_document(hash)
-          hash["songs"]
+          hash[representable_attrs[:_wrap]]
         end
 
 

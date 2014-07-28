@@ -20,6 +20,7 @@ class JsonApiTest < MiniTest::Spec
 
   module Singular
     include Roar::JSON::JsonApi
+    name :songs
 
     property :id
     property :title
@@ -32,7 +33,6 @@ class JsonApiTest < MiniTest::Spec
     has_one :composer
     has_many :listeners
 
-    # self.representation_wrap = :songs
 
     # global document links.
     link "songs.album" do
