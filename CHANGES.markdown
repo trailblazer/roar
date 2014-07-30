@@ -1,3 +1,7 @@
+# 0.12.8
+
+* Last release to support representable < 2.0.
+
 # 0.12.7
 
 * Bug fix where hypermedia links were wrong when invoking serialization multiple times on the same instance.
