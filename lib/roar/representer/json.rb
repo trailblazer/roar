@@ -7,6 +7,7 @@ module Roar
     module JSON
       def self.included(base)
         base.class_eval do
+          include Representer
           include Representable::JSON
 
           extend ClassMethods

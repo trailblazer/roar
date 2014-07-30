@@ -9,6 +9,7 @@ module Roar
     module XML
       def self.included(base)
         base.class_eval do
+          include Representer # Roar::Representer, this is needed for Rails URL helpers
           include Representable::XML
 
           extend ClassMethods
