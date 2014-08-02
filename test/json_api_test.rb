@@ -29,6 +29,7 @@ class JsonApiTest < MiniTest::Spec
     subject { song.extend(MinimalSingular) }
 
     it("x") { subject.to_json.must_equal "{\"songs\":{\"id\":\"1\"}}" }
+    it("xx") { subject.from_json("{\"songs\":{\"id\":\"2\"}}").id.must_equal "2"  }
   end
 
 
