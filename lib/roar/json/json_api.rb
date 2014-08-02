@@ -6,7 +6,7 @@ module Roar
     module JsonApi
       def self.included(base)
         base.class_eval do
-          include Representable::Hash
+          include Representable::JSON
           include Roar::JSON::JsonApi::Singular
           include Roar::JSON::JsonApi::Resource
           include Roar::JSON::JsonApi::Document
