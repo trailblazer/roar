@@ -12,6 +12,8 @@ module Roar
           include Roar::JSON::JsonApi::Document
 
           extend ForCollection
+
+          representable_attrs[:resource_representer] = Class.new(Resource::Representer)
         end
       end
 
@@ -23,7 +25,7 @@ module Roar
           build_inline(nil, [Document::Collection, Representable::Hash::Collection], "", {}) do
             items extend: singular, :parse_strategy => :sync
 
-            representable_attrs[:resource_representer] = singular.send :resource_representer
+            representable_attrs[:resource_representer] = singular.representable_attrs[:resource_representer]
             representable_attrs[:_wrap] = singular.representable_attrs[:_wrap]
           end
         end
@@ -34,7 +36,7 @@ module Roar
         def to_hash(options={})
           # per resource:
           super(:exclude => [:links]).tap do |hash|
-            hash["links"] = hash.delete("_links")
+            hash["links"] = hash.delete("_links") if hash["_links"]
           end
         end
 
@@ -45,7 +47,6 @@ module Roar
       end
 
 
-      # Include this to define your JSON-API document.
       module Resource
         # ::link is delegated to Representer which handles the hypermedia (rendering
         # and parsing links).
@@ -72,9 +73,9 @@ module Roar
             representable_attrs[:_wrap] = name.to_s
           end
 
-          # Define global document links in the links: directive.
+          # Define global document links for the links: directive.
           def link(*args, &block)
-            resource_representer.link(*args, &block)
+            representable_attrs[:resource_representer].link(*args, &block)
           end
 
           # Per-model links.
@@ -97,11 +98,6 @@ module Roar
 
           def compound(&block)
             nested(:linked, &block)
-          end
-
-        private
-          def resource_representer
-            representable_attrs[:resource_representer] ||= Representer # TODO: make sure gets cloned!
           end
         end
       end
@@ -127,10 +123,13 @@ module Roar
 
       private
         def to_document(res)
-          links    = representable_attrs[:resource_representer].new(represented).to_hash
+          links    = representable_attrs[:resource_representer].new(represented).to_hash # creates links: section.
           compound = res.delete("linked")
 
-          {representable_attrs[:_wrap] => res}.merge( links).merge("linked" => compound)
+          {representable_attrs[:_wrap] => res}.tap do |doc|
+            doc.merge!(links)
+            doc.merge!("linked" => compound) if compound
+          end
         end
 
         def from_document(hash)

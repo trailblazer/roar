@@ -17,6 +17,20 @@ class JsonApiTest < MiniTest::Spec
 
   }
 
+  # minimal resource, singular
+  module MinimalSingular
+    include Roar::JSON::JsonApi
+    name :songs
+
+    property :id
+  end
+
+  describe "minimal singular" do
+    subject { song.extend(MinimalSingular) }
+
+    it("x") { subject.to_json.must_equal "{\"songs\":{\"id\":\"1\"}}" }
+  end
+
 
   module Singular
     include Roar::JSON::JsonApi
