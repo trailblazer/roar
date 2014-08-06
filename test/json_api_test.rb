@@ -160,20 +160,22 @@ class JsonApiTest < MiniTest::Spec
             "id"=>"1",
             "title"=>"Computadores Fazem Arte",
 
-            "linked"=>{
-              "album"=>{"title"=>"Hackers"},
-              "musicians"=>[{"name"=>"Eddie Van Halen"}, {"name"=>"Greg Howe"}]
-            },
+
             "links"=>{
               "album"=>"9", "musicians"=>["1", "2"], "composer"=>"10", "listeners"=>["8"]
             }
           }, {
             "id"=>"2", "title"=>"Reo",
-
-            "linked"=>{"album"=>{"title"=>"Blackhawks Over Los Angeles"}, "musicians"=>[{"name"=>"Eddie Van Halen"}, {"name"=>"Greg Howe"}]},
             "links"=>{"album"=>"10", "musicians"=>["1", "2"], "composer"=>"10", "listeners"=>["8"]}}
           ],
-        "links"=>{"songs.album"=>{"href"=>"http://example.com/albums/{songs.album}", "type"=>"album"}}
+
+        "links"=>{"songs.album"=>{"href"=>"http://example.com/albums/{songs.album}", "type"=>"album"}},
+
+        # compound compiles linked object.
+        "linked"=>{
+              "album"=>[{"title"=>"Hackers"},{"title"=>"Blackhawks Over Los Angeles"}],
+              "musicians"=>[{"name"=>"Eddie Van Halen"}, {"name"=>"Greg Howe"}]
+            },
       }
     )
     end
