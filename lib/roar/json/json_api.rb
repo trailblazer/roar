@@ -124,7 +124,12 @@ module Roar
       private
         def to_document(res)
           links    = representable_attrs[:resource_representer].new(represented).to_hash # creates links: section.
-          compound = res.delete("linked")
+          # FIXME: provide two different #to_document
+          if res.is_a?(Array)
+            compound = collection_compound!(res)
+          else
+            compound = res.delete("linked")
+          end
 
           {representable_attrs[:_wrap] => res}.tap do |doc|
             doc.merge!(links)
@@ -134,6 +139,26 @@ module Roar
 
         def from_document(hash)
           hash[representable_attrs[:_wrap]]
+        end
+
+        def collection_compound!(collection)
+          compound = {}
+          keys = []
+
+          collection.each { |res|
+            kv = res.delete("linked") or next
+            # aTODO: this can be a hash or array.
+            kv.each { |k,v| l=compound[k]
+              compound[k] = []
+              # compound[k] = v unless l
+              compound[k].push(*v) if l
+
+             }
+            # keys += kv.keys
+
+            #compound.merge!()
+             }
+          compound
         end
 
 
