@@ -457,13 +457,12 @@ module SongsRepresenter
   # ...
 
 compound do
-    property :album do
-      property :title
-    end
+  property :album do
+    property :title
+  end
 
-    collection :musicians do
-      property :name
-    end
+  collection :musicians do
+    property :name
   end
 end
 ```
