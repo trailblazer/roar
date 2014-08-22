@@ -400,6 +400,76 @@ HAL keys nested resources under the `_embedded` key and then by their type.
 All HAL features in Roar are discussed in the [API docs](http://rdoc.info/github/apotonick/roar/Roar/Representer/JSON/HAL), including [array links](https://github.com/apotonick/roar/blob/master/lib/roar/representer/json/hal.rb#L176).
 
 
+## JSON-API
+
+Roar also supports [JSON-API](jsonapi.org/) - yay! It can render _and_ parse singular and collection documents.
+
+### Resource
+
+A minimal representation can be defined as follows.
+
+```ruby
+module SongsRepresenter
+  include Roar::JSON::JsonApi
+  name :songs
+
+  property :id
+  property :title
+end
+```
+
+Properties of the represented model are defined in the root level.
+
+### Hypermedia
+
+You can add links to `linked` models within the resource section.
+
+```ruby
+module SongsRepresenter
+  # ...
+
+  has_one :composer
+  has_many :listeners
+end
+```
+
+Global `links` can be added using the familiar `::link` method (this is still WIP as the DSL is not final).
+
+```ruby
+module SongsRepresenter
+  # ...
+
+  link "songs.album" do
+    {
+      type: "album",
+      href: "http://example.com/albums/{songs.album}"
+    }
+  end
+end
+
+### Compounds
+
+To add compound models into the document, use `::compound`.
+
+```ruby
+module SongsRepresenter
+  # ...
+
+compound do
+    property :album do
+      property :title
+    end
+
+    collection :musicians do
+      property :name
+    end
+  end
+end
+```
+
+Parsing currently works great with singular documents - for collections, we are still working out how to encode the application semantics. Feel free to help.
+
+
 ## Collection+JSON
 
 The [Collection+JSON media format](http://amundsen.com/media-types/collection/) defines document format and semantics for requests. It is currently experimental as we're still exploring how we optimize the support with Roar. Let us know if you're using it.
