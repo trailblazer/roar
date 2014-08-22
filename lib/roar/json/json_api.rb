@@ -143,21 +143,17 @@ module Roar
 
         def collection_compound!(collection)
           compound = {}
-          keys = []
 
           collection.each { |res|
             kv = res.delete("linked") or next
             # aTODO: this can be a hash or array.
-            kv.each { |k,v| l=compound[k]
-              compound[k] = []
-              # compound[k] = v unless l
-              compound[k].push(*v) if l
-
-             }
-            # keys += kv.keys
-
-            #compound.merge!()
-             }
+            kv.each { |k,v|
+              compound[k] ||= []
+              compound[k] << v and next if v.is_a?(Hash) # >{"title"=>"Hackers"}
+              compound[k].push(*v) # [{"name"=>"Eddie Van Halen"}, {"name"=>"Greg Howe"}]
+              compound[k] = compound[k].uniq
+            }
+          }
           compound
         end
 
