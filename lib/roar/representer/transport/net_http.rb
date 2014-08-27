@@ -1,5 +1,4 @@
-require "net/http"
-require "uri"
+require 'roar/representer/transport/net_http/request'
 
 module Roar
   module Representer
@@ -10,63 +9,6 @@ module Roar
       #
       # The following options are available:
       class NetHTTP
-        class Request # TODO: implement me.
-          def initialize(options)
-            @uri  = parse_uri(options[:uri]) # TODO: add :uri.
-            @as   = options[:as]
-            @body = options[:body]
-            @options = options
-
-            @http = Net::HTTP.new(uri.host, uri.port)
-          end
-
-          def call(what)
-            @req = what.new(uri.request_uri)
-
-            # if options[:ssl]
-            #   uri.port = Net::HTTP.https_default_port()
-            # end
-            https!
-            basic_auth!
-
-            req.content_type  = as
-            req["accept"]     = as  # TODO: test me. # DISCUSS: if Accept is not set, rails treats this request as as "text/html".
-            req.body          = body if body
-
-            yield req if block_given?
-
-            http.request(req).tap do |res|
-              raise UnauthorizedError if res.is_a?(Net::HTTPUnauthorized) # FIXME: make this better. # DISCUSS: abstract all that crap here?
-            end
-          end
-
-          def get
-            call(Net::HTTP::Get)
-          end
-
-        private
-          attr_reader :uri, :as, :body, :options, :req, :http
-
-          def parse_uri(url)
-            uri = URI(url)
-            raise "Incorrect URL `#{url}`. Maybe you forgot http://?" if uri.instance_of?(URI::Generic)
-            uri
-          end
-
-          def https!
-            return unless uri.scheme == 'https'
-
-            @http.use_ssl = true
-            @http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-          end
-
-          def basic_auth!
-            return unless options[:basic_auth]
-
-            @req.basic_auth(*options[:basic_auth])
-          end
-        end
-
 
         def get_uri(*options, &block)
           call(Net::HTTP::Get, *options, &block)
