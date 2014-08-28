@@ -26,5 +26,4 @@ Gem::Specification.new do |s|
   s.add_development_dependency "virtus", ">= 1.0.0"
   s.add_development_dependency "faraday"
   s.add_development_dependency "json"
-  s.add_development_dependency "spy"
 end

@@ -1,7 +1,45 @@
 require 'test_helper'
-require 'roar/representer/transport/net_http/request'
 
-class NetHTTPTransportRequestTest < MiniTest::Spec
+require "roar"
+require 'roar/representer/transport/net_http/request'
+require 'roar/representer/transport/net_http'
+
+
+class SslClientCertsTest < MiniTest::Spec
+
+  describe Roar::Representer::Transport::NetHTTP do
+
+    describe "instance methods" do
+
+      let(:url) { "http://www.bbc.co.uk" }
+      let(:as) { "application/xml" }
+
+      let(:transport) { Roar::Representer::Transport::NetHTTP.new }
+
+      describe "options passed to the request object (private #call method)" do
+
+        let(:options) { { uri: url, as: as, pem_file: "test/fixtures/sample.pem", ssl_verify_mode: "ssl_verify_mode" } }
+
+        describe "option handling" do
+
+          it "provides all options to the Request object" do
+
+            request_mock = MiniTest::Mock.new
+            request_mock.expect :call, nil, [Net::HTTP::Get]
+
+            options_assertions = lambda { |argument_options|
+              assert_equal argument_options, options
+              request_mock
+            }
+
+            Roar::Representer::Transport::NetHTTP::Request.stub :new, options_assertions do
+              transport.get_uri(options)
+            end
+          end
+        end
+      end
+    end
+  end
 
   describe Roar::Representer::Transport::NetHTTP::Request do
 
@@ -30,7 +68,7 @@ class NetHTTPTransportRequestTest < MiniTest::Spec
             end
 
             it "sets the client cert" do
-             assert_equal(net_http_instance.cert.to_s, cert.to_s)
+              assert_equal(net_http_instance.cert.to_s, cert.to_s)
             end
             it "sets the client key" do
               assert_equal(net_http_instance.key.to_s, key.to_s)
