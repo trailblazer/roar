@@ -597,7 +597,21 @@ The HTTP verbs allow you to specify credentials for HTTP basic auth.
 
 ```ruby
 song.get(uri: "http://localhost:4567/songs/1", basic_auth: ["username", "secret_password"])
+
 ```
+
+### Client SSL certificates
+
+(Only currently supported with Net:Http)
+
+```ruby
+song.get(uri: "http://localhost:4567/songs/1", pem_file: "/path/to/client/cert.pem", ssl_verify_mode: OpenSSL::SSL::VERIFY_PEER)
+
+```
+
+Note: ssl_verify_mode is not required and will default to ```OpenSSL::SSL::VERIFY_PEER)```
+
+
 
 ### Request customization
 
