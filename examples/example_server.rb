@@ -11,7 +11,7 @@ get "/method" do
 end
 
 post "/songs" do
-'{"id":"1","title":"Roxanne","links":[{"rel":"self","href":"http://localhost/songs/1"}]}'
+  '{"id":"1","title":"Roxanne","links":[{"rel":"self","href":"http://localhost/songs/1"}]}'
 end
 
 
