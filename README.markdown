@@ -8,7 +8,7 @@ Roar is a framework for parsing and rendering REST documents. Nothing more.
 
 Representers let you define your API document structure and semantics. They allow both rendering representations from your models _and_ parsing documents to update your Ruby objects. The bi-directional nature of representers make them interesting for both server and client usage.
 
-Roar comes with built-in JSON, JSON-HAL and XML support. Its highly modulare architecture provides features like coercion, hypermedia, HTTP transport, client caching and more.
+Roar comes with built-in JSON, JSON-HAL, JSON-API and XML support. Its highly modulare architecture provides features like coercion, hypermedia, HTTP transport, client caching and more.
 
 Roar is completely framework-agnostic and loves being used in web kits like Rails, Webmachine, Sinatra, Padrino, etc. If you use Rails, consider [roar-rails](https://github.com/apotonick/roar-rails) for an enjoyable integration.
 
@@ -400,6 +400,78 @@ HAL keys nested resources under the `_embedded` key and then by their type.
 All HAL features in Roar are discussed in the [API docs](http://rdoc.info/github/apotonick/roar/Roar/Representer/JSON/HAL), including [array links](https://github.com/apotonick/roar/blob/master/lib/roar/representer/json/hal.rb#L176).
 
 
+## JSON-API
+
+Roar also supports [JSON-API](http://jsonapi.org/) - yay! It can render _and_ parse singular and collection documents.
+
+### Resource
+
+A minimal representation can be defined as follows.
+
+```ruby
+require 'roar/json/json_api'
+
+module SongsRepresenter
+  include Roar::JSON::JsonApi
+  name :songs
+
+  property :id
+  property :title
+end
+```
+
+Properties of the represented model are defined in the root level.
+
+### Hypermedia
+
+You can add links to `linked` models within the resource section.
+
+```ruby
+module SongsRepresenter
+  # ...
+
+  has_one :composer
+  has_many :listeners
+end
+```
+
+Global `links` can be added using the familiar `::link` method (this is still WIP as the DSL is not final).
+
+```ruby
+module SongsRepresenter
+  # ...
+
+  link "songs.album" do
+    {
+      type: "album",
+      href: "http://example.com/albums/{songs.album}"
+    }
+  end
+end
+```
+
+### Compounds
+
+To add compound models into the document, use `::compound`.
+
+```ruby
+module SongsRepresenter
+  # ...
+
+compound do
+  property :album do
+    property :title
+  end
+
+  collection :musicians do
+    property :name
+  end
+end
+```
+
+Parsing currently works great with singular documents - for collections, we are still working out how to encode the application semantics. Feel free to help.
+
+
 ## Collection+JSON
 
 The [Collection+JSON media format](http://amundsen.com/media-types/collection/) defines document format and semantics for requests. It is currently experimental as we're still exploring how we optimize the support with Roar. Let us know if you're using it.
@@ -525,7 +597,21 @@ The HTTP verbs allow you to specify credentials for HTTP basic auth.
 
 ```ruby
 song.get(uri: "http://localhost:4567/songs/1", basic_auth: ["username", "secret_password"])
+
 ```
+
+### Client SSL certificates
+
+(Only currently supported with Net:Http)
+
+```ruby
+song.get(uri: "http://localhost:4567/songs/1", pem_file: "/path/to/client/cert.pem", ssl_verify_mode: OpenSSL::SSL::VERIFY_PEER)
+
+```
+
+Note: ssl_verify_mode is not required and will default to ```OpenSSL::SSL::VERIFY_PEER)```
+
+
 
 ### Request customization
 
