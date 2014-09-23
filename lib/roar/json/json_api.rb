@@ -68,7 +68,7 @@ module Roar
 
         # New API for JSON-API representers.
         module Declarative
-          def name(name=nil)
+          def type(name=nil)
             return super unless name # original name.
             representable_attrs[:_wrap] = name.to_s
           end

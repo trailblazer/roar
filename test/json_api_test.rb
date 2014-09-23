@@ -17,24 +17,10 @@ class JsonApiTest < MiniTest::Spec
 
   }
 
-  let(:song2) {
-    s = OpenStruct.new(
-      id: "2",
-      title: "Reo",
-      album: OpenStruct.new(id: 10, title: "Blackhawks Over Los Angeles"),
-      :album_id => "10",
-      :musician_ids => ["1","2"],
-      :composer_id => "10",
-      :listener_ids => ["8"],
-      musicians: [OpenStruct.new(id: 1, name: "Eddie Van Halen"), OpenStruct.new(id: 2, name: "Greg Howe")]
-    )
-
-  }
-
   # minimal resource, singular
   module MinimalSingular
     include Roar::JSON::JsonApi
-    name :songs
+    type :songs
 
     property :id
   end
@@ -49,7 +35,7 @@ class JsonApiTest < MiniTest::Spec
 
   module Singular
     include Roar::JSON::JsonApi
-    name :songs
+    type :songs
 
     property :id
     property :title
@@ -150,40 +136,47 @@ class JsonApiTest < MiniTest::Spec
 
   # collection with links
   describe "collection with links" do
-    subject { [song, song2].extend(Singular.for_collection) }
+    subject { [song, song].extend(Singular.for_collection) }
 
     # to_json
-    it("12") do
+    it do
       subject.to_hash.must_equal(
-        {"songs" => [
-          {
-            "id"=>"1",
-            "title"=>"Computadores Fazem Arte",
-
-
-            "links"=>{
-              "album"=>"9", "musicians"=>["1", "2"], "composer"=>"10", "listeners"=>["8"]
+        {
+          "songs" => [
+            {
+              "id" => "1",
+              "title" => "Computadores Fazem Arte",
+              "links" => {
+                "album" => "9",
+                "musicians" => [ "1", "2" ],
+                "composer"=>"10",
+              "listeners"=>["8"]
+              }
+            }, {
+              "id" => "1",
+              "title" => "Computadores Fazem Arte",
+              "links" => {
+                "album" => "9",
+                "musicians" => [ "1", "2" ],
+                "composer"=>"10",
+              "listeners"=>["8"]
+              }
             }
-          }, {
-            "id"=>"2", "title"=>"Reo",
-            "links"=>{"album"=>"10", "musicians"=>["1", "2"], "composer"=>"10", "listeners"=>["8"]}}
           ],
-
-        "links"=>{"songs.album"=>{"href"=>"http://example.com/albums/{songs.album}", "type"=>"album"}},
-
-        # compound compiles linked object.
-        "linked"=>{
-              "album"=>[{"title"=>"Hackers"},{"title"=>"Blackhawks Over Los Angeles"}],
-              "musicians"=>[{"name"=>"Eddie Van Halen"}, {"name"=>"Greg Howe"}]
+          "links" => {
+            "songs.album" => {
+              "href" => "http://example.com/albums/{songs.album}",
+              "type" => "album" # DISCUSS: does that have to be albums ?
             },
-      }
-    )
+          },
+        }
+      )
     end
   end
 
 
   # from_json
-  it("minitest what's wrong with you") do
+  it do
     song1, song2 = [OpenStruct.new, OpenStruct.new].extend(Singular.for_collection).from_hash(
       {
         "songs" => [
