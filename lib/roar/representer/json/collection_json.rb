@@ -23,7 +23,8 @@ module Roar::Representer::JSON
 
         collection :queries, :extend => Roar::Representer::JSON::HyperlinkRepresenter, :class => lambda { |fragment,*| Hash }
         def queries
-          compile_links_for(representable_attrs.collection_representers[:queries].link_configs)
+          queries_representers = representable_attrs.collection_representers[:queries]
+          compile_links_for(queries_representers.link_configs) unless queries_representers.nil?
         end
         def queries=(v)
         end
