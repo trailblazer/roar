@@ -6,6 +6,12 @@ module Roar
     module Transport
 
       class Error < StandardError;
+
+        attr_reader :http_body
+
+        def initialize(http_body=nil)
+          @http_body = http_body
+        end
       end
 
       module Errors
