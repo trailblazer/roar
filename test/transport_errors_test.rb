@@ -111,4 +111,15 @@ class TransportErrorsTest < MiniTest::Spec
       end
     end
   end
+
+  describe "net http integration" do
+
+    let (:transport) { Roar::Representer::Transport::NetHTTP.new }
+
+    it 'raises a NotFoundError when a 404 status is returned' do
+      assert_raises Roar::Representer::Transport::Errors::NotFound do
+        transport.get_uri(:uri => "http://localhost:4567/not_found", :as => "application/json")
+      end
+    end
+  end
 end
