@@ -39,6 +39,8 @@ module Roar
             yield req if block_given?
 
             http.request(req).tap do |res|
+              http_error_klass = Roar::Representer::Transport::Errors::HTTP_STATUS_TO_ERROR_MAPPINGS[res.code]
+              raise http_error_klass.new(res.body) unless http_error_klass.nil?
               raise UnauthorizedError if res.is_a?(Net::HTTPUnauthorized) # FIXME: make this better. # DISCUSS: abstract all that crap here?
             end
           end
