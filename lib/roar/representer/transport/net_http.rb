@@ -1,4 +1,5 @@
 require 'roar/representer/transport/net_http/request'
+require 'roar/representer/transport/errors'
 
 module Roar
   module Representer
@@ -52,8 +53,7 @@ Thank you and have a lovely day.}
 
       end
 
-      class UnauthorizedError < RuntimeError # TODO: raise this from Faraday, too.
-      end
+      const_set(:UnauthorizedError, Roar::Representer::Transport::Errors::Unauthorized)
     end
   end
 end

@@ -1,3 +1,4 @@
+require "roar"
 require "yaml"
 require "active_support/core_ext/string"
 

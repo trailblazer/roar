@@ -63,9 +63,9 @@ class HttpVerbsTest < MiniTest::Spec
           end
         end
 
-        it 'performs no HTTP error handling with NetHttpTransport' do
+        it 'raises Roar::Representer::Transport::Errors::NotFound with NetHttpTransport' do
           @band.transport_engine = Roar::Representer::Transport::NetHTTP
-          assert_raises(MultiJson::LoadError) do
+          assert_raises(Roar::Representer::Transport::Errors::NotFound) do
             @band.get('http://localhost:4567/bands/anthrax', "application/json")
           end
         end
