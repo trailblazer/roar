@@ -45,15 +45,35 @@ class TransportErrorsTest < MiniTest::Spec
 
   describe Roar::Representer::Transport::Errors do
 
-    describe "errors instantiation" do
+    @@http_status_codes = YAML.load(File.read("#{Roar.root}/config/http_responses.yml"))
 
-      let(:http_response_mappings) do
-        yaml_responses = "#{Roar.root}/config/http_responses.yml"
-        YAML.load(File.read(yaml_responses))
+    describe "error classifications" do
+
+      it "defined an informational error type" do
+        assert defined?(Roar::Representer::Transport::Errors::InformationalError), "Informational error class is not defined"
+        assert_equal "Informational", Roar::Representer::Transport::Errors::InformationalError.http_classification
       end
 
+      it "defined a redirection error type" do
+        assert defined?(Roar::Representer::Transport::Errors::RedirectionError), "Redirection error class is not defined"
+        assert_equal "Redirection", Roar::Representer::Transport::Errors::RedirectionError.http_classification
+      end
+
+      it "defined a client error type" do
+        assert defined?(Roar::Representer::Transport::Errors::ClientError), "Client error class is not defined"
+        assert_equal "Client Error", Roar::Representer::Transport::Errors::ClientError.http_classification
+      end
+
+      it "defined a server error type" do
+        assert defined?(Roar::Representer::Transport::Errors::ServerError), "Server error class is not defined"
+        assert_equal "Server Error", Roar::Representer::Transport::Errors::ServerError.http_classification
+      end
+    end
+
+    describe "errors instantiation" do
+
       let(:http_status_codes) do
-        http_response_mappings.inject({}) do |resulting_http_status_codes, (http_class, http_status_codes)|
+        @@http_status_codes.inject({}) do |resulting_http_status_codes, (http_class, http_status_codes)|
           resulting_http_status_codes = resulting_http_status_codes.merge(http_status_codes) unless http_class == "success"
           resulting_http_status_codes
         end
@@ -63,7 +83,7 @@ class TransportErrorsTest < MiniTest::Spec
 
         http_status_codes.each_pair do |http_status_code, http_status_information|
 
-          klass_name = http_status_information["title"].camelize.gsub(" ", "").gsub("-", "")
+          klass_name = http_status_information["title"].camelize.gsub(/(\s|-)+/, "")
 
           expected_class     = "Roar::Representer::Transport::Errors::#{klass_name}".constantize
           actual_error_class = Roar::Representer::Transport::Errors::HTTP_STATUS_TO_ERROR_MAPPINGS[http_status_code]
