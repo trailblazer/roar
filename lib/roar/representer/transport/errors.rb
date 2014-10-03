@@ -8,14 +8,15 @@ module Roar
 
       class Error < StandardError;
 
-        attr_reader :http_body
-
         class << self
           attr_reader :http_classification
         end
 
-        def initialize(http_body=nil)
-          @http_body = http_body
+        attr_reader :http_body, :http_status_code
+
+        def initialize(http_payload)
+          @http_body = http_payload[:body]
+          @http_status_code = http_payload[:status_code]
         end
       end
 
