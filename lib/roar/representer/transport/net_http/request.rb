@@ -15,10 +15,10 @@ module Roar
 
             @http = Net::HTTP.new(uri.host, uri.port)
             unless options[:pem_file].nil?
-              pem = File.read(options[:pem_file])
-              @http.use_ssl = true
-              @http.cert = OpenSSL::X509::Certificate.new(pem)
-              @http.key = OpenSSL::PKey::RSA.new(pem)
+              pem               = File.read(options[:pem_file])
+              @http.use_ssl     = true
+              @http.cert        = OpenSSL::X509::Certificate.new(pem)
+              @http.key         = OpenSSL::PKey::RSA.new(pem)
               @http.verify_mode = options[:ssl_verify_mode].nil? ? OpenSSL::SSL::VERIFY_PEER : options[:ssl_verify_mode]
             end
           end
@@ -40,7 +40,12 @@ module Roar
 
             http.request(req).tap do |res|
               http_error_klass = Roar::Representer::Transport::Errors::HTTP_STATUS_TO_ERROR_MAPPINGS[res.code.to_i]
-              raise http_error_klass.new( {body:res.body, status_code: res.code, version: res.http_version} ) unless http_error_klass.nil?
+              raise http_error_klass.new({
+                                             body:        res.body,
+                                             status_code: res.code,
+                                             version:     res.http_version,
+                                             headers:     res.to_hash
+                                         }) unless http_error_klass.nil?
             end
           end
 
