@@ -26,16 +26,19 @@ module Roar
           def parse_errors
             error_mappings = http_response_mappings.delete_if { |key, value| key == "success" }
 
-            define_error_classes(error_mappings.keys)
+            http_classifications = define_http_error_classifications(error_mappings.keys)
 
             error_mappings.inject({}) do |resulting_hash, (http_class, code_mappings)|
 
+              classification_module = http_classifications[http_class][:module]
+              base_class = http_classifications[http_class][:class]
+
               code_mappings.each_pair do |http_status_code, http_status_information|
 
-                klass      = Class.new(Roar::Representer::Transport::Error)
-                klass_name = http_status_information["title"].camelize.gsub(/(\s|-)+/, "")
+                klass      = Class.new(base_class)
+                klass_name = "#{http_status_information["title"].camelize.gsub(/(\s|-)+/, "")}Error"
 
-                Roar::Representer::Transport::Errors.const_set(klass_name, klass)
+                classification_module.const_set(klass_name, klass)
 
                 resulting_hash[http_status_code] = klass
               end
@@ -46,16 +49,22 @@ module Roar
 
           private
 
-          def define_error_classes(error_classes)
-            error_classes.inject({}) do |error_class_mappings, error_class|
+          def define_http_error_classifications(http_classifications)
+            http_classifications.inject({}) do |error_class_mappings, http_classification|
 
               klass = Class.new(Roar::Representer::Transport::Error)
-              klass.instance_variable_set(:@http_classification, error_class.titlecase)
+              klass.instance_variable_set(:@http_classification, http_classification.titlecase)
 
-              klass_name = "#{error_class.gsub("error", "").camelize}Error"
+              klass_name = "#{http_classification.gsub("error", "").camelize}Error"
               Roar::Representer::Transport::Errors.const_set(klass_name, klass)
 
-              error_class_mappings[error_class] = klass
+              module_name = "#{http_classification.gsub("error", "").camelize}Errors"
+
+              defined_module = Module.new
+              Roar::Representer::Transport::Errors.const_set(module_name.to_sym, defined_module)
+
+
+              error_class_mappings[http_classification] = {class: klass, module: defined_module}
               error_class_mappings
             end
           end

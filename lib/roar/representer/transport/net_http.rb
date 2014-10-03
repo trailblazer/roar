@@ -53,7 +53,7 @@ Thank you and have a lovely day.}
 
       end
 
-      const_set(:UnauthorizedError, Roar::Representer::Transport::Errors::Unauthorized)
+      const_set(:UnauthorizedError, Roar::Representer::Transport::Errors::ClientErrors::UnauthorizedError)
     end
   end
 end
