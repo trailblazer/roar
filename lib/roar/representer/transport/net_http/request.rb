@@ -15,10 +15,10 @@ module Roar
 
             @http = Net::HTTP.new(uri.host, uri.port)
             unless options[:pem_file].nil?
-              pem = File.read(options[:pem_file])
-              @http.use_ssl = true
-              @http.cert = OpenSSL::X509::Certificate.new(pem)
-              @http.key = OpenSSL::PKey::RSA.new(pem)
+              pem               = File.read(options[:pem_file])
+              @http.use_ssl     = true
+              @http.cert        = OpenSSL::X509::Certificate.new(pem)
+              @http.key         = OpenSSL::PKey::RSA.new(pem)
               @http.verify_mode = options[:ssl_verify_mode].nil? ? OpenSSL::SSL::VERIFY_PEER : options[:ssl_verify_mode]
             end
           end
@@ -39,7 +39,13 @@ module Roar
             yield req if block_given?
 
             http.request(req).tap do |res|
-              raise UnauthorizedError if res.is_a?(Net::HTTPUnauthorized) # FIXME: make this better. # DISCUSS: abstract all that crap here?
+              http_error_klass = Roar::Representer::Transport::Errors::HTTP_STATUS_TO_ERROR_MAPPINGS[res.code.to_i]
+              raise http_error_klass.new({
+                                             body:        res.body,
+                                             status_code: res.code,
+                                             version:     res.http_version,
+                                             headers:     res.to_hash
+                                         }, req, res) unless http_error_klass.nil?
             end
           end
 

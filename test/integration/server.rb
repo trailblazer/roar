@@ -77,6 +77,10 @@ delete '/bands/metallica' do
   status 204
 end
 
+get "/not_found" do
+  status 404
+end
+
 
 helpers do
   def protected!

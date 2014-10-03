@@ -18,6 +18,7 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
 
   s.add_runtime_dependency "representable", ">= 2.0.0", "<= 2.1.0"
+  s.add_runtime_dependency "activesupport"
 
   s.add_development_dependency "rake", ">= 0.10.1"
   s.add_development_dependency "test_xml", ">= 0.1.6"
@@ -26,4 +27,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency "virtus", ">= 1.0.0"
   s.add_development_dependency "faraday"
   s.add_development_dependency "json"
+  s.add_development_dependency "rspec-mocks", '~> 3.1.2'
 end
