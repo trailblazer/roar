@@ -78,7 +78,7 @@ delete '/bands/metallica' do
 end
 
 get "/not_found" do
-  status 422
+  status 404
 end
 
 
