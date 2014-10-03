@@ -12,11 +12,12 @@ module Roar
           attr_reader :http_classification
         end
 
-        attr_reader :http_body, :http_status_code
+        attr_reader :http_body, :http_status_code, :http_version
 
         def initialize(http_payload)
           @http_body = http_payload[:body]
           @http_status_code = http_payload[:status_code]
+          @http_version = http_payload[:version]
         end
       end
 
