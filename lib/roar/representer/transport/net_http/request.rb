@@ -45,7 +45,7 @@ module Roar
                                              status_code: res.code,
                                              version:     res.http_version,
                                              headers:     res.to_hash
-                                         }) unless http_error_klass.nil?
+                                         }, req, res) unless http_error_klass.nil?
             end
           end
 

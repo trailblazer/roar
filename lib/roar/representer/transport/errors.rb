@@ -12,13 +12,15 @@ module Roar
           attr_reader :http_classification
         end
 
-        attr_reader :http_body, :http_status_code, :http_version, :http_headers
+        attr_reader :http_body, :http_status_code, :http_version, :http_headers, :original_request, :original_response
 
-        def initialize(http_payload)
+        def initialize(http_payload, original_request, original_response)
           @http_body = http_payload[:body]
           @http_status_code = http_payload[:status_code]
           @http_version = http_payload[:version]
           @http_headers = http_payload[:headers]
+          @original_request = original_request
+          @original_response = original_response
         end
       end
 
@@ -27,7 +29,7 @@ module Roar
         class << self
 
           def parse_errors
-            error_mappings = http_response_mappings.delete_if { |key, value| key == "success" }
+            error_mappings = http_response_mappings.delete_if { |key, _| key == "success" }
 
             http_classifications = define_http_error_classifications(error_mappings.keys)
 

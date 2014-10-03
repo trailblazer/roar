@@ -33,23 +33,33 @@ class TransportErrorsTest < MiniTest::Spec
 
       describe "#initialize" do
 
-        let(:error) { Roar::Representer::Transport::Error.new(http_payload) }
-        let(:http_payload) { {body: :http_body, status_code: :http_status_code, version: :http_version, headers: :headers} }
+        let(:error) { Roar::Representer::Transport::Error.new(http_payload, :request, :response) }
+        let(:http_payload) { { body: :http_body, status_code: :http_status_code, version: :http_version, headers: :headers } }
 
-        it "accepts and sets a http_body" do
-          assert_equal :http_body, error.http_body, " Roar::Representer::Transport::Error did not accept a http_body on initialisation"
+        describe "http payload abstraction" do
+          it "accepts and sets a http_body" do
+            assert_equal :http_body, error.http_body, " Roar::Representer::Transport::Error did not accept a http_body on initialisation"
+          end
+
+          it "accepts and sets a http_status_code" do
+            assert_equal :http_status_code, error.http_status_code, " Roar::Representer::Transport::Error did not accept a http_status_code on initialisation"
+          end
+
+          it "accepts and sets a http_version" do
+            assert_equal :http_version, error.http_version, " Roar::Representer::Transport::Error did not accept a http_version on initialisation"
+          end
+
+          it "accepts and sets headers" do
+            assert_equal :headers, error.http_headers, " Roar::Representer::Transport::Error did not accept a headers on initialisation"
+          end
         end
 
-        it "accepts and sets a http_status_code" do
-          assert_equal :http_status_code, error.http_status_code, " Roar::Representer::Transport::Error did not accept a http_status_code on initialisation"
+        it "accepts and sets the original request" do
+          assert_equal :request, error.original_request, " Roar::Representer::Transport::Error did not accept a the original request on initialisation"
         end
 
-        it "accepts and sets a http_version" do
-          assert_equal :http_version, error.http_version, " Roar::Representer::Transport::Error did not accept a http_version on initialisation"
-        end
-
-        it "accepts and sets headers" do
-          assert_equal :headers, error.http_headers, " Roar::Representer::Transport::Error did not accept a headers on initialisation"
+        it "accepts and sets the original upstream response" do
+          assert_equal :response, error.original_response, " Roar::Representer::Transport::Error did not accept a the original response on initialisation"
         end
       end
     end
@@ -88,7 +98,7 @@ class TransportErrorsTest < MiniTest::Spec
           let(:expected_module_name) { "#{http_classification.gsub("error", "").camelize}Errors" }
 
           it "defines an error for status code #{http_status_code}" do
-            klass_name = http_status_information["title"].camelize.gsub(/(\s|-)+/, "")
+            klass_name         = http_status_information["title"].camelize.gsub(/(\s|-)+/, "")
             expected_class     = "Roar::Representer::Transport::Errors::#{expected_module_name}::#{klass_name}Error".constantize
             actual_error_class = Roar::Representer::Transport::Errors::HTTP_STATUS_TO_ERROR_MAPPINGS[http_status_code]
 
@@ -104,22 +114,25 @@ class TransportErrorsTest < MiniTest::Spec
 
         describe "#call" do
 
-          let(:options) { { uri: "http://www.bbc.co.uk", as: "application/json" } }
+          let(:options) { { uri: uri, as: "application/json" } }
+          let(:uri) { "http://www.bbc.co.uk" }
+
           let(:request) { Roar::Representer::Transport::NetHTTP::Request.new(options) }
           let(:http_verb) { Net::HTTP::Get }
+          let(:http_request) { Net::HTTP::Get.new(URI(uri).request_uri) }
 
           let(:http_status_code) { 404 }
           let(:http_body) { "The Quick Brown Fox Jumped Over the Lazy Frog?" }
           let(:http_version) { "1" }
-          let(:http_headers) { {"server"=>["Apache"], "content-type"=>["text/html"], "content-language"=>["en-GB"]} }
+          let(:http_headers) { { "server" => ["Apache"], "content-type" => ["text/html"], "content-language" => ["en-GB"] } }
 
 
           let(:http_response) do
             double(Net::HTTPResponse,
-                   code: http_status_code,
-                   body: http_body,
+                   code:         http_status_code,
+                   body:         http_body,
                    http_version: http_version,
-                   to_hash: http_headers
+                   to_hash:      http_headers
             )
           end
 
@@ -129,41 +142,60 @@ class TransportErrorsTest < MiniTest::Spec
 
           before(:each) do
             allow(Net::HTTP).to receive(:new).and_return(net_http_instance)
+            allow(http_verb).to receive(:new).and_return(http_request)
           end
 
           it "raises a http error if a none 200 status is returned" do
             assert_raises(Roar::Representer::Transport::Errors::ClientErrors::NotFoundError) { request.call(http_verb) }
           end
 
-          it "packs the original http payload into the exception" do
-            begin
-              request.call(http_verb)
-            rescue Roar::Representer::Transport::Errors::ClientErrors::NotFoundError => e
-              assert_equal e.http_body, http_body, "HTTP Exception does not contain the http payload"
+          describe "http payload abstraction" do
+            it "packs the original http payload into the exception" do
+              begin
+                request.call(http_verb)
+              rescue Roar::Representer::Transport::Errors::ClientErrors::NotFoundError => e
+                assert_equal e.http_body, http_body, "HTTP Exception does not contain the http payload"
+              end
+            end
+
+            it "packs the original http status code into the exception" do
+              begin
+                request.call(http_verb)
+              rescue Roar::Representer::Transport::Errors::ClientErrors::NotFoundError => e
+                assert_equal http_status_code, e.http_status_code, "HTTP Exception does not contain the http status code"
+              end
+            end
+
+            it "packs the original http version supported by the server into the exception" do
+              begin
+                request.call(http_verb)
+              rescue Roar::Representer::Transport::Errors::ClientErrors::NotFoundError => e
+                assert_equal http_version, e.http_version, "HTTP Exception does not contain the http version supported by the server"
+              end
+            end
+
+            it "packs the original http headers into the exception" do
+              begin
+                request.call(http_verb)
+              rescue Roar::Representer::Transport::Errors::ClientErrors::NotFoundError => e
+                assert_equal http_headers, e.http_headers, "HTTP Exception does not contain the http headers"
+              end
             end
           end
 
-          it "packs the original http status code into the exception" do
+          it "packs the original request" do
             begin
               request.call(http_verb)
             rescue Roar::Representer::Transport::Errors::ClientErrors::NotFoundError => e
-              assert_equal http_status_code, e.http_status_code, "HTTP Exception does not contain the http status code"
+              assert_equal http_request, e.original_request, "HTTP Exception does not contain the original request"
             end
           end
 
-          it "packs the original http version supported by the server into the exception" do
+          it "packs the original upstream response" do
             begin
               request.call(http_verb)
             rescue Roar::Representer::Transport::Errors::ClientErrors::NotFoundError => e
-              assert_equal http_version, e.http_version, "HTTP Exception does not contain the http version supported by the server"
-            end
-          end
-
-          it "packs the original http headers into the exception" do
-            begin
-              request.call(http_verb)
-            rescue Roar::Representer::Transport::Errors::ClientErrors::NotFoundError => e
-              assert_equal http_headers, e.http_headers, "HTTP Exception does not contain the http headers"
+              assert_equal http_response, e.original_response, "HTTP Exception does not contain the original request"
             end
           end
         end
