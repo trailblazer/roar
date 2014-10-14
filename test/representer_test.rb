@@ -22,13 +22,13 @@ class RepresenterTest < MiniTest::Spec
   describe "Inheritance" do
     it "properly inherits properties from modules" do
       module PersonRepresentation
-        include Roar::Representer::JSON
+        include Roar::JSON
         property :name
       end
 
       class Person
         include AttributesConstructor
-        include Roar::Representer::JSON
+        include Roar::JSON
         include PersonRepresentation
         attr_accessor :name
       end

@@ -3,7 +3,7 @@ require 'roar/decorator'
 
 class DecoratorTest < MiniTest::Spec
   class SongRepresentation < Roar::Decorator
-    include Roar::Representer::JSON
+    include Roar::JSON
 
     property :name
   end
@@ -46,8 +46,8 @@ class DecoratorTest < MiniTest::Spec
       end
 
       class ConsumingDecorator < Roar::Decorator
-        include Roar::Representer::JSON
-        include Roar::Representer::Feature::Hypermedia
+        include Roar::JSON
+        include Roar::Hypermedia
         link(:self) { "http://self" }
 
         include HypermediaConsumer
@@ -73,7 +73,7 @@ class DecoratorTest < MiniTest::Spec
     end
 
     describe "XML" do
-      representer_for([Roar::Representer::XML, Roar::Representer::Feature::Hypermedia]) do
+      representer_for([Roar::XML, Roar::Hypermedia]) do
         link(:self) { "http://self" } # TODO: test with HAL, too.
         #self.representation_wrap = :song   # FIXME: why isn't this working?
       end
@@ -97,7 +97,7 @@ class DecoratorTest < MiniTest::Spec
 
 
     describe "JSON::HAL" do
-      representer_for([Roar::Representer::JSON::HAL]) do
+      representer_for([Roar::JSON::HAL]) do
         link(:self) { "http://self" }
       end
       let (:decorator_class) { rpr_mod = rpr

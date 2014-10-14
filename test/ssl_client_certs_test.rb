@@ -1,20 +1,20 @@
 require 'test_helper'
 
 require "roar"
-require 'roar/representer/transport/net_http/request'
-require 'roar/representer/transport/net_http'
+require 'roar/transport/net_http/request'
+require 'roar/transport/net_http'
 
 
 class SslClientCertsTest < MiniTest::Spec
 
-  describe Roar::Representer::Transport::NetHTTP do
+  describe Roar::Transport::NetHTTP do
 
     describe "instance methods" do
 
       let(:url) { "http://www.bbc.co.uk" }
       let(:as) { "application/xml" }
 
-      let(:transport) { Roar::Representer::Transport::NetHTTP.new }
+      let(:transport) { Roar::Transport::NetHTTP.new }
 
       describe "options passed to the request object (private #call method)" do
 
@@ -32,7 +32,7 @@ class SslClientCertsTest < MiniTest::Spec
               request_mock
             }
 
-            Roar::Representer::Transport::NetHTTP::Request.stub :new, options_assertions do
+            Roar::Transport::NetHTTP::Request.stub :new, options_assertions do
               transport.get_uri(options)
             end
           end
@@ -41,7 +41,7 @@ class SslClientCertsTest < MiniTest::Spec
     end
   end
 
-  describe Roar::Representer::Transport::NetHTTP::Request do
+  describe Roar::Transport::NetHTTP::Request do
 
     describe "instance methods" do
       describe "#initialize" do
@@ -51,7 +51,7 @@ class SslClientCertsTest < MiniTest::Spec
           let(:uri) { URI.parse("http://www.bbc.co.uk") }
           let(:options) { { uri: uri, pem_file: pem_file, ssl_verify_mode: ssl_verify_mode } }
 
-          let(:request) { Roar::Representer::Transport::NetHTTP::Request.new(options) }
+          let(:request) { Roar::Transport::NetHTTP::Request.new(options) }
           let(:net_http_instance) { request.instance_variable_get(:@http) }
           let(:ssl_verify_mode) { nil }
 

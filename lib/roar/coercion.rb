@@ -1,7 +1,7 @@
 require 'virtus'
 require 'representable/coercion'
 
-module Roar::Representer::Feature
+module Roar
   # Use the +:type+ option to specify the conversion type.
   # class ImmigrantSong
   #   include Roar::Representer::JSON

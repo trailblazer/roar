@@ -1,4 +1,4 @@
-module Roar::Representer::JSON
+module Roar::JSON
   # Implementation of the Collection+JSON media format, http://amundsen.com/media-types/collection/format/
   #
   # When clients want to add or update an item the collection's filled out template is POSTed or PUT. You can parse that using the
@@ -9,8 +9,8 @@ module Roar::Representer::JSON
     def self.included(base)
       base.class_eval do
         include Roar::Representer
-        include Roar::Representer::JSON
-        include Roar::Representer::Feature::Hypermedia
+        include Roar::JSON
+        include Roar::Hypermedia
 
         extend ClassMethods
 
@@ -21,7 +21,7 @@ module Roar::Representer::JSON
           OpenStruct.new  # TODO: handle preset values.
         end
 
-        collection :queries, :extend => Roar::Representer::JSON::HyperlinkRepresenter, :class => lambda { |fragment,*| Hash }
+        collection :queries, :extend => Roar::JSON::HyperlinkRepresenter, :class => lambda { |fragment,*| Hash }
         def queries
           compile_links_for(representable_attrs.collection_representers[:queries].link_configs)
         end
@@ -62,8 +62,8 @@ module Roar::Representer::JSON
       # TODO: provide automatic copying from the ItemRepresenter here.
       def template(&block)
         mod = representable_attrs.collection_representers[:object_template] = Module.new do
-          include Roar::Representer::JSON
-          include Roar::Representer::JSON::CollectionJSON::DataMethods
+          include Roar::JSON
+          include Roar::JSON::CollectionJSON::DataMethods
 
           extend PropertyWithRenderNil
 
@@ -76,7 +76,7 @@ module Roar::Representer::JSON
         end
 
         representable_attrs.collection_representers[:template] = Module.new do
-          include Roar::Representer::JSON
+          include Roar::JSON
           include mod
 
           #self.representation_wrap = false
@@ -93,8 +93,8 @@ module Roar::Representer::JSON
 
       def queries(&block)
         mod = representable_attrs.collection_representers[:queries] = Module.new do
-          include Roar::Representer::JSON
-          include Roar::Representer::Feature::Hypermedia
+          include Roar::JSON
+          include Roar::Hypermedia
 
           module_exec(&block)
 
@@ -109,9 +109,9 @@ module Roar::Representer::JSON
         collection :items, { :extend => lambda {|*| representable_attrs.collection_representers[:items] } }.merge!(options)
 
         mod = representable_attrs.collection_representers[:items] = Module.new do
-          include Roar::Representer::JSON
-          include Roar::Representer::Feature::Hypermedia
-          include Roar::Representer::JSON::CollectionJSON::DataMethods
+          include Roar::JSON
+          include Roar::Hypermedia
+          include Roar::JSON::CollectionJSON::DataMethods
           extend SharedClassMethodsBullshit
 
           module_exec(&block)
@@ -122,7 +122,7 @@ module Roar::Representer::JSON
             compile_links_for(representable_attrs.collection_representers[:href].link_configs).first.href
           end
           def __href=(v)
-            @__href = Roar::Representer::Feature::Hypermedia::Hyperlink.new(:href => v)
+            @__href = Roar::Hypermedia::Hyperlink.new(:href => v)
           end
           def href
             @__href
@@ -137,8 +137,8 @@ module Roar::Representer::JSON
       module SharedClassMethodsBullshit
         def href(&block)
           mod = representable_attrs.collection_representers[:href] = Module.new do
-            include Roar::Representer::JSON
-            include Roar::Representer::Feature::Hypermedia
+            include Roar::JSON
+            include Roar::Hypermedia
 
 
             link(:href, &block)
@@ -190,7 +190,7 @@ module Roar::Representer::JSON
       end
 
       def __href=(v)
-        @__href = Roar::Representer::Feature::Hypermedia::Hyperlink.new(:href => v)
+        @__href = Roar::Hypermedia::Hyperlink.new(:href => v)
       end
       def href
         @__href

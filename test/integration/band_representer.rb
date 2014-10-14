@@ -1,6 +1,6 @@
 module Integration
   module BandRepresenter
-    include Roar::Representer::JSON
+    include Roar::JSON
 
     property :name
     property :label

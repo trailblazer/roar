@@ -1,6 +1,6 @@
 require 'test_helper'
-require 'roar/representer/feature/http_verbs'
-require 'roar/representer/json'
+require 'roar/http_verbs'
+require 'roar/json'
 
 class HttpVerbsTest < MiniTest::Spec
   BandRepresenter = Integration::BandRepresenter
@@ -10,20 +10,20 @@ class HttpVerbsTest < MiniTest::Spec
     attr_accessor :name, :label
   end
 
-  let (:band) { OpenStruct.new(:name => "bodyjar").extend(Roar::Representer::Feature::HttpVerbs, BandRepresenter) }
+  let (:band) { OpenStruct.new(:name => "bodyjar").extend(Roar::HttpVerbs, BandRepresenter) }
 
 
   describe "HttpVerbs" do
     before do
       @band = Band.new
       @band.extend(BandRepresenter)
-      @band.extend(Roar::Representer::Feature::HttpVerbs)
+      @band.extend(Roar::HttpVerbs)
     end
 
     describe "transport_engine" do
       before do
-        @http_verbs = Roar::Representer::Feature::HttpVerbs
-        @net_http   = Roar::Representer::Transport::NetHTTP
+        @http_verbs = Roar::HttpVerbs
+        @net_http   = Roar::Transport::NetHTTP
       end
 
       it "has a default set in the transport module level" do
@@ -54,17 +54,17 @@ class HttpVerbsTest < MiniTest::Spec
       end
 
       # FIXME: move to faraday test.
-      require 'roar/representer/transport/faraday'
+      require 'roar/transport/faraday'
       describe 'a non-existent resource' do
         it 'handles HTTP errors and raises a ResourceNotFound error with FaradayHttpTransport' do
-          @band.transport_engine = Roar::Representer::Transport::Faraday
+          @band.transport_engine = Roar::Transport::Faraday
           assert_raises(::Faraday::Error::ResourceNotFound) do
             @band.get('http://localhost:4567/bands/anthrax', "application/json")
           end
         end
 
         it 'performs no HTTP error handling with NetHttpTransport' do
-          @band.transport_engine = Roar::Representer::Transport::NetHTTP
+          @band.transport_engine = Roar::Transport::NetHTTP
           assert_raises(MultiJson::LoadError) do
             @band.get('http://localhost:4567/bands/anthrax', "application/json")
           end
@@ -116,7 +116,7 @@ class HttpVerbsTest < MiniTest::Spec
 
 
     describe "HTTPS and Authentication" do
-      let (:song) { OpenStruct.new(:name => "bodyjar").extend(Roar::Representer::Feature::HttpVerbs, BandRepresenter) }
+      let (:song) { OpenStruct.new(:name => "bodyjar").extend(Roar::HttpVerbs, BandRepresenter) }
 
       describe "Basic Auth: passing manually" do
 

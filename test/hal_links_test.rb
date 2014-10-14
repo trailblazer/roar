@@ -1,13 +1,13 @@
 require 'ostruct'
 require 'test_helper'
-require 'roar/representer/json/hal'
+require 'roar/json/hal'
 
 
 class HalLinkTest < MiniTest::Spec
   let(:rpr) do
     Module.new do
-      include Roar::Representer::JSON
-      include Roar::Representer::JSON::HAL::Links
+      include Roar::JSON
+      include Roar::JSON::HAL::Links
       link :self do
         "//songs"
       end

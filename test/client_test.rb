@@ -1,5 +1,5 @@
 require 'test_helper'
-require 'roar/representer/feature/client'
+require 'roar/client'
 
 class ClientTest < MiniTest::Spec
   representer_for([Roar::Representer]) do
@@ -7,7 +7,7 @@ class ClientTest < MiniTest::Spec
     property :band
   end
 
-  let(:song) { Object.new.extend(rpr).extend(Roar::Representer::Feature::Client) }
+  let(:song) { Object.new.extend(rpr).extend(Roar::Client) }
 
   it "adds accessors" do
     song.name = "Social Suicide"
@@ -17,7 +17,7 @@ class ClientTest < MiniTest::Spec
   end
 
   describe "links" do
-    representer_for([Roar::Representer::JSON, Roar::Representer::Feature::Hypermedia]) do
+    representer_for([Roar::JSON, Roar::Hypermedia]) do
       property :name
       link(:self) { never_call_me! }
     end

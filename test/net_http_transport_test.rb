@@ -1,11 +1,11 @@
 require 'test_helper'
-require 'roar/representer/transport/net_http'
+require 'roar/transport/net_http'
 
 class NetHTTPTransportTest < MiniTest::Spec
   let(:url) { "http://localhost:4567/method" }
   let(:body) { "booty" }
   let(:as) { "application/xml" }
-  let (:transport) { Roar::Representer::Transport::NetHTTP.new }
+  let (:transport) { Roar::Transport::NetHTTP.new }
 
   it "#get_uri returns response" do
     transport.get_uri(:uri => url, :as => as).must_match_net_response :get, url, as
@@ -47,13 +47,13 @@ class NetHTTPTransportTest < MiniTest::Spec
 
   describe "basic auth" do
     it "raises when no credentials provided" do
-      assert_raises Roar::Representer::Transport::UnauthorizedError do
+      assert_raises Roar::Transport::UnauthorizedError do
         transport.get_uri(:uri => "http://localhost:4567/protected/bands/bodyjar", :as => "application/json")
       end
     end
 
     it "raises when wrong credentials provided" do
-      assert_raises Roar::Representer::Transport::UnauthorizedError do
+      assert_raises Roar::Transport::UnauthorizedError do
         transport.get_uri(:uri => "http://localhost:4567/protected/bands/bodyjar", :as => "application/json", :basic_auth => ["admin", "wrong--!!!--password"])
       end
     end

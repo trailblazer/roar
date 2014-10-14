@@ -4,22 +4,22 @@ class HypermediaTest < MiniTest::Spec
   describe "inheritance" do
     before do
       module BaseRepresenter
-        include Roar::Representer::JSON
-        include Roar::Representer::Feature::Hypermedia
+        include Roar::JSON
+        include Roar::Hypermedia
 
         link(:base) { "http://base" }
       end
 
       module Bar
-        include Roar::Representer::JSON
-        include Roar::Representer::Feature::Hypermedia
+        include Roar::JSON
+        include Roar::Hypermedia
 
         link(:bar) { "http://bar" }
       end
 
       module Foo
-        include Roar::Representer::JSON
-        include Roar::Representer::Feature::Hypermedia
+        include Roar::JSON
+        include Roar::Hypermedia
         include BaseRepresenter
         include Bar
 
@@ -165,10 +165,10 @@ class HyperlinkTest < MiniTest::Spec
   describe "Config inheritance" do
       it "doesn't mess up with inheritable_array" do  # FIXME: remove this test when uber is out.
         OpenStruct.new.extend( Module.new do
-                  include Roar::Representer::JSON
+                  include Roar::JSON
                   include(Module.new do
-                                      include Roar::Representer::JSON
-                                      include Roar::Representer::Feature::Hypermedia
+                                      include Roar::JSON
+                                      include Roar::Hypermedia
 
                                       property :bla
 
@@ -182,7 +182,7 @@ class HyperlinkTest < MiniTest::Spec
                   #puts representable_attrs.inheritable_array(:links).inspect
 
                   property :blow
-                  include Roar::Representer::Feature::Hypermedia
+                  include Roar::Hypermedia
                   link(:bla) { "boo" }
                 end).to_hash.must_equal({"links"=>[{"rel"=>"self", "href"=>"bo"}, {"rel"=>"bla", "href"=>"boo"}]})
     end

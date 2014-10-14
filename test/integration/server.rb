@@ -1,7 +1,7 @@
 require "bundler/setup"
 require "sinatra"
 require "ostruct"
-require "roar/representer/json"
+require "roar/json"
 require "sinatra/multi_route"
 
 require File.expand_path("../band_representer.rb", __FILE__)

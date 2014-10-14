@@ -1,10 +1,10 @@
 require 'test_helper'
-require 'roar/representer/json/collection_json'
+require 'roar/json/collection_json'
 
 class CollectionJsonTest < MiniTest::Spec
   let(:song) { OpenStruct.new(:title => "scarifice", :length => 43) }
 
-  representer_for([Roar::Representer::JSON::CollectionJSON]) do
+  representer_for([Roar::JSON::CollectionJSON]) do
     version "1.0"
     href { "//songs/" }
 

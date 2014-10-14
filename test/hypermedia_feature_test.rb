@@ -9,8 +9,8 @@ class HypermediaTest < MiniTest::Spec
     before do
       @bookmarks = Class.new do
         include AttributesConstructor
-        include Roar::Representer::XML
-        include Roar::Representer::Feature::Hypermedia
+        include Roar::XML
+        include Roar::Hypermedia
 
         self.representation_wrap = "bookmarks"
       end
@@ -31,8 +31,8 @@ class HypermediaTest < MiniTest::Spec
     describe "#to_xml" do
       it "works when no links defined" do
         repr = Module.new do
-          include Roar::Representer::XML
-          include Roar::Representer::Feature::Hypermedia
+          include Roar::XML
+          include Roar::Hypermedia
 
           self.representation_wrap = "song"
           property :title
@@ -42,8 +42,8 @@ class HypermediaTest < MiniTest::Spec
       end
 
       let (:rpr) { Module.new do
-        include Roar::Representer::XML
-        include Roar::Representer::Feature::Hypermedia
+        include Roar::XML
+        include Roar::Hypermedia
 
         self.representation_wrap = "song"
         property :title
@@ -69,8 +69,8 @@ class HypermediaTest < MiniTest::Spec
         song_rpr = rpr
 
         album_rpr = Module.new do
-          include Roar::Representer::XML
-          include Roar::Representer::Feature::Hypermedia
+          include Roar::XML
+          include Roar::Hypermedia
 
           self.representation_wrap = "album"
           collection :songs, :extend => song_rpr
@@ -93,8 +93,8 @@ class HypermediaTest < MiniTest::Spec
 
     describe "#to_json" do
       class Note
-        include Roar::Representer::JSON
-        include Roar::Representer::Feature::Hypermedia
+        include Roar::JSON
+        include Roar::Hypermedia
         link(:self) { "http://me" }
       end
 
@@ -106,7 +106,7 @@ class HypermediaTest < MiniTest::Spec
       it "sets up links even when nested" do
         class Page
           include AttributesConstructor
-          include Roar::Representer::JSON
+          include Roar::JSON
           property :note, :class => Note
           attr_accessor :note
         end
@@ -125,7 +125,7 @@ class HypermediaTest < MiniTest::Spec
         </bookmarks>
         })
 
-        assert_kind_of Roar::Representer::Feature::Hypermedia::LinkCollection, doc.links
+        assert_kind_of Roar::Hypermedia::LinkCollection, doc.links
         assert_equal 1, doc.links.size
         assert_equal(["self", "http://bookmarks"], [doc.links["self"].rel, doc.links["self"].href])
       end
@@ -141,7 +141,7 @@ end
 class LinkCollectionTest < MiniTest::Spec
   describe "LinkCollection" do
     subject {
-      Roar::Representer::Feature::Hypermedia::LinkCollection[
+      Roar::Hypermedia::LinkCollection[
         @self_link = link(:rel => :self), @next_link = link(:rel => :next)
       ]
     }

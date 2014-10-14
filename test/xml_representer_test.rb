@@ -2,7 +2,7 @@ require 'test_helper'
 
 class ItemRepresenter
   include AttributesConstructor
-  include Roar::Representer::XML
+  include Roar::XML
   self.representation_wrap= :item
   property :value
   attr_accessor :value
@@ -10,7 +10,7 @@ end
 
 class PositionRepresenter
   include AttributesConstructor
-  include Roar::Representer::XML
+  include Roar::XML
   self.representation_wrap= :position
   property :id
   property :item, :class => ItemRepresenter
@@ -28,7 +28,7 @@ class XMLRepresenterFunctionalTest < MiniTest::Spec
   end
 
   class TestXmlRepresenter
-    include Roar::Representer::XML
+    include Roar::XML
     self.representation_wrap= :order
     property :id
     attr_accessor :id
@@ -85,7 +85,7 @@ class XMLRepresenterFunctionalTest < MiniTest::Spec
 
     describe "XML.from_xml" do
       class Order
-        include Roar::Representer::XML
+        include Roar::XML
         property :id
         property :pending
         attr_accessor :id, :pending
@@ -149,7 +149,7 @@ class XMLRepresenterFunctionalTest < MiniTest::Spec
       before do
         @c = Class.new do
           include AttributesConstructor
-          include Roar::Representer::XML
+          include Roar::XML
 
           self.representation_wrap= :order
           property :id
@@ -186,7 +186,7 @@ end
 class XmlHyperlinkRepresenterTest < MiniTest::Spec
   describe "API" do
     before do
-      @link = Roar::Representer::Feature::Hypermedia::Hyperlink.new.extend(Roar::Representer::XML::HyperlinkRepresenter).from_xml(%{<link rel="self" href="http://roar.apotomo.de" media="web"/>})
+      @link = Roar::Hypermedia::Hyperlink.new.extend(Roar::XML::HyperlinkRepresenter).from_xml(%{<link rel="self" href="http://roar.apotomo.de" media="web"/>})
     end
 
     it "responds to #rel" do

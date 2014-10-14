@@ -1,6 +1,6 @@
-require 'roar/representer/json'
+require 'roar/json'
 
-module Roar::Representer
+module Roar
   module JSON
     # Including the JSON::HAL module in your representer will render and parse documents
     # following the HAL specification: http://stateless.co/hal_specification.html
@@ -44,7 +44,7 @@ module Roar::Representer
     module HAL
       def self.included(base)
         base.class_eval do
-          include Roar::Representer::JSON
+          include Roar::JSON
           include Links       # overwrites #links_definition_options.
           extend ClassMethods # overwrites #links_definition_options, again.
           include Resources
@@ -78,7 +78,7 @@ module Roar::Representer
         end
       end
 
-      class LinkCollection < Feature::Hypermedia::LinkCollection
+      class LinkCollection < Hypermedia::LinkCollection
         def initialize(array_rels, *args)
           super(*args)
           @array_rels = array_rels.map(&:to_s)
@@ -107,7 +107,7 @@ module Roar::Representer
       module Links
         def self.included(base)
           base.extend ClassMethods  # ::links_definition_options
-          base.send :include, Feature::Hypermedia
+          base.send :include, Hypermedia
           base.send :include, InstanceMethods
         end
 
@@ -116,7 +116,7 @@ module Roar::Representer
           def prepare_link_for(href, options)
             return super(href, options) unless options[:array]  # TODO: remove :array and use special instan
 
-            list = href.collect { |opts| Feature::Hypermedia::Hyperlink.new(opts.merge!(:rel => options[:rel])) }
+            list = href.collect { |opts| Hypermedia::Hyperlink.new(opts.merge!(:rel => options[:rel])) }
             LinkArray.new(list, options[:rel])
           end
 
@@ -132,8 +132,8 @@ module Roar::Representer
           include Representable::JSON::Hash
 
           values :extend => lambda { |item, *|
-            item.is_a?(Array) ? LinkArrayRepresenter : Roar::Representer::JSON::HyperlinkRepresenter },
-            :instance => lambda { |fragment, *| fragment.is_a?(LinkArray) ? fragment : Roar::Representer::Feature::Hypermedia::Hyperlink.new
+            item.is_a?(Array) ? LinkArrayRepresenter : Roar::JSON::HyperlinkRepresenter },
+            :instance => lambda { |fragment, *| fragment.is_a?(LinkArray) ? fragment : Roar::Hypermedia::Hyperlink.new
           }
 
           def to_hash(options)
@@ -171,8 +171,8 @@ module Roar::Representer
         module LinkArrayRepresenter
           include Representable::JSON::Collection
 
-          items :extend => Roar::Representer::JSON::HyperlinkRepresenter,
-            :class => Roar::Representer::Feature::Hypermedia::Hyperlink
+          items :extend => Roar::JSON::HyperlinkRepresenter,
+            :class => Roar::Hypermedia::Hyperlink
 
           def to_hash(*)
             super.tap do |ary|

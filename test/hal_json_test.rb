@@ -1,11 +1,11 @@
 require 'test_helper'
-require 'roar/representer/json/hal'
+require 'roar/json/hal'
 
 class HalJsonTest < MiniTest::Spec
   let(:rpr) do
     Module.new do
-      include Roar::Representer::JSON
-      include Roar::Representer::JSON::HAL
+      include Roar::JSON
+      include Roar::JSON::HAL
 
       links :self do
         [{:lang => "en", :href => "http://en.hit"},
@@ -59,7 +59,7 @@ class HalJsonTest < MiniTest::Spec
 
       it "renders empty link array" do
         rpr = Module.new do
-          include Roar::Representer::JSON::HAL
+          include Roar::JSON::HAL
 
           links :self do [] end
         end
@@ -86,14 +86,14 @@ class HalJsonTest < MiniTest::Spec
 
   describe "HAL/JSON" do
     Bla = Module.new do
-      include Roar::Representer::JSON::HAL
+      include Roar::JSON::HAL
       property :title
       link :self do
         "http://songs/#{title}"
       end
     end
 
-    representer_for([Roar::Representer::JSON::HAL]) do
+    representer_for([Roar::JSON::HAL]) do
       property :id
       collection :songs, :class => Song, :extend => Bla, :embedded => true
       link :self do
@@ -129,7 +129,7 @@ class HalJsonTest < MiniTest::Spec
 end
 
 class LinkCollectionTest < MiniTest::Spec
-  subject { Roar::Representer::JSON::HAL::LinkCollection.new([:self, "next"]) }
+  subject { Roar::JSON::HAL::LinkCollection.new([:self, "next"]) }
   describe "#is_array?" do
     it "returns true for array link" do
       subject.is_array?(:self).must_equal true
@@ -144,7 +144,7 @@ end
 
 
 class HalCurieTest < MiniTest::Spec
-  representer!([Roar::Representer::JSON::HAL]) do
+  representer!([Roar::JSON::HAL]) do
     link "doc:self" do
       "/"
     end

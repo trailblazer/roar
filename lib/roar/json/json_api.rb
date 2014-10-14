@@ -1,4 +1,4 @@
-require 'roar/representer/json'
+require 'roar/json'
 require 'roar/decorator'
 
 module Roar
@@ -51,8 +51,8 @@ module Roar
         # ::link is delegated to Representer which handles the hypermedia (rendering
         # and parsing links).
         class Representer < Roar::Decorator
-          include Roar::Representer::JSON
-          include Roar::Representer::Feature::Hypermedia
+          include Roar::JSON
+          include Roar::Hypermedia
 
           def self.links_definition_options
             {
@@ -175,7 +175,7 @@ module Roar
 
 
       module LinkRepresenter
-        include Roar::Representer::JSON
+        include Roar::JSON
 
         property :href
         property :type

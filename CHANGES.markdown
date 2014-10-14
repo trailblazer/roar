@@ -1,5 +1,11 @@
 # 1.0.0
 
+## Breakage
+
+* Removed `Representer` and `Feature` namespace. That means changes along the following.
+    * `Roar::Representer::Feature::Hypermedia` --> `Roar::Hypermedia`
+    * `Roar::Representer::JSON` --> `Roar::JSON`
+
 ## Relevant
 
 * `Hyperlink#to_hash` now returns stringified keys.

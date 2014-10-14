@@ -1,11 +1,11 @@
 require 'test_helper'
 
 require "test_xml/mini_test"
-require "roar/representer/json"
+require "roar/json"
 
 class JsonRepresenterTest < MiniTest::Spec
   class Order
-    include Roar::Representer::JSON
+    include Roar::JSON
     property :id
     property :pending
     attr_accessor :id, :pending
@@ -74,7 +74,7 @@ end
 class JsonHyperlinkRepresenterTest
   describe "API" do
     before do
-      @link = Roar::Representer::Feature::Hypermedia::Hyperlink.new.extend(Roar::Representer::JSON::HyperlinkRepresenter).from_json(
+      @link = Roar::Hypermedia::Hyperlink.new.extend(Roar::JSON::HyperlinkRepresenter).from_json(
         '{"rel":"self", "href":"http://roar.apotomo.de", "media":"web"}')
     end
 
@@ -101,8 +101,8 @@ class JsonHypermediaTest
     before do
       @c = Class.new do
         include AttributesConstructor
-        include Roar::Representer::JSON
-        include Roar::Representer::Feature::Hypermedia
+        include Roar::JSON
+        include Roar::Hypermedia
         attr_accessor :id, :self, :next
 
         property :id
@@ -132,8 +132,8 @@ class JsonHypermediaTest
 
     it "doesn't render links when empty" do
       assert_equal("{\"links\":[]}", Class.new do
-        include Roar::Representer::JSON
-        include Roar::Representer::Feature::Hypermedia
+        include Roar::JSON
+        include Roar::Hypermedia
 
         link :self do nil end
         link :next do false end

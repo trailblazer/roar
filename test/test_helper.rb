@@ -2,8 +2,8 @@ require 'minitest/autorun'
 require 'ostruct'
 
 require 'roar/representer'
-require 'roar/representer/feature/http_verbs'
-require 'roar/representer/json/hal'
+require 'roar/http_verbs'
+require 'roar/json/hal'
 
 module AttributesConstructor  # TODO: remove me.
   def initialize(attrs={})
@@ -24,16 +24,16 @@ class Album < OpenStruct
 end
 
 require "test_xml/mini_test"
-require "roar/representer/xml"
+require "roar/xml"
 
 require "integration/runner"
 
 MiniTest::Spec.class_eval do
   def link(options)
-    Roar::Representer::Feature::Hypermedia::Hyperlink.new(options)
+    Roar::Hypermedia::Hyperlink.new(options)
   end
 
-  def self.representer_for(modules=[Roar::Representer::JSON, Roar::Representer::Feature::Hypermedia], &block)
+  def self.representer_for(modules=[Roar::JSON, Roar::Hypermedia], &block)
     let (:rpr) do
       Module.new do
         include *modules.reverse
@@ -53,7 +53,7 @@ MiniTest::Spec.class_eval do
 end
 
 
-Roar::Representer::Feature::Hypermedia::Hyperlink.class_eval do
+Roar::Hypermedia::Hyperlink.class_eval do
   def ==(b)
     @attrs == b.instance_variable_get(:@attrs)
   end

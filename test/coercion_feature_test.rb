@@ -1,11 +1,11 @@
 require 'test_helper'
-require 'roar/representer/feature/coercion'
+require 'roar/coercion'
 
 class CoercionFeatureTest < MiniTest::Spec
   describe "Coercion" do
     class ImmigrantSong
-      include Roar::Representer::JSON
-      include Roar::Representer::Feature::Coercion
+      include Roar::JSON
+      include Roar::Coercion
 
       property :composed_at, :type => DateTime, :default => "May 12th, 2012"
 
