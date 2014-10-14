@@ -4,4 +4,6 @@ source "http://rubygems.org"
 gemspec
 
 # gem "representable", :path => "../representable"
-gem "sinatra-contrib", :git => "git@github.com:apotonick/sinatra-contrib.git", :branch => "runner"
+# as long as this is not merged, i'll vendor the runner file.
+# gem "sinatra-contrib", :git => "git@github.com:apotonick/sinatra-contrib.git", :branch => "runner"
+gem "sinatra-contrib"
