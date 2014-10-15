@@ -134,7 +134,7 @@ module Roar
 
           {representable_attrs[:_wrap] => res}.tap do |doc|
             doc.merge!(links)
-            doc.merge!("linked" => compound) if compound
+            doc.merge!("linked" => compound) if compound && compound.size > 0
           end
         end
 

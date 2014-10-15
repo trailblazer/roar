@@ -28,8 +28,8 @@ class JsonApiTest < MiniTest::Spec
   describe "minimal singular" do
     subject { song.extend(MinimalSingular) }
 
-    it("x") { subject.to_json.must_equal "{\"songs\":{\"id\":\"1\"}}" }
-    it("xx") { subject.from_json("{\"songs\":{\"id\":\"2\"}}").id.must_equal "2"  }
+    it { subject.to_json.must_equal "{\"songs\":{\"id\":\"1\"}}" }
+    it { subject.from_json("{\"songs\":{\"id\":\"2\"}}").id.must_equal "2"  }
   end
 
 
@@ -226,5 +226,46 @@ class JsonApiTest < MiniTest::Spec
     song2.musician_ids.must_equal ["3", "4"]
     song2.composer_id.must_equal "2"
     song2.listener_ids.must_equal ["6"]
+  end
+
+
+  class CollectionWithoutCompound <  self
+    module Representer
+      include Roar::JSON::JsonApi
+      type :songs
+
+      property :id
+      property :title
+
+      # local per-model "id" links
+      links do
+        property :album_id, :as => :album
+        collection :musician_ids, :as => :musicians
+      end
+      has_one :composer
+      has_many :listeners
+
+
+      # global document links.
+      link "songs.album" do
+        {
+          type: "album",
+          href: "http://example.com/albums/{songs.album}"
+        }
+      end
+    end
+
+    subject { [song, song].extend(Singular.for_collection) }
+
+    # to_json
+    it do
+      subject.extend(Representer.for_collection).to_hash.must_equal(
+        {
+          "songs"=>[{"id"=>"1", "title"=>"Computadores Fazem Arte", "links"=>{"album"=>"9", "musicians"=>["1", "2"], "composer"=>"10", "listeners"=>["8"]}}, {"id"=>"1", "title"=>"Computadores Fazem Arte", "links"=>{"album"=>"9", "musicians"=>["1", "2"], "composer"=>"10", "listeners"=>["8"]}}],
+          "links"=>{"songs.album"=>{"href"=>"http://example.com/albums/{songs.album}", "type"=>"album"}
+          }
+        }
+      )
+    end
   end
 end
