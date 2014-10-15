@@ -169,6 +169,10 @@ class JsonApiTest < MiniTest::Spec
               "type" => "album" # DISCUSS: does that have to be albums ?
             },
           },
+          "linked"=>{
+            "album"    =>[{"title"=>"Hackers"}],
+            "musicians"=>[{"name"=>"Eddie Van Halen"}, {"name"=>"Greg Howe"}]
+          }
         }
       )
     end
