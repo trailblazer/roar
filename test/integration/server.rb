@@ -77,6 +77,17 @@ delete '/bands/metallica' do
   status 204
 end
 
+route :get, :delete, :patch, :post, :put, %r{/bands/nirvana/status([\d]*)_and_data} do
+  status params[:captures]
+  OpenStruct.new(:name => "Nirvana", :label => "Sub Pop").
+    extend(Integration::BandRepresenter).
+    to_json
+end
+
+route :get, :delete, :patch, :post, :put, %r{/bands/nirvana/status([\d]*)_no_data} do
+  status params[:captures]
+end
+
 
 helpers do
   def protected!
