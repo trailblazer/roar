@@ -125,6 +125,7 @@ module Roar
         def to_document(res)
           links    = representable_attrs[:resource_representer].new(represented).to_hash # creates links: section.
           # FIXME: provide two different #to_document
+
           if res.is_a?(Array)
             compound = collection_compound!(res)
           else
@@ -141,16 +142,22 @@ module Roar
           hash[representable_attrs[:_wrap]]
         end
 
+        # Compiles the linked: section for compound objects in the document.
         def collection_compound!(collection)
           compound = {}
 
           collection.each { |res|
             kv = res.delete("linked") or next
-            # aTODO: this can be a hash or array.
+
             kv.each { |k,v|
               compound[k] ||= []
-              compound[k] << v and next if v.is_a?(Hash) # >{"title"=>"Hackers"}
-              compound[k].push(*v) # [{"name"=>"Eddie Van Halen"}, {"name"=>"Greg Howe"}]
+
+              if v.is_a?(Hash) # {"title"=>"Hackers"}
+                compound[k] << v
+              else
+                compound[k].push(*v) # [{"name"=>"Eddie Van Halen"}, {"name"=>"Greg Howe"}]
+              end
+
               compound[k] = compound[k].uniq
             }
           }

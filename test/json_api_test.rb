@@ -135,7 +135,7 @@ class JsonApiTest < MiniTest::Spec
 
 
   # collection with links
-  describe "collection with links" do
+  describe "collection with links and compound" do
     subject { [song, song].extend(Singular.for_collection) }
 
     # to_json
@@ -170,7 +170,7 @@ class JsonApiTest < MiniTest::Spec
             },
           },
           "linked"=>{
-            "album"    =>[{"title"=>"Hackers"}],
+            "album"    =>[{"title"=>"Hackers"}], # only once!
             "musicians"=>[{"name"=>"Eddie Van Halen"}, {"name"=>"Greg Howe"}]
           }
         }
