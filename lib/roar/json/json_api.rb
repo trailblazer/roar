@@ -127,7 +127,7 @@ module Roar
           # FIXME: provide two different #to_document
 
           if res.is_a?(Array)
-            compound = collection_compound!(res)
+            compound = collection_compound!(res, {})
           else
             compound = compile_compound!(res.delete("linked"), {})
           end
@@ -143,9 +143,7 @@ module Roar
         end
 
         # Compiles the linked: section for compound objects in the document.
-        def collection_compound!(collection)
-          compound = {}
-
+        def collection_compound!(collection, compound)
           collection.each { |res|
             kv = res.delete("linked") or next
 
@@ -174,8 +172,6 @@ module Roar
 
           compound
         end
-
-
 
 
         module Collection

@@ -24,10 +24,10 @@ If in need for a feature, make sure to check the [representable API docs](https:
 Let's see how representers work. They're fun to use.
 
 ```ruby
-require 'roar/representer/json'
+require 'roar/json'
 
 module SongRepresenter
-  include Roar::Representer::JSON
+  include Roar::JSON
 
   property :title
 end
@@ -81,7 +81,7 @@ Many people dislike `#extend` due to eventual performance issue or object pollut
 require 'roar/decorator'
 
 class SongRepresenter < Roar::Decorator
-  include Roar::Representer::JSON
+  include Roar::JSON
 
   property :title
 end
@@ -107,7 +107,7 @@ Roar (or rather representable) also allows to map collections in documents.
 
 ```ruby
 module SongRepresenter
-  include Roar::Representer::JSON
+  include Roar::JSON
 
   property :title
   collection :composers
@@ -140,7 +140,7 @@ Another representer to represent.
 
 ```ruby
 module AlbumRepresenter
-  include Roar::Representer::JSON
+  include Roar::JSON
 
   property :title
   collection :songs, extend: SongRepresenter, class: Song
@@ -188,7 +188,7 @@ Sometimes you don't wanna create two separate representers - although it makes t
 
 ```ruby
 module AlbumRepresenter
-  include Roar::Representer::JSON
+  include Roar::JSON
 
   property :title
 
@@ -207,7 +207,7 @@ Usually, when parsing, nested objects are created from scratch. If you want nest
 
 ```ruby
 module AlbumRepresenter
-  include Roar::Representer::JSON
+  include Roar::JSON
 
   property :title
 
@@ -235,11 +235,11 @@ We're currently [working on](https://github.com/apotonick/roar/issues/85) better
 Roar provides coercion with the [virtus](https://github.com/solnic/virtus) gem.
 
 ```ruby
-require 'roar/representer/feature/coercion'
+require 'roar/feature/coercion'
 
 module SongRepresenter
-  include Roar::Representer::JSON
-  include Roar::Representer::Feature::Coercion
+  include Roar::JSON
+  include Roar::Coercion
 
   property :title
   property :released_at, type: DateTime
@@ -269,8 +269,8 @@ Roar comes with built-in support for embedding and processing hypermedia in your
 
 ```ruby
 module SongRepresenter
-  include Roar::Representer::JSON
-  include Roar::Representer::Feature::Hypermedia
+  include Roar::JSON
+  include Roar::Hypermedia
 
   property :title
 
@@ -298,7 +298,7 @@ Sometimes you need more data in the link block. Data that's not available from t
 
 ```ruby
 module SongRepresenter
-  include Roar::Representer::JSON
+  include Roar::JSON
 
   property :title
 
@@ -343,10 +343,10 @@ Simply by including a module you make your representer understand the media type
 The [HAL](http://stateless.co/hal_specification.html) format is a simple media type that defines embedded resources and hypermedia.
 
 ```ruby
-require 'roar/representer/json/hal'
+require 'roar/json/hal'
 
 module SongRepresenter
-  include Roar::Representer::JSON::HAL
+  include Roar::JSON::HAL
 
   property :title
 
@@ -360,7 +360,7 @@ Documentation for HAL can be found in the [API docs](http://rdoc.info/github/apo
 
 ### Hypermedia
 
-Including the `Roar::Representer::JSON::HAL` module adds some more DSL methods to your module. It still allows using `::link` but treats them slightly different.
+Including the `Roar::JSON::HAL` module adds some more DSL methods to your module. It still allows using `::link` but treats them slightly different.
 
 ```ruby
 song.to_json
@@ -377,7 +377,7 @@ Nested, or embedded, resources can be defined using the `:embedded` option.
 
 ```ruby
 module AlbumRepresenter
-  include Roar::Representer::JSON::HAL
+  include Roar::JSON::HAL
 
   property :title
 
@@ -397,7 +397,7 @@ album.to_json
 
 HAL keys nested resources under the `_embedded` key and then by their type.
 
-All HAL features in Roar are discussed in the [API docs](http://rdoc.info/github/apotonick/roar/Roar/Representer/JSON/HAL), including [array links](https://github.com/apotonick/roar/blob/master/lib/roar/representer/json/hal.rb#L176).
+All HAL features in Roar are discussed in the [API docs](http://rdoc.info/github/apotonick/roar/Roar/Representer/JSON/HAL), including [array links](https://github.com/apotonick/roar/blob/master/lib/roar/json/hal.rb#L176).
 
 
 ## JSON-API
@@ -413,7 +413,7 @@ require 'roar/json/json_api'
 
 module SongsRepresenter
   include Roar::JSON::JsonApi
-  name :songs
+  type :songs
 
   property :id
   property :title
@@ -460,6 +460,7 @@ module SongsRepresenter
 
 compound do
   property :album do
+    property :id
     property :title
   end
 
@@ -478,7 +479,7 @@ The [Collection+JSON media format](http://amundsen.com/media-types/collection/) 
 
 ```ruby
 module SongRepresenter
-  include Roar::Representer::JSON::CollectionJSON
+  include Roar::JSON::CollectionJSON
   version "1.0"
   href { "http://localhost/songs/" }
 
@@ -527,8 +528,8 @@ Consider the following shared representer.
 
 ```ruby
 module SongRepresenter
-  include Roar::Representer::JSON
-  include Roar::Representer::Feature::Hypermedia
+  include Roar::JSON
+  include Roar::Hypermedia
 
   property :title
   property :id
@@ -542,18 +543,18 @@ end
 In a client where you don't have access to the database it is common to use `OpenStruct` classes as domain objects.
 
 ```ruby
-require 'roar/representer/feature/client'
+require 'roar/feature/client'
 
 class Song < OpenStruct
-  include Roar::Representer::JSON
+  include Roar::JSON
   include SongRepresenter
-  include Roar::Representer::Feature::Client
+  include Roar::Representer::Client
 end
 ```
 
 ## HTTP Support
 
-The `Feature::Client` module mixes all necessary methods into the client class, e.g. it provides HTTP support
+The `Client` module mixes all necessary methods into the client class, e.g. it provides HTTP support
 
 ```ruby
 song = Song.new(title: "Roxanne")
@@ -630,7 +631,7 @@ Roar also comes with XML support.
 ```ruby
 module SongRepresenter
   include Roar::Representer::XML
-  include Roar::Representer::Feature::Hypermedia
+  include Roar::Representer::Hypermedia
 
   property :title
   property :id
