@@ -129,7 +129,7 @@ module Roar
           if res.is_a?(Array)
             compound = collection_compound!(res)
           else
-            compound = res.delete("linked")
+            compound = compile_compound!(res.delete("linked"), {})
           end
 
           {representable_attrs[:_wrap] => res}.tap do |doc|
@@ -149,20 +149,33 @@ module Roar
           collection.each { |res|
             kv = res.delete("linked") or next
 
-            kv.each { |k,v|
-              compound[k] ||= []
-
-              if v.is_a?(Hash) # {"title"=>"Hackers"}
-                compound[k] << v
-              else
-                compound[k].push(*v) # [{"name"=>"Eddie Van Halen"}, {"name"=>"Greg Howe"}]
-              end
-
-              compound[k] = compound[k].uniq
-            }
+            compile_compound!(kv, compound)
           }
+
           compound
         end
+
+        # Go through {"album"=>{"title"=>"Hackers"}, "musicians"=>[{"name"=>"Eddie Van Halen"}, ..]} from linked:
+        # and wrap every item in an array.
+        def compile_compound!(linked, compound)
+          return unless linked
+
+          linked.each { |k,v| # {"album"=>{"title"=>"Hackers"}, "musicians"=>[{"name"=>"Eddie Van Halen"}, {"name"=>"Greg Howe"}]}
+            compound[k] ||= []
+
+            if v.is_a?(Hash) # {"title"=>"Hackers"}
+              compound[k] << v
+            else
+              compound[k].push(*v) # [{"name"=>"Eddie Van Halen"}, {"name"=>"Greg Howe"}]
+            end
+
+            compound[k] = compound[k].uniq
+          }
+
+          compound
+        end
+
+
 
 
         module Collection

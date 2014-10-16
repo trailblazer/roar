@@ -72,7 +72,7 @@ class JsonApiTest < MiniTest::Spec
     subject { song.extend(Singular) }
 
     # to_json
-    it "renders" do
+    it "renders xxx" do
       subject.to_hash.must_equal(
         {
           "songs" => {
@@ -91,7 +91,7 @@ class JsonApiTest < MiniTest::Spec
             }
           },
           "linked" => {
-            "album"=> {"title"=>"Hackers"},
+            "album"=> [{"title"=>"Hackers"}],
             "musicians"=> [
               {"name"=>"Eddie Van Halen"},
               {"name"=>"Greg Howe"}

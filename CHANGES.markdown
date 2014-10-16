@@ -6,6 +6,12 @@
     * `Roar::Representer::Feature::Hypermedia` --> `Roar::Hypermedia`
     * `Roar::Representer::JSON` --> `Roar::JSON`
 
+## Added
+
+* `Roar::JSON::JsonApi` supports JSON-API. A big thanks to @oliverbarnes for his continous help, support and research on how to implement this standard.
+
+
+
 ## Relevant
 
 * `Hyperlink#to_hash` now returns stringified keys.
