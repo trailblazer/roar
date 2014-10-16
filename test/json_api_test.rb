@@ -25,12 +25,22 @@ class JsonApiTest < MiniTest::Spec
     property :id
   end
 
-  describe "minimal singular" do
-    subject { song.extend(MinimalSingular) }
+  class MinimalSingularDecorator < Roar::Decorator
+    include Roar::JSON::JsonApi
+    type :songs
 
-    it { subject.to_json.must_equal "{\"songs\":{\"id\":\"1\"}}" }
-    it { subject.from_json("{\"songs\":{\"id\":\"2\"}}").id.must_equal "2"  }
+    property :id
   end
+
+  [MinimalSingular, MinimalSingularDecorator].each do |representer|
+    describe "minimal singular with #{representer}" do
+      subject { representer.prepare(song) }
+
+      it { subject.to_json.must_equal "{\"songs\":{\"id\":\"1\"}}" }
+      it { subject.from_json("{\"songs\":{\"id\":\"2\"}}").id.must_equal "2"  }
+    end
+  end
+
 
 
   module Singular
