@@ -470,6 +470,23 @@ compound do
 end
 ```
 
+### Usage
+
+As JSON-API per definition can represent singular models and collections you have two entry points.
+
+```ruby
+SongsRepresenter.prepare(Song.find(1)).to_json
+SongsRepresenter.prepare(Song.new).from_json("..")
+```
+
+Singular models can use the representer module directly.
+
+```ruby
+SongsRepresenter.for_collection.prepare([Song.find(1), Song.find(2)]).to_json
+SongsRepresenter.for_collection.prepare([Song.new, Song.new]).from_json("..")
+```
+
+
 Parsing currently works great with singular documents - for collections, we are still working out how to encode the application semantics. Feel free to help.
 
 
