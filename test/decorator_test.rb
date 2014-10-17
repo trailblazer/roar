@@ -57,7 +57,6 @@ class DecoratorTest < MiniTest::Spec
 
       describe "Decorator::HypermediaClient" do
         it "propagates links to represented" do
-          puts "yooo"
           decorator = ConsumingDecorator.new(model_with_links)
 
 
