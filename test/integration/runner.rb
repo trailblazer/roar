@@ -36,7 +36,7 @@ runner.run
 ssl_runner = SslServerRunner.new
 ssl_runner.run
 
-MiniTest::Unit.after_tests do
+Minitest.after_run do
   runner.kill
   ssl_runner.kill
 end
