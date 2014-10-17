@@ -1,3 +1,4 @@
+gem 'faraday'
 require 'faraday'
 
 module Roar

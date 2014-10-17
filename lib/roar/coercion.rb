@@ -1,3 +1,4 @@
+gem 'virtus'
 require 'virtus'
 require 'representable/coercion'
 
