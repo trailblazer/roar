@@ -29,36 +29,33 @@ module Roar
 
     # Serializes the object, POSTs it to +url+ with +format+, deserializes the returned document
     # and updates properties accordingly.
-    def post(*args, &block)
-      options  = handle_deprecated_args(serialize, *args)
-      response = http.post_uri(options, &block)
+    def post(options={}, &block)
+      response = http.post_uri(options.merge(:body => serialize), &block)
       handle_response(response)
     end
 
     # GETs +url+ with +format+, deserializes the returned document and updates properties accordingly.
-    def get(*args, &block)
-      response = http.get_uri(*args, &block)
+    def get(options={}, &block)
+      response = http.get_uri(options, &block)
       handle_response(response)
     end
 
     # Serializes the object, PUTs it to +url+ with +format+, deserializes the returned document
     # and updates properties accordingly.
-    def put(*args, &block)
-      options  = handle_deprecated_args(serialize, *args)
-      response = http.put_uri(options, &block)
+    def put(options={}, &block)
+      response = http.put_uri(options.merge(:body => serialize), &block)
       handle_response(response)
       self
     end
 
-    def patch(*args, &block)
-      options  = handle_deprecated_args(serialize, *args)
-      response = http.patch_uri(options, &block)
+    def patch(options={}, &block)
+      response = http.patch_uri(options.merge(:body => serialize), &block)
       handle_response(response)
       self
     end
 
-    def delete(*args, &block)
-      http.delete_uri(*args, &block)
+    def delete(options, &block)
+      http.delete_uri(options, &block)
       self
     end
 

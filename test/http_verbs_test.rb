@@ -41,18 +41,9 @@ class HttpVerbsTest < MiniTest::Spec
       end
     end
 
-
-    describe "deprecations" do
-      it "old #get API still works" do
-        @band.get("http://localhost:4567/bands/slayer", "application/json")
-        assert_equal ["Slayer", "Canadian Maple"], [@band.name, @band.label]
-      end
-    end
-
-
     describe "HttpVerbs.get" do
       it "returns instance from incoming representation" do
-        band = @band.get("http://localhost:4567/bands/slayer", "application/json")
+        band = @band.get(uri: "http://localhost:4567/bands/slayer", as: "application/json")
         assert_equal "Slayer", band.name
         assert_equal "Canadian Maple", band.label
       end
@@ -63,14 +54,14 @@ class HttpVerbsTest < MiniTest::Spec
         it 'handles HTTP errors and raises a ResourceNotFound error with FaradayHttpTransport' do
           @band.transport_engine = Roar::Transport::Faraday
           assert_raises(::Faraday::Error::ResourceNotFound) do
-            @band.get('http://localhost:4567/bands/anthrax', "application/json")
+            @band.get(uri: 'http://localhost:4567/bands/anthrax', as: "application/json")
           end
         end
 
         it 'performs no HTTP error handling with NetHttpTransport' do
           @band.transport_engine = Roar::Transport::NetHTTP
           assert_raises(MultiJson::LoadError) do
-            @band.get('http://localhost:4567/bands/anthrax', "application/json")
+            @band.get(uri: 'http://localhost:4567/bands/anthrax', as: "application/json")
           end
         end
       end

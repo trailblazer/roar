@@ -5,11 +5,11 @@
 * Removed `Representer` and `Feature` namespace. That means changes along the following.
     * `Roar::Representer::Feature::Hypermedia` --> `Roar::Hypermedia`
     * `Roar::Representer::JSON` --> `Roar::JSON`
+* Removed positional arguments for `HttpVerbs#get` and friends.
 
 ## Added
 
 * `Roar::JSON::JsonApi` supports JSON-API. A big thanks to @oliverbarnes for his continous help, support and research on how to implement this standard.
-
 
 
 ## Relevant

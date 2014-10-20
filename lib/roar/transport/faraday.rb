@@ -13,24 +13,24 @@ module Roar
     # @see http://rubydoc.info/gems/faraday/file/README.md Faraday README
     class Faraday
 
-      def get_uri(uri, as, *args)
-        build_connection(uri, as).get
+      def get_uri(options)
+        build_connection(options[:uri], options[:as]).get
       end
 
-      def post_uri(uri, body, as, *args)
-        build_connection(uri, as).post(nil, body)
+      def post_uri(options)
+        build_connection(options[:uri], options[:as]).post(nil, options[:body])
       end
 
-      def put_uri(uri, body, as, *args)
-        build_connection(uri, as).put(nil, body)
+      def put_uri(options)
+        build_connection(options[:uri], options[:as]).put(nil, options[:body])
       end
 
-      def patch_uri(uri, body, as, *args)
-        build_connection(uri, as).patch(nil, body)
+      def patch_uri(options)
+        build_connection(options[:uri], options[:as]).patch(nil, options[:body])
       end
 
-      def delete_uri(uri, as, *args)
-        build_connection(uri, as).delete
+      def delete_uri(options)
+        build_connection(options[:uri], options[:as]).delete
       end
 
       private
