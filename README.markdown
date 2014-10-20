@@ -560,12 +560,12 @@ end
 In a client where you don't have access to the database it is common to use `OpenStruct` classes as domain objects.
 
 ```ruby
-require 'roar/feature/client'
+require 'roar/client'
 
 class Song < OpenStruct
   include Roar::JSON
   include SongRepresenter
-  include Roar::Representer::Client
+  include Roar::Client
 end
 ```
 
