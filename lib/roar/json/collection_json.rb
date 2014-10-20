@@ -21,7 +21,7 @@ module Roar::JSON
           OpenStruct.new  # TODO: handle preset values.
         end
 
-        collection :queries, :extend => Roar::JSON::HyperlinkRepresenter, :class => lambda { |fragment,*| Hash }
+        collection :queries, :extend => Roar::JSON::HyperlinkRepresenter, :class => lambda { |fragment,*| ::Hash }
         def queries
           compile_links_for(representable_attrs.collection_representers[:queries].link_configs)
         end

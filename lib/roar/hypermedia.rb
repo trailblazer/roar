@@ -72,7 +72,7 @@ module Roar
     end
 
     def prepare_link_for(href, options)
-      options = options.merge(href.is_a?(Hash) ? href : {:href => href})
+      options = options.merge(href.is_a?(::Hash) ? href : {:href => href})
       Hyperlink.new(options)
     end
 
@@ -86,7 +86,7 @@ module Roar
     # It is implemented as a hash and keys links by their rel value.
     #
     #   {"self" => <Hyperlink ..>, ..}
-    class LinkCollection < Hash
+    class LinkCollection < ::Hash
       # The only way to create is LinkCollection[<Hyperlink>, <Hyperlink>]
       def self.[](*arr)
         super(arr.collect { |link| [link.rel, link] })
@@ -119,7 +119,7 @@ module Roar
       def link(options, &block)
         create_links_definition! # this assures the links are rendered at the right position.
 
-        options = {:rel => options} unless options.is_a?(Hash)
+        options = {:rel => options} unless options.is_a?(::Hash)
         link_configs << [options, block]
       end
 

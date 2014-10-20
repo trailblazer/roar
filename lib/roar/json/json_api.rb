@@ -161,7 +161,7 @@ module Roar
           linked.each { |k,v| # {"album"=>{"title"=>"Hackers"}, "musicians"=>[{"name"=>"Eddie Van Halen"}, {"name"=>"Greg Howe"}]}
             compound[k] ||= []
 
-            if v.is_a?(Hash) # {"title"=>"Hackers"}
+            if v.is_a?(::Hash) # {"title"=>"Hackers"}
               compound[k] << v
             else
               compound[k].push(*v) # [{"name"=>"Eddie Van Halen"}, {"name"=>"Greg Howe"}]
