@@ -10,6 +10,9 @@ class CoercionFeatureTest < MiniTest::Spec
       property :composed_at, :type => DateTime, :default => "May 12th, 2012"
 
       attr_accessor :composed_at
+      def composed_at=(v) # in ruby 2.2, #label= is not there, all at sudden. what *is* that?
+        @composed_at = v
+      end
     end
 
     it "coerces into the provided type" do

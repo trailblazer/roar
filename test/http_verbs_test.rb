@@ -8,6 +8,10 @@ class HttpVerbsTest < MiniTest::Spec
   # keep this class clear of Roar modules.
   class Band
     attr_accessor :name, :label
+
+    def label=(v) # in ruby 2.2, #label= is not there, all at sudden. what *is* that?
+      @label = v
+    end
   end
 
   let (:band) { OpenStruct.new(:name => "bodyjar").extend(Roar::HttpVerbs, BandRepresenter) }

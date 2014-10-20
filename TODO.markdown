@@ -2,7 +2,7 @@
 
 * merge client errors request
 * simpler link for JSON-API?
-
+* remove HttpVerbs deprecations
 
 * Hyperlink representers => decrators. test hash representer with decorator (rpr)
 

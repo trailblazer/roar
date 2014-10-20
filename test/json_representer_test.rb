@@ -9,6 +9,10 @@ class JsonRepresenterTest < MiniTest::Spec
     property :id
     property :pending
     attr_accessor :id, :pending
+
+    def id=(v) # in ruby 2.2, #id= is not there, all at sudden. what *is* that?
+      @id=v
+    end
   end
 
 
