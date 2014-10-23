@@ -22,7 +22,7 @@ module Roar
           singular = self # e.g. Song::Representer
 
           # this basically does Module.new { include Hash::Collection .. }
-          build_inline(nil, [Document::Collection, Representable::Hash::Collection], "", {}) do
+          build_inline(nil, [Document::Collection, Representable::Hash::Collection, Roar::JSON], "", {}) do
             items extend: singular, :parse_strategy => :sync
 
             representable_attrs[:resource_representer] = singular.representable_attrs[:resource_representer]
