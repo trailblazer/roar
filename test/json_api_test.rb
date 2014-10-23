@@ -117,57 +117,66 @@ class JsonApiTest < MiniTest::Spec
     describe "singular with #{representer}" do
       subject { song.extend(Singular) }
 
-      # to_json
-      it "renders xxx" do
-        subject.to_hash.must_equal(
-          {
-            "songs" => {
-              "id" => "1",
-              "title" => "Computadores Fazem Arte",
-              "links" => {
-                "album" => "9",
-                "musicians" => [ "1", "2" ],
-                "composer"=>"10",
-                "listeners"=>["8"]
-              }
-            },
+      let (:document) do
+        {
+          "songs" => {
+            "id" => "1",
+            "title" => "Computadores Fazem Arte",
             "links" => {
-              "songs.album"=> {
-                "href"=>"http://example.com/albums/{songs.album}", "type"=>"album"
-              }
-            },
-            "linked" => {
-              "album"=> [{"title"=>"Hackers"}],
-              "musicians"=> [
-                {"name"=>"Eddie Van Halen"},
-                {"name"=>"Greg Howe"}
-              ]
+              "album" => "9",
+              "musicians" => [ "1", "2" ],
+              "composer"=>"10",
+              "listeners"=>["8"]
             }
+          },
+          "links" => {
+            "songs.album"=> {
+              "href"=>"http://example.com/albums/{songs.album}", "type"=>"album"
+            }
+          },
+          "linked" => {
+            "album"=> [{"title"=>"Hackers"}],
+            "musicians"=> [
+              {"name"=>"Eddie Van Halen"},
+              {"name"=>"Greg Howe"}
+            ]
           }
-        )
+        }
       end
 
-      # from_json
-      it "parses" do
+      # to_hash
+      it do
+        subject.to_hash.must_equal document
+      end
+
+      # #to_json
+      it do
+        subject.to_json.must_equal JSON.generate(document)
+      end
+
+      # #from_json
+      it do
         song = OpenStruct.new.extend(Singular)
-        song.from_hash(
-          {
-            "songs" => {
-              "id" => "1",
-              "title" => "Computadores Fazem Arte",
+        song.from_json(
+          JSON.generate(
+            {
+              "songs" => {
+                "id" => "1",
+                "title" => "Computadores Fazem Arte",
+                "links" => {
+                  "album" => "9",
+                  "musicians" => [ "1", "2" ],
+                  "composer"=>"10",
+                  "listeners"=>["8"]
+                }
+              },
               "links" => {
-                "album" => "9",
-                "musicians" => [ "1", "2" ],
-                "composer"=>"10",
-                "listeners"=>["8"]
-              }
-            },
-            "links" => {
-              "songs.album"=> {
-                "href"=>"http://example.com/albums/{songs.album}", "type"=>"album"
+                "songs.album"=> {
+                  "href"=>"http://example.com/albums/{songs.album}", "type"=>"album"
+                }
               }
             }
-          }
+          )
         )
 
         song.id.must_equal "1"
@@ -186,50 +195,7 @@ class JsonApiTest < MiniTest::Spec
     describe "collection with links and compound" do
       subject { Singular.for_collection.prepare([song, song]) }
 
-      # to_json
-      it do
-        subject.to_hash.must_equal(
-          {
-            "songs" => [
-              {
-                "id" => "1",
-                "title" => "Computadores Fazem Arte",
-                "links" => {
-                  "album" => "9",
-                  "musicians" => [ "1", "2" ],
-                  "composer"=>"10",
-                "listeners"=>["8"]
-                }
-              }, {
-                "id" => "1",
-                "title" => "Computadores Fazem Arte",
-                "links" => {
-                  "album" => "9",
-                  "musicians" => [ "1", "2" ],
-                  "composer"=>"10",
-                "listeners"=>["8"]
-                }
-              }
-            ],
-            "links" => {
-              "songs.album" => {
-                "href" => "http://example.com/albums/{songs.album}",
-                "type" => "album" # DISCUSS: does that have to be albums ?
-              },
-            },
-            "linked"=>{
-              "album"    =>[{"title"=>"Hackers"}], # only once!
-              "musicians"=>[{"name"=>"Eddie Van Halen"}, {"name"=>"Greg Howe"}]
-            }
-          }
-        )
-      end
-    end
-
-
-    # from_json
-    it do
-      song1, song2 = Singular.for_collection.prepare([OpenStruct.new, OpenStruct.new]).from_hash(
+      let (:document) do
         {
           "songs" => [
             {
@@ -239,26 +205,76 @@ class JsonApiTest < MiniTest::Spec
                 "album" => "9",
                 "musicians" => [ "1", "2" ],
                 "composer"=>"10",
-                "listeners"=>["8"]
-              },
-            },
-            {
-              "id" => "2",
-              "title" => "Talking To Remind Me",
-              "links" => {
-                "album" => "1",
-                "musicians" => [ "3", "4" ],
-                "composer"=>"2",
-                "listeners"=>["6"]
+              "listeners"=>["8"]
               }
-            },
+            }, {
+              "id" => "1",
+              "title" => "Computadores Fazem Arte",
+              "links" => {
+                "album" => "9",
+                "musicians" => [ "1", "2" ],
+                "composer"=>"10",
+              "listeners"=>["8"]
+              }
+            }
           ],
           "links" => {
-            "songs.album"=> {
-              "href"=>"http://example.com/albums/{songs.album}", "type"=>"album"
-            }
+            "songs.album" => {
+              "href" => "http://example.com/albums/{songs.album}",
+              "type" => "album" # DISCUSS: does that have to be albums ?
+            },
+          },
+          "linked"=>{
+            "album"    =>[{"title"=>"Hackers"}], # only once!
+            "musicians"=>[{"name"=>"Eddie Van Halen"}, {"name"=>"Greg Howe"}]
           }
         }
+      end
+
+      # to_hash
+      it do
+        subject.to_hash.must_equal document
+      end
+
+      # #to_json
+      it { subject.to_json.must_equal JSON.generate(document) }
+    end
+
+
+    # from_json
+    it do
+      song1, song2 = Singular.for_collection.prepare([OpenStruct.new, OpenStruct.new]).from_json(
+        JSON.generate(
+          {
+            "songs" => [
+              {
+                "id" => "1",
+                "title" => "Computadores Fazem Arte",
+                "links" => {
+                  "album" => "9",
+                  "musicians" => [ "1", "2" ],
+                  "composer"=>"10",
+                  "listeners"=>["8"]
+                },
+              },
+              {
+                "id" => "2",
+                "title" => "Talking To Remind Me",
+                "links" => {
+                  "album" => "1",
+                  "musicians" => [ "3", "4" ],
+                  "composer"=>"2",
+                  "listeners"=>["6"]
+                }
+              },
+            ],
+            "links" => {
+              "songs.album"=> {
+                "href"=>"http://example.com/albums/{songs.album}", "type"=>"album"
+              }
+            }
+          }
+        )
       )
 
       song1.id.must_equal "1"
