@@ -3,13 +3,13 @@ require 'roar/decorator'
 
 module Roar
   module JSON
-    module JsonApi
+    module JSONAPI
       def self.included(base)
         base.class_eval do
           include Representable::JSON
-          include Roar::JSON::JsonApi::Singular
-          include Roar::JSON::JsonApi::Resource
-          include Roar::JSON::JsonApi::Document
+          include Roar::JSON::JSONAPI::Singular
+          include Roar::JSON::JSONAPI::Resource
+          include Roar::JSON::JSONAPI::Document
 
           extend ForCollection
 

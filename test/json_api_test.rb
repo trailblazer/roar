@@ -1,7 +1,7 @@
 require 'test_helper'
 require 'roar/json/json_api'
 
-class JsonApiTest < MiniTest::Spec
+class JSONAPITest < MiniTest::Spec
   let(:song) {
     s = OpenStruct.new(
       bla: "halo",
@@ -19,14 +19,14 @@ class JsonApiTest < MiniTest::Spec
 
   # minimal resource, singular
   module MinimalSingular
-    include Roar::JSON::JsonApi
+    include Roar::JSON::JSONAPI
     type :songs
 
     property :id
   end
 
   class MinimalSingularDecorator < Roar::Decorator
-    include Roar::JSON::JsonApi
+    include Roar::JSON::JSONAPI
     type :songs
 
     property :id
@@ -44,7 +44,7 @@ class JsonApiTest < MiniTest::Spec
 
 
   module Singular
-    include Roar::JSON::JsonApi
+    include Roar::JSON::JSONAPI
     type :songs
 
     property :id
@@ -79,7 +79,7 @@ class JsonApiTest < MiniTest::Spec
   end
 
   class SingularDecorator < Roar::Decorator
-    include Roar::JSON::JsonApi
+    include Roar::JSON::JSONAPI
     type :songs
 
     property :id
@@ -296,7 +296,7 @@ class JsonApiTest < MiniTest::Spec
 
   class CollectionWithoutCompound <  self
     module Representer
-      include Roar::JSON::JsonApi
+      include Roar::JSON::JSONAPI
       type :songs
 
       property :id
