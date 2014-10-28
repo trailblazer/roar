@@ -98,8 +98,8 @@ module Roar
 
       # Iterating links. Block parameters: |link| or |rel, link|.
       # This is used Hash::HashBinding#serialize.
-      def collect(&block)
-        return values.collect(&block) if block.arity == 1
+      def each(&block)
+        return values.each(&block) if block.arity == 1
         super(&block)
       end
     end

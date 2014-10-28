@@ -1,5 +1,6 @@
 require 'test_helper'
 require 'roar/json/json_api'
+require 'json'
 
 class JSONAPITest < MiniTest::Spec
   let(:song) {

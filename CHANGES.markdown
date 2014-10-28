@@ -23,6 +23,7 @@
 
 * Remove the concept of ´links_array`. `Hyperlink` instances for rendering or that have been parsed are always stored in a `LinkCollection` that is available via `#links`.
 * `Hypermedia` is now 43% simpler.
+* `HyperlinkCollection#each` now has different semantics for 1- or 2-arity.
 
 # 0.12.8
 
