@@ -102,6 +102,11 @@ module Roar
         return values.each(&block) if block.arity == 1
         super(&block)
       end
+
+      def collect(&block) # TODO: remove me when we drop representable 2.0.x support!
+        return values.collect(&block) if block.arity == 1
+        super(&block)
+      end
     end
 
 
