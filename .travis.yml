@@ -1,9 +1,9 @@
 rvm:
-  - 1.9.3
-  - 2.0.0
+  - 1.9
+  - 2.0
   - 2.1
   - 2.2
-gemfiles:
+gemfile:
   - gemfiles/Gemfile.representable-2.0
   - gemfiles/Gemfile.representable-2.1
 notifications:
