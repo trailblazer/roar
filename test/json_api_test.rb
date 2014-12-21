@@ -334,4 +334,62 @@ class JSONAPITest < MiniTest::Spec
       )
     end
   end
+
+
+  class ExplicitMeta < self
+    module Representer
+      include Roar::JSON::JSONAPI
+
+      type :songs
+      property :id
+
+      meta do
+        property :page
+      end
+    end
+
+    module Page
+      def page
+        2
+      end
+    end
+
+    let (:song) { Struct.new(:id).new(1) }
+
+    subject { [song, song].extend(Representer.for_collection).extend(Page) }
+
+    # to_json
+    it do
+      subject.to_hash.must_equal(
+        {
+          "songs"=>[{"id"=>1}, {"id"=>1}],
+          "meta" =>{"page"=>2}
+        }
+      )
+    end
+  end
+
+
+  class ImplicitMeta < self
+    module Representer
+      include Roar::JSON::JSONAPI
+
+      type :songs
+      property :id
+    end
+
+    let (:song) { Struct.new(:id).new(1) }
+
+    subject { [song, song].extend(Representer.for_collection) }
+
+    # to_json
+    it do
+      subject.to_hash("meta" => {"page" => 2}).must_equal(
+        {
+          "songs"=>[{"id"=>1}, {"id"=>1}],
+          "meta" =>{"page"=>2}
+        }
+      )
+    end
+  end
 end

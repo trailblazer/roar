@@ -470,6 +470,39 @@ compound do
 end
 ```
 
+### Meta Data
+
+Meta data can be included into the rendered collection document in two ways. Please note that parsing the `meta` field is not implemented, yet, as I wasn't sure if people need it.
+
+You can define meta data on your collection object and then let Roar compile it.
+
+```ruby
+module SongsRepresenter
+  # ..
+
+  meta do
+    property :page
+    property :total
+  end
+```
+
+Your collection object has to expose those methods.
+
+```ruby
+collection.page  #=> 1
+collection.total #=> 12
+```
+
+This will render the `{"meta": {"page": 1, "total": 12}}` hash into the JSON-API document.
+
+Another way is to provide the _complete_ meta data hash when rendering. You must not define any `meta` properties in the representer when using this approach.
+
+```ruby
+collection.to_json("meta" => {page: params["page"], total: collection.size})
+```
+
+If you need more functionality (and parsing), please let us know.
+
 ### Usage
 
 As JSON-API per definition can represent singular models and collections you have two entry points.

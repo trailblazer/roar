@@ -26,6 +26,7 @@ module Roar
             items extend: singular, :parse_strategy => :sync
 
             representable_attrs[:resource_representer] = singular.representable_attrs[:resource_representer]
+            representable_attrs[:meta_representer]     = singular.representable_attrs[:meta_representer] # DISCUSS: do we need that?
             representable_attrs[:_wrap] = singular.representable_attrs[:_wrap]
           end
         end
@@ -99,6 +100,10 @@ module Roar
           def compound(&block)
             nested(:linked, &block)
           end
+
+          def meta(&block)
+            representable_attrs[:meta_representer] = Class.new(Roar::Decorator, &block)
+          end
         end
       end
 
@@ -111,7 +116,7 @@ module Roar
           return res if options[:only_body]
           # this is the only "dirty" part: this module is always included in the Singular document representer, when used in collection, we don't want it to do the extra work. this mechanism here might be changed soon.
 
-          to_document(res)
+          to_document(res, options)
         end
 
         def from_hash(hash, options={})
@@ -122,8 +127,9 @@ module Roar
         end
 
       private
-        def to_document(res)
-          links    = representable_attrs[:resource_representer].new(represented).to_hash # creates links: section.
+        def to_document(res, options)
+          links = render_links
+          meta  = render_meta(options)
           # FIXME: provide two different #to_document
 
           if res.is_a?(Array)
@@ -134,7 +140,8 @@ module Roar
 
           {representable_attrs[:_wrap] => res}.tap do |doc|
             doc.merge!(links)
-            doc.merge!("linked" => compound) if compound && compound.size > 0
+            doc.merge!(meta)
+            doc.merge!("linked" => compound) if compound && compound.size > 0 # FIXME: make that like the above line.
           end
         end
 
@@ -173,13 +180,26 @@ module Roar
           compound
         end
 
+        def render_links
+          representable_attrs[:resource_representer].new(represented).to_hash # creates links: section.
+        end
+
+        def render_meta(options)
+          # TODO: this will call collection.page etc, directly on the collection. we could allow using a "meta"
+          # object to hold this data.
+          # `meta call_meta: true` or something
+          return {"meta" => options["meta"]} if options["meta"]
+          return {} unless representer = representable_attrs[:meta_representer]
+          {"meta" => representer.new(represented).extend(Representable::Hash).to_hash}
+        end
+
 
         module Collection
           include Document
 
           def to_hash(options={})
             res = super(options.merge(:only_body => true))
-            to_document(res)
+            to_document(res, options)
           end
 
           def from_hash(hash, options={})
