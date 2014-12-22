@@ -674,6 +674,16 @@ song.get(uri: "http://localhost:4567/songs/1") do |req|
 end
 ```
 
+### Error handling
+
+In case of a non-2xx response status, `#get` and friends raise a `Roar::Transport::Error` exception. The original response can be accessed as follows.
+
+```ruby
+  song.get(uri: "http://localhost/songs1") # not-existing.
+rescue Roar::Transport::Error => exception
+  exception.response.code #=> 404
+```
+
 ## XML
 
 Roar also comes with XML support.

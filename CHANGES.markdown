@@ -6,6 +6,7 @@
     * `Roar::Representer::Feature::Hypermedia` --> `Roar::Hypermedia`
     * `Roar::Representer::JSON` --> `Roar::JSON`
 * Removed positional arguments for `HttpVerbs#get` and friends.
+* `HttpVerbs#get` and friends will now raise an exception when the response code is not 2xx. You can get the original response via `Roar::Transport::Error#response`. Thanks to @paulccarey for all his inspiring work and patience!
 
 ## Added
 
