@@ -62,16 +62,6 @@ class NetHTTPTransportTest < MiniTest::Spec
       transport.get_uri(:uri => "http://localhost:4567/protected/bands/bodyjar", :as => "application/json", :basic_auth => ["admin", "password"])
     end
   end
-
-  describe "deprecations" do
-    it "old GET API still works" do
-      transport.get_uri(url, as).must_match_net_response :get, url, as
-    end
-
-    it "old POST API still works" do
-      transport.post_uri(url, body, as).must_match_net_response :post, url, as, body
-    end
-  end
 end
 
 module MiniTest::Assertions

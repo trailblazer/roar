@@ -30,25 +30,10 @@ module Roar
       end
 
     private
-      def call(what, *args, &block)
-        options = handle_deprecated_args(args)
+      def call(what, options, &block)
         # TODO: generically handle return codes.
         Request.new(options).call(what, &block)
       end
-
-      def handle_deprecated_args(args) # TODO: remove in 1.0.
-        if args.size > 1
-          warn %{DEPRECATION WARNING: #get_uri, #post_uri, #put_uri, #delete_uri and #patch_uri no longer accept positional arguments. Please call them as follows:
-   get_uri(uri: "http://localhost/songs", as: "application/json")
-  post_uri(uri: "http://localhost/songs", as: "application/json", body: "{'id': 1}")
-Thank you and have a lovely day.}
-          return {:uri => args[0], :as => args[1]} if args.size == 2
-          return {:uri => args[0], :as => args[2], :body => args[1]}
-        end
-
-        args.first
-      end
-
     end
 
     class UnauthorizedError < RuntimeError # TODO: raise this from Faraday, too.
