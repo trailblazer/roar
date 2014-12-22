@@ -58,11 +58,14 @@ class HttpVerbsTest < MiniTest::Spec
           end
         end
 
-        it 'performs no HTTP error handling with NetHttpTransport' do
+        it 'returns Roar::Transport::Error for NetHttpTransport in case of non 20x' do
           @band.transport_engine = Roar::Transport::NetHTTP
-          assert_raises(MultiJson::LoadError) do
+
+          exception = assert_raises(Roar::Transport::Error) do
             @band.get(uri: 'http://localhost:4567/bands/anthrax', as: "application/json")
           end
+
+          exception.response.code.must_equal "404"
         end
       end
     end

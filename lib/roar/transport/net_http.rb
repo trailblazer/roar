@@ -36,7 +36,14 @@ module Roar
       end
     end
 
-    class UnauthorizedError < RuntimeError # TODO: raise this from Faraday, too.
+    # Wraps the original response from NetHttp and provides it via #response.
+    class Error < RuntimeError # TODO: raise this from Faraday, too.
+      def initialize(response)
+        @response = response
+        super("Roar error: #{response}")
+      end
+
+      attr_reader :response
     end
   end
 end

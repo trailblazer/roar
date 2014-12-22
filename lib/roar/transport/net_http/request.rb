@@ -37,7 +37,7 @@ module Roar
           yield req if block_given?
 
           http.request(req).tap do |res|
-            raise UnauthorizedError if res.is_a?(Net::HTTPUnauthorized) # FIXME: make this better. # DISCUSS: abstract all that crap here?
+            handle_error!(res)
           end
         end
 
@@ -65,6 +65,11 @@ module Roar
           return unless options[:basic_auth]
 
           @req.basic_auth(*options[:basic_auth])
+        end
+
+        def handle_error!(res)
+          status = res.code.to_i
+          raise Error.new(res) unless status >= 200 and status < 300
         end
       end
     end

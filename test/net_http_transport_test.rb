@@ -47,15 +47,19 @@ class NetHTTPTransportTest < MiniTest::Spec
 
   describe "basic auth" do
     it "raises when no credentials provided" do
-      assert_raises Roar::Transport::UnauthorizedError do
+      exception = assert_raises Roar::Transport::Error do
         transport.get_uri(:uri => "http://localhost:4567/protected/bands/bodyjar", :as => "application/json")
       end
+
+      exception.response.code.must_equal "401"
     end
 
     it "raises when wrong credentials provided" do
-      assert_raises Roar::Transport::UnauthorizedError do
+      exception = assert_raises Roar::Transport::Error do
         transport.get_uri(:uri => "http://localhost:4567/protected/bands/bodyjar", :as => "application/json", :basic_auth => ["admin", "wrong--!!!--password"])
       end
+
+      exception.response.code.must_equal "401"
     end
 
     it "what" do
