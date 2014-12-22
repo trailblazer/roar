@@ -12,6 +12,12 @@ Roar comes with built-in JSON, JSON-HAL, JSON-API and XML support. Its highly mo
 
 Roar is completely framework-agnostic and loves being used in web kits like Rails, Webmachine, Sinatra, Padrino, etc. If you use Rails, consider [roar-rails](https://github.com/apotonick/roar-rails) for an enjoyable integration.
 
+<a href="https://leanpub.com/trailblazer">
+![](https://raw.githubusercontent.com/apotonick/trailblazer/master/doc/trb.jpg)
+</a>
+
+Roar is part of the [Trailblazer project](https://github.com/apotonick/trailblazer). Please [buy the book](https://leanpub.com/trailblazer) to support the development. Several chapters will be dedicated to Roar, its integration into operations, hypermedia formats and client-side usage.
+
 ## Representable
 
 Roar is just a thin layer on top of the [representable](https://github.com/apotonick/representable) gem. While Roar gives you a DSL and behaviour for creating hypermedia APIs, representable implements all the mapping functionality.
