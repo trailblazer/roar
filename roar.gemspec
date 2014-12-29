@@ -8,8 +8,8 @@ Gem::Specification.new do |s|
   s.authors     = ["Nick Sutterer"]
   s.email       = ["apotonick@gmail.com"]
   s.homepage    = "http://rubygems.org/gems/roar"
-  s.summary     = %q{Resource-oriented architectures in Ruby.}
-  s.description = %q{Streamlines the development of RESTful, resource-oriented architectures in Ruby.}
+  s.summary     = %q{Parses and renders REST API documents using representers.}
+  s.description = %q{Object-oriented representers help you defining nested REST API documents which can then be rendered and parsed using one and the same concept.}
   s.license = 'MIT'
 
   s.files         = `git ls-files`.split("\n")
