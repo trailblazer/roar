@@ -241,7 +241,7 @@ We're currently [working on](https://github.com/apotonick/roar/issues/85) better
 Roar provides coercion with the [virtus](https://github.com/solnic/virtus) gem.
 
 ```ruby
-require 'roar/feature/coercion'
+require 'roar/coercion'
 
 module SongRepresenter
   include Roar::JSON
