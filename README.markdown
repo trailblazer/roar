@@ -286,7 +286,20 @@ module SongRepresenter
 end
 ```
 
-The `Hypermedia` feature allows declaring links using the `::link` method.
+The `Hypermedia` feature allows declaring links using the `::link` method. In the block, you have access to the represented model. When using representer modules, the block is executed in the model's context.
+
+However, when using decorators, the context is the decorator instance, allowing you to access additional data. Use `represented` to retrieve model data.
+
+```ruby
+class SongRepresenter < Roar::Decorator
+  # ..
+  link :self do
+    "http://songs/#{represented.title}"
+  end
+end
+```
+
+This will render links into your representation.
 
 ```ruby
 song.extend(SongRepresenter)
@@ -363,6 +376,8 @@ end
 ```
 
 Documentation for HAL can be found in the [API docs](http://rdoc.info/github/apotonick/roar/Roar/Representer/JSON/HAL).
+
+Make sure you [understand the different contexts](#hypermedia) for links when using decorators.
 
 ### Hypermedia
 
