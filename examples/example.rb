@@ -4,7 +4,7 @@ require 'bundler'
 Bundler.setup
 
 require 'ostruct'
-require 'roar/representer/json'
+require 'roar/json'
 
 def reset_representer(*module_name)
   module_name.each do |mod|
@@ -19,12 +19,12 @@ class Song < OpenStruct
 end
 
 module SongRepresenter
-  include Roar::Representer::JSON
+  include Roar::JSON
 
   property :title
 end
 
-song = Song.new(title: "Fate").extend(SongRepresenter)
+song = Song.new(title: 'Fate').extend(SongRepresenter)
 puts song.to_json
 
 # Parsing
@@ -40,13 +40,13 @@ require 'roar/decorator'
 
 module Decorator
   class SongRepresenter < Roar::Decorator
-    include Roar::Representer::JSON
+    include Roar::JSON
 
     property :title
   end
 end
 
-song = Song.new(title: "Medicine Balls")
+song = Song.new(title: 'Medicine Balls')
 puts Decorator::SongRepresenter.new(song).to_json
 
 # Collections
@@ -54,14 +54,14 @@ puts Decorator::SongRepresenter.new(song).to_json
 reset_representer(SongRepresenter)
 
 module SongRepresenter
-  include Roar::Representer::JSON
+  include Roar::JSON
 
   property :title
   collection :composers
 end
 
 
-song = Song.new(title: "Roxanne", composers: ["Sting", "Stu Copeland"])
+song = Song.new(title: 'Roxanne', composers: ['Sting', 'Stu Copeland'])
 song.extend(SongRepresenter)
 puts song.to_json
 
@@ -71,13 +71,13 @@ class Album < OpenStruct
 end
 
 module AlbumRepresenter
-  include Roar::Representer::JSON
+  include Roar::JSON
 
   property :title
   collection :songs, extend: SongRepresenter, class: Song
 end
 
-album = Album.new(title: "True North", songs: [Song.new(title: "The Island"), Song.new(:title => "Changing Tide")])
+album = Album.new(title: 'True North', songs: [Song.new(title: 'The Island'), Song.new(:title => 'Changing Tide')])
 album.extend(AlbumRepresenter)
 puts album.to_json
 
@@ -88,12 +88,10 @@ album.from_json('{"title":"Indestructible","songs":[{"title":"Tropical London"},
 
 puts album.songs.last.inspect
 
-# Inline Representers # FIXME: what about collections?
-
 reset_representer(AlbumRepresenter)
 
 module AlbumRepresenter
-  include Roar::Representer::JSON
+  include Roar::JSON
 
   property :title
 
@@ -102,11 +100,9 @@ module AlbumRepresenter
   end
 end
 
-album = Album.new(title: "True North", songs: [Song.new(title: "The Island"), Song.new(:title => "Changing Tide")])
+album = Album.new(title: 'True North', songs: [Song.new(title: 'The Island'), Song.new(:title => 'Changing Tide')])
 album.extend(AlbumRepresenter)
 puts album.to_json
-
-
 
 album = Album.new
 album.extend(AlbumRepresenter)
@@ -119,7 +115,7 @@ puts album.songs.first.title
 reset_representer(AlbumRepresenter)
 
 module AlbumRepresenter
-  include Roar::Representer::JSON
+  include Roar::JSON
 
   property :title
 
@@ -127,13 +123,13 @@ module AlbumRepresenter
 end
 
 
-album = Album.new(title: "True North", songs: [Song.new(title: "The Island"), Song.new(:title => "Changing Tide")])
+album = Album.new(title: 'True North', songs: [Song.new(title: 'The Island'), Song.new(:title => 'Changing Tide')])
 album.extend(AlbumRepresenter)
 
 puts album.songs[0].object_id
 album.from_json('{"title":"True North","songs":[{"title":"Secret Society"},{"title":"Changing Tide"}]}')
 puts album.songs[0].title
-puts album.songs[0].object_id##
+puts album.songs[0].object_id
 
 # Coercion, renaming, ..
 
@@ -142,8 +138,8 @@ puts album.songs[0].object_id##
 reset_representer(SongRepresenter)
 
 module SongRepresenter
-  include Roar::Representer::JSON
-  include Roar::Representer::Feature::Hypermedia
+  include Roar::JSON
+  include Roar::Hypermedia
 
   property :title
 
@@ -163,7 +159,7 @@ puts song.to_json
 reset_representer(SongRepresenter)
 
 module SongRepresenter
-  include Roar::Representer::JSON
+  include Roar::JSON
 
   property :title
 
@@ -173,7 +169,7 @@ module SongRepresenter
 end
 
 song.extend(SongRepresenter)
-puts song.to_json(base_url: "localhost:3001/")
+puts song.to_json(base_url: 'localhost:3001/')
 
 
 # Discovering Hypermedia
@@ -184,11 +180,11 @@ puts song.links[:self].href
 
 # Media Formats: HAL
 
-require 'roar/representer/json/hal'
+require 'roar/json/hal'
 
 module HAL
   module SongRepresenter
-    include Roar::Representer::JSON::HAL
+    include Roar::JSON::HAL
 
     property :title
 
@@ -204,7 +200,7 @@ puts song.to_json
 reset_representer(AlbumRepresenter)
 
 module AlbumRepresenter
-  include Roar::Representer::JSON::HAL
+  include Roar::JSON::HAL
 
   property :title
 
@@ -213,48 +209,46 @@ module AlbumRepresenter
   end
 end
 
-album = Album.new(title: "True North", songs: [Song.new(title: "The Island"), Song.new(:title => "Changing Tide")])
+album = Album.new(title: 'True North', songs: [Song.new(title: 'The Island'), Song.new(:title => 'Changing Tide')])
 album.extend(AlbumRepresenter)
 puts album.to_json
 
 # Media Formats: JSON+Collection
 
-require 'roar/representer/json/collection_json'
+require 'roar/json/collection_json'
 
 
 module Collection
   module SongRepresenter
-    include Roar::Representer::JSON::CollectionJSON
-    version "1.0"
-    href { "http://localhost/songs/" }
+    include Roar::JSON::CollectionJSON
+    version '1.0'
+    href { 'http://localhost/songs/' }
 
     property :title
 
     items(:class => Song) do
       href { "//songs/#{title}" }
 
-      property :title, :prompt => "Song title"
+      property :title, :prompt => 'Song title'
 
       link(:download) { "//songs/#{title}.mp3" }
     end
 
     template do
-      property :title, :prompt => "Song title"
+      property :title, :prompt => 'Song title'
     end
 
     queries do
       link :search do
-        {:href => "//search", :data => [{:name => "q", :value => ""}]}
+        {:href => '//search', :data => [{:name => 'q', :value => ''}]}
       end
     end
   end
 end
 
-song = Song.new(title: "Roxanne")
+song = Song.new(title: 'Roxanne')
 song.extend(Collection::SongRepresenter)
 puts song.to_json
-
-
 
 # Client-side
 # share in gem, parse existing document.
@@ -262,8 +256,8 @@ puts song.to_json
 reset_representer(SongRepresenter)
 
 module SongRepresenter
-  include Roar::Representer::JSON
-  include Roar::Representer::Feature::Hypermedia
+  include Roar::JSON
+  include Roar::Hypermedia
 
   property :title
   property :id
@@ -274,34 +268,34 @@ module SongRepresenter
 end
 
 
-require 'roar/representer/feature/client'
+require 'roar/client'
 
 module Client
   class Song < OpenStruct
-    include Roar::Representer::JSON
+    include Roar::JSON
     include SongRepresenter
-    include Roar::Representer::Feature::Client
+    include Roar::Client
   end
 end
 
-song = Client::Song.new(title: "Roxanne")
-song.post("http://localhost:4567/songs", "application/json")
+song = Client::Song.new(title: 'Roxanne')
+song.post(uri: 'http://localhost:4567/songs', as: 'application/json')
 puts song.id
 
 
 song = Client::Song.new
-song.get("http://localhost:4567/songs/1", "application/json")
+song.get(uri: 'http://localhost:4567/songs/1', as: 'application/json')
 puts song.title
 puts song.links[:self].href
 
 # XML
 
-require 'roar/representer/xml'
+require 'roar/xml'
 
 module XML
   module SongRepresenter
-    include Roar::Representer::XML
-    include Roar::Representer::Feature::Hypermedia
+    include Roar::XML
+    include Roar::Hypermedia
 
     property :title
     property :id
@@ -312,7 +306,7 @@ module XML
   end
 end
 
-song = Song.new(title: "Roxanne", id: 42)
+song = Song.new(title: 'Roxanne', id: 42)
 song.extend(XML::SongRepresenter)
 puts song.to_xml
 
@@ -320,11 +314,11 @@ puts song.to_xml
 
 reset_representer(SongRepresenter)
 
-require 'roar/representer/feature/coercion'
+require 'roar/coercion'
 
 module SongRepresenter
-  include Roar::Representer::JSON
-  include Roar::Representer::Feature::Coercion
+  include Roar::JSON
+  include Roar::Coercion
 
   property :title
   property :released_at, type: DateTime
@@ -342,7 +336,7 @@ class LinkOptionsCollection < Array
 end
 
 module HyperlinkiRepresenter
-  include Roar::Representer::JSON
+  include Roar::JSON
 
   def to_hash(*)  # setup the link
     # FIXME: why does self.to_s throw a stack level too deep (SystemStackError) ?
@@ -352,7 +346,7 @@ module HyperlinkiRepresenter
 end
 
 module Representer
-  include Roar::Representer::JSON
+  include Roar::JSON
 
   def self.links
     [:self, :next]
@@ -363,8 +357,8 @@ module Representer
   def links
     # get link configurations from representable_attrs object.
     #self.representable_attrs.links
-    LinkOptionsCollection.new(["self", "next"])
+    LinkOptionsCollection.new(['self', 'next'])
   end
 end
 
-puts "".extend(Representer).to_json
+puts ''.extend(Representer).to_json
