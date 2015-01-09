@@ -8,7 +8,7 @@ Roar is a framework for parsing and rendering REST documents. Nothing more.
 
 Representers let you define your API document structure and semantics. They allow both rendering representations from your models _and_ parsing documents to update your Ruby objects. The bi-directional nature of representers make them interesting for both server and client usage.
 
-Roar comes with built-in JSON, JSON-HAL, JSON-API and XML support. Its highly modulare architecture provides features like coercion, hypermedia, HTTP transport, client caching and more.
+Roar comes with built-in JSON, JSON-HAL, JSON-API and XML support. Its highly modular architecture provides features like coercion, hypermedia, HTTP transport, client caching and more.
 
 Roar is completely framework-agnostic and loves being used in web kits like Rails, Webmachine, Sinatra, Padrino, etc. If you use Rails, consider [roar-rails](https://github.com/apotonick/roar-rails) for an enjoyable integration.
 
