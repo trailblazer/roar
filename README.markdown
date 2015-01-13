@@ -433,7 +433,7 @@ A minimal representation can be defined as follows.
 require 'roar/json/json_api'
 
 module SongsRepresenter
-  include Roar::JSON::JsonApi
+  include Roar::JSON::JSONAPI
   type :songs
 
   property :id
