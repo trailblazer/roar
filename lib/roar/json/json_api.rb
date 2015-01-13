@@ -36,7 +36,7 @@ module Roar
       module Singular
         def to_hash(options={})
           # per resource:
-          super(:exclude => [:links]).tap do |hash|
+          super(options.merge(:exclude => [:links])).tap do |hash|
             hash["links"] = hash.delete("_links") if hash["_links"]
           end
         end

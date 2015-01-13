@@ -42,14 +42,12 @@ class JSONAPITest < MiniTest::Spec
     end
   end
 
-
-
   module Singular
     include Roar::JSON::JSONAPI
     type :songs
 
     property :id
-    property :title
+    property :title, if: lambda { |args| args[:omit_title] != true }
 
     # local per-model "id" links
     links do
@@ -84,7 +82,7 @@ class JSONAPITest < MiniTest::Spec
     type :songs
 
     property :id
-    property :title
+    property :title, if: lambda { |args| args[:omit_title] != true }
 
     # local per-model "id" links
     links do
@@ -148,6 +146,11 @@ class JSONAPITest < MiniTest::Spec
       # to_hash
       it do
         subject.to_hash.must_equal document
+      end
+
+      # to_hash(options)
+      it do
+        subject.to_hash(omit_title: true)['songs'].wont_include('title')
       end
 
       # #to_json
@@ -235,6 +238,13 @@ class JSONAPITest < MiniTest::Spec
       # to_hash
       it do
         subject.to_hash.must_equal document
+      end
+
+      # to_hash(options)
+      it do
+        subject.to_hash(omit_title: true)['songs'].each do |song|
+          song.wont_include('title')
+        end
       end
 
       # #to_json
@@ -334,7 +344,6 @@ class JSONAPITest < MiniTest::Spec
       )
     end
   end
-
 
   class ExplicitMeta < self
     module Representer
