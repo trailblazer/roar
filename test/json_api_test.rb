@@ -196,8 +196,8 @@ class JSONAPITest < MiniTest::Spec
 
   # collection with links
   [Singular, SingularDecorator].each do |representer|
-    describe "collection with links and compound" do
-      subject { Singular.for_collection.prepare([song, song]) }
+    describe "collection with links and compound with #{representer}" do
+      subject { representer.for_collection.prepare([song, song]) }
 
       let (:document) do
         {
