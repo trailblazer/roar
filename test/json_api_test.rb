@@ -401,4 +401,45 @@ class JSONAPITest < MiniTest::Spec
       )
     end
   end
+
+  class Linked < self
+    module SongRepresenter
+      include Roar::JSON::JSONAPI
+
+      type :songs
+      property :id
+      property :title
+    end
+
+    module AlbumRepresenter
+      include Roar::JSON::JSONAPI
+
+      type :albums
+      property :id
+      compound do
+        collection :songs, extend: SongRepresenter
+      end
+    end
+
+    let(:songs) do
+      struct = Struct.new(:id, :title)
+      [struct.new(1, 'Stand Up'), struct.new(2, 'Audition Mantra')]
+    end
+
+    let(:album) { Struct.new(:id, :songs).new(1, songs) }
+
+    subject { album.extend(AlbumRepresenter) }
+
+    it do
+      subject.to_hash.must_equal({
+        'albums' => { 'id' => 1 },
+        'linked' => {
+          'songs' => [
+            {'id' => 1, 'title' => 'Stand Up'},
+            {'id' => 2, 'title' => 'Audition Mantra'}
+          ]
+        }
+      })
+    end
+  end
 end
