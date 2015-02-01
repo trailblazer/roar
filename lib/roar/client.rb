@@ -1,10 +1,12 @@
 require "roar/http_verbs"
 
 module Roar
-  # Automatically add accessors for properties and collections. Also mixes in HttpVerbs.
+
+  # Mix in HttpVerbs. 
   module Client
     include HttpVerbs
 
+    # Add accessors for properties and collections to modules.
     def self.extended(base)
       base.instance_eval do
         representable_attrs.each do |attr|
