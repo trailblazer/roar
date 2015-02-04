@@ -425,6 +425,8 @@ All HAL features in Roar are discussed in the [API docs](http://rdoc.info/github
 
 Roar also supports [JSON-API](http://jsonapi.org/) - yay! It can render _and_ parse singular and collection documents.
 
+Note that you need representable >= 2.1.4 in your `Gemfile`.
+
 ### Resource
 
 A minimal representation can be defined as follows.

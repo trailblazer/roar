@@ -1,3 +1,7 @@
+# 1.0.1
+
+* Allow calling `::has_one`, `::links` and `::has_many` in any order in JSON-API. This requires representable >= 2.1.4.
+
 # 1.0.0
 
 ## Breakage
