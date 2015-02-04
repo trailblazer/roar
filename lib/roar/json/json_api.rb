@@ -81,7 +81,7 @@ module Roar
 
           # Per-model links.
           def links(&block)
-            nested(:_links, &block)
+            nested(:_links, :inherit => true, &block)
           end
 
           # TODO: always create _links.
