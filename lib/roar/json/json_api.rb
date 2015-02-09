@@ -91,9 +91,12 @@ module Roar
             end
           end
 
-          def has_many(name)
+          def has_many(name, accessor = nil)
+            if accessor.nil?
+              accessor = name.to_s.sub(/s$/, "") + "_ids" #TODO either figure out how to depluralize or deprecate single param version
+            end
             property :_links, :inherit => true, :use_decorator => true do # simply extend the Decorator _links.
-              collection "#{name.to_s.sub(/s$/, "")}_ids", :as => name
+              collection accessor, :as => name
             end
           end
 

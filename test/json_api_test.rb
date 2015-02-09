@@ -59,7 +59,7 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
       end
       has_one :composer
       has_many :listeners
-      has_many :garnishes
+      has_many :garnishes, :garnish_ids
 
       # global document links.
       link "songs.album" do
@@ -96,7 +96,7 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
         collection :musician_ids, :as => :musicians
       end
       has_many :listeners
-      has_many :garnishes
+      has_many :garnishes, :garnish_ids
 
 
       # global document links.
@@ -218,7 +218,8 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
                   "composer"=>"10",
                   "album" => "9",
                   "musicians" => [ "1", "2" ],
-                  "listeners"=>["8"]
+                  "listeners"=>["8"],
+                  "garnishes"=>["4"]
                 }
               }, {
                 "id" => "1",
@@ -227,7 +228,8 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
                   "composer"=>"10",
                   "album" => "9",
                   "musicians" => [ "1", "2" ],
-                  "listeners"=>["8"]
+                  "listeners"=>["8"],
+                  "garnishes"=>["4"]
                 }
               }
             ],
