@@ -6,7 +6,7 @@ require "representable/version"
 if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO: remove check once we bump representable dependency.
   class JSONAPITest < MiniTest::Spec
     let(:song) {
-      s = OpenStruct.new(
+      OpenStruct.new(
         bla: "halo",
         id: "1",
         title: 'Computadores Fazem Arte',
@@ -15,6 +15,7 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
         :musician_ids => ["1","2"],
         :composer_id => "10",
         :listener_ids => ["8"],
+        :garnish_ids => ["4"],
         musicians: [OpenStruct.new(id: 1, name: "Eddie Van Halen"), OpenStruct.new(id: 2, name: "Greg Howe")]
       )
 
@@ -58,7 +59,7 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
       end
       has_one :composer
       has_many :listeners
-
+      has_many :garnishes
 
       # global document links.
       link "songs.album" do
@@ -95,6 +96,7 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
         collection :musician_ids, :as => :musicians
       end
       has_many :listeners
+      has_many :garnishes
 
 
       # global document links.
@@ -129,7 +131,8 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
                 "album" => "9",
                 "musicians" => [ "1", "2" ],
                 "composer"=>"10",
-                "listeners"=>["8"]
+                "listeners"=>["8"],
+                "garnishes"=>["4"]
               }
             },
             "links" => {
@@ -175,7 +178,8 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
                     "album" => "9",
                     "musicians" => [ "1", "2" ],
                     "composer"=>"10",
-                    "listeners"=>["8"]
+                    "listeners"=>["8"],
+                    "garnishes"=>["4"]
                   }
                 },
                 "links" => {
@@ -193,6 +197,7 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
           song.musician_ids.must_equal ["1", "2"]
           song.composer_id.must_equal "10"
           song.listener_ids.must_equal ["8"]
+          song.garnish_ids.must_equal ["4"]
         end
       end
     end
