@@ -662,7 +662,7 @@ As `GET` is not supposed to send any data, you can use `#get` on an empty object
 Roar supports SSL connections - they are automatically detected via the protocol.
 
 ```ruby
-song.get(uri: "https://localhost:4567/songs/1")`
+song.get(uri: "https://localhost:4567/songs/1")
 ```
 
 ### Basic Authentication
