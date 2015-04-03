@@ -15,6 +15,7 @@ crt.issuer = ca
 crt.public_key = key.public_key
 crt.not_before = Time.now
 crt.not_after  = Time.now + 1 * 365 * 24 * 60 * 60 # 1 year
+crt.sign(key, OpenSSL::Digest::SHA1.new)
 webrick_options = {
     :Port               => 8443,
     :SSLEnable          => true,
