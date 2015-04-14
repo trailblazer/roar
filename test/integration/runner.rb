@@ -30,13 +30,20 @@ class SslServerRunner < ServerRunner
   end
 end
 
-runner = ServerRunner.new
-runner.run
+begin
+  runner = ServerRunner.new
+  runner.run
 
-ssl_runner = SslServerRunner.new
-ssl_runner.run
+  ssl_runner = SslServerRunner.new
+  ssl_runner.run
 
-Minitest.after_run do
+  Minitest.after_run do
+    runner.kill
+    ssl_runner.kill
+  end
+rescue Exception => e
   runner.kill
   ssl_runner.kill
+
+  raise e
 end
