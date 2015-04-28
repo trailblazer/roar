@@ -75,8 +75,9 @@ module Roar
         # New API for JSON-API representers.
         module Declarative
           def type(name=nil)
-            return super unless name # original name.
-            representable_attrs[:_wrap] = name.to_s
+            property :type,
+                     writable: false,
+                     getter: ->(_) { name.to_s }
           end
 
           # Define global document links for the links: directive.
@@ -143,7 +144,7 @@ module Roar
             compound = compile_compound!(res.delete("linked"), {})
           end
 
-          {representable_attrs[:_wrap] => res}.tap do |doc|
+          {"data" => res}.tap do |doc|
             doc.merge!(links)
             doc.merge!(meta)
             doc.merge!("linked" => compound) if compound && compound.size > 0 # FIXME: make that like the above line.
@@ -151,7 +152,7 @@ module Roar
         end
 
         def from_document(hash)
-          hash[representable_attrs[:_wrap]]
+          hash["data"]
         end
 
         # Compiles the linked: section for compound objects in the document.
