@@ -14,6 +14,11 @@ module Roar
           extend ForCollection
 
           representable_attrs[:resource_representer] = Class.new(Resource::Representer)
+
+          private
+            def create_representation_with(doc, options, format)
+              super(doc, options.merge(:only_body => true), format)
+            end
         end
       end
 
