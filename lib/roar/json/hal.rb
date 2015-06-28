@@ -16,7 +16,7 @@ module Roar
     # Example:
     #
     #   module OrderRepresenter
-    #     include Roar::Representer::JSON::HAL
+    #     include Roar::JSON::HAL
     #
     #     property :id
     #     collection :items, :class => Item, :extend => ItemRepresenter, :embedded => true
@@ -93,8 +93,8 @@ module Roar
       # following the HAL specification: http://stateless.co/hal_specification.html
       #
       #   module SongRepresenter
-      #     include Roar::Representer::JSON
-      #     include Roar::Representer::JSON::HAL::Links
+      #     include Roar::JSON
+      #     include Roar::JSON::HAL::Links
       #
       #     link :self { "http://self" }
       #   end

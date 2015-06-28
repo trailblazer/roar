@@ -5,8 +5,8 @@ require 'representable/coercion'
 module Roar
   # Use the +:type+ option to specify the conversion type.
   # class ImmigrantSong
-  #   include Roar::Representer::JSON
-  #   include Roar::Representer::Feature::Coercion
+  #   include Roar::JSON
+  #   include Roar::Coercion
   #
   #   property :composed_at, :type => DateTime, :default => "May 12th, 2012"
   # end
