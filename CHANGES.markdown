@@ -14,7 +14,7 @@
 
 ## Added
 
-* `Roar::JSON::JsonApi` supports JSON-API. A big thanks to @oliverbarnes for his continous help, support and research on how to implement this standard.
+* `Roar::JSON::JSONAPI` supports JSON-API. A big thanks to @oliverbarnes for his continous help, support and research on how to implement this standard.
 
 
 ## Relevant

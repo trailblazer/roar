@@ -375,7 +375,7 @@ module SongRepresenter
 end
 ```
 
-Documentation for HAL can be found in the [API docs](http://rdoc.info/github/apotonick/roar/Roar/Representer/JSON/HAL).
+Documentation for HAL can be found in the [API docs](http://rdoc.info/github/apotonick/roar/Roar/JSON/HAL).
 
 Make sure you [understand the different contexts](#hypermedia) for links when using decorators.
 
@@ -418,7 +418,7 @@ album.to_json
 
 HAL keys nested resources under the `_embedded` key and then by their type.
 
-All HAL features in Roar are discussed in the [API docs](http://rdoc.info/github/apotonick/roar/Roar/Representer/JSON/HAL), including [array links](https://github.com/apotonick/roar/blob/master/lib/roar/json/hal.rb#L176).
+All HAL features in Roar are discussed in the [API docs](http://rdoc.info/github/apotonick/roar/Roar/JSON/HAL), including [array links](https://github.com/apotonick/roar/blob/master/lib/roar/json/hal.rb#L196).
 
 
 ## JSON-API
@@ -713,8 +713,8 @@ Roar also comes with XML support.
 
 ```ruby
 module SongRepresenter
-  include Roar::Representer::XML
-  include Roar::Representer::Hypermedia
+  include Roar::XML
+  include Roar::Hypermedia
 
   property :title
   property :id
@@ -725,7 +725,7 @@ module SongRepresenter
 end
 ```
 
-Include the `Roar::Representer::XML` engine and get bi-directional XML for your objects.
+Include the `Roar::XML` engine and get bi-directional XML for your objects.
 
 ```ruby
 song = Song.new(title: "Roxanne", id: 42)

@@ -4,7 +4,7 @@ module Roar
   # Example:
   #
   #   class Order
-  #     include Roar::Representer::JSON
+  #     include Roar:JSON
   #
   #     property :id
   #
