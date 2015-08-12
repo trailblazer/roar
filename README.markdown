@@ -24,7 +24,6 @@ Roar is just a thin layer on top of the [representable](https://github.com/apoto
 
 If in need for a feature, make sure to check the [representable API docs](https://github.com/apotonick/representable) first.
 
-Since Representable 2.3 you need to include `nokogiri` for XML or `multi_json` for JSON in your app's `Gemfile` [Learn more](https://github.com/apotonick/representable/#dependencies).
 
 ## Defining Representers
 
