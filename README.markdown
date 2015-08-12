@@ -24,6 +24,30 @@ Roar is just a thin layer on top of the [representable](https://github.com/apoto
 
 If in need for a feature, make sure to check the [representable API docs](https://github.com/apotonick/representable) first.
 
+## Installation
+
+The roar gem runs with all Ruby versions >= 1.9.3.
+
+```ruby
+gem 'roar'
+```
+
+### Dependencies
+
+Roar does not bundle dependencies for JSON and XML.
+
+If you want to use JSON, add the following to your Gemfile:
+
+```ruby
+gem 'multi_json'
+```
+
+If you want to use XML, add the following to your Gemfile:
+
+```ruby
+gem 'nokogiri'
+```
+
 
 ## Defining Representers
 
