@@ -1,3 +1,7 @@
+# 1.0.2
+
+* Roar runs on Rubinius.
+
 # 1.0.1
 
 * Allow calling `::has_one`, `::links` and `::has_many` in any order in JSON-API. This requires representable >= 2.1.4.

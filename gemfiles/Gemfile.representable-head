@@ -1,0 +1,6 @@
+source "http://rubygems.org"
+
+gemspec path: '../'
+
+gem 'representable', github: 'apotonick/representable'
+gem 'sinatra-contrib', github: 'apotonick/sinatra-contrib', branch: 'runner'
