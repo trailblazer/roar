@@ -111,17 +111,27 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
                 "title" => "Computadores Fazem Arte"
               },
               "relationships" => {
-                "album" =>
-                  { "data" => { "type" => "albums", "id" => "9" } },
-                "musicians" => [
-                  { "data" => { "type" => "musicians", "id" => "1" } },
-                  { "data" => { "type" => "musicians", "id" => "2" } }
-                ],
-                "composer" =>
-                  { "data" => { "type" => "composers", "id" => "10" } },
-                "listeners" => [
-                  { "data" => { "type" => "listeners", "id" => "8" } }
-                ]
+                "album" => {
+                  "data" => {
+                    "type" => "albums", "id" => "9"
+                  }
+                },
+                "musicians" => {
+                  "data" => [
+                    { "type" => "musicians", "id" => "1" },
+                    { "type" => "musicians", "id" => "2" }
+                  ]
+                },
+                "composer" => {
+                  "data" => {
+                    "type" => "composers", "id" => "10"
+                  }
+                },
+                "listeners" => {
+                  "data" => [
+                    { "type" => "listeners", "id" => "8" }
+                  ]
+                },
               },
               "included" => [
                 { "type" => "albums", "id" => "9", "attributes" => { "title" => "Hackers" } },
@@ -160,17 +170,27 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
                     "title" => "Computadores Fazem Arte"
                   },
                   "relationships" => {
-                    "album" =>
-                      { "data" => { "type" => "albums", "id" => "9" } },
-                    "musicians" => [
-                      { "data" => { "type" => "musicians", "id" => "1" } },
-                      { "data" => { "type" => "musicians", "id" => "2" } }
-                    ],
-                    "composer" =>
-                      { "data" => { "type" => "composers", "id" => "10" } },
-                    "listeners" => [
-                      { "data" => { "type" => "listeners", "id" => "8" } }
-                    ]
+                    "album" => {
+                      "data" => {
+                        "type" => "albums", "id" => "9"
+                      }
+                    },
+                    "musicians" => {
+                      "data" => [
+                        { "type" => "musicians", "id" => "1" },
+                        { "type" => "musicians", "id" => "2" }
+                      ]
+                    },
+                    "composer" => {
+                      "data" => {
+                        "type" => "composers", "id" => "10"
+                      }
+                    },
+                    "listeners" => {
+                      "data" => [
+                        { "type" => "listeners", "id" => "8" }
+                      ]
+                    }
                   }
                 }
               }
@@ -203,18 +223,28 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
                   "title" => "Computadores Fazem Arte"
                 },
                 "relationships" => {
-                  "composer" =>
-                    { "data" => { "type" => "composers", "id" => "10" } },
-                  "album" =>
-                    { "data" => { "type" => "albums", "id" => "9" } },
-                  "musicians" => [
-                    { "data" => { "type" => "musicians", "id" => "1" } },
-                    { "data" => { "type" => "musicians", "id" => "2" } }
-                  ],
-                  "listeners" => [
-                    { "data" => { "type" => "listeners", "id" => "8" } }
-                  ]
-                }
+                  "album" => {
+                    "data" => {
+                      "type" => "albums", "id" => "9"
+                    }
+                  },
+                  "musicians" => {
+                    "data" => [
+                      { "type" => "musicians", "id" => "1" },
+                      { "type" => "musicians", "id" => "2" }
+                    ]
+                  },
+                  "composer" => {
+                    "data" => {
+                      "type" => "composers", "id" => "10"
+                    }
+                  },
+                  "listeners" => {
+                    "data" => [
+                      { "type" => "listeners", "id" => "8" }
+                    ]
+                  },
+                },
               }, {
                 "type" => "songs",
                 "id" => "1",
@@ -222,24 +252,34 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
                   "title" => "Computadores Fazem Arte"
                 },
                 "relationships" => {
-                  "composer" =>
-                    { "data" => { "type" => "composers", "id" => "10" } },
-                  "album" =>
-                    { "data" => { "type" => "albums", "id" => "9" } },
-                  "musicians" => [
-                    { "data" => { "type" => "musicians", "id" => "1" } },
-                    { "data" => { "type" => "musicians", "id" => "2" } }
-                  ],
-                  "listeners" => [
-                    { "data" => { "type" => "listeners", "id" => "8" } }
-                  ]
+                  "album" => {
+                    "data" => {
+                      "type" => "albums", "id" => "9"
+                    }
+                  },
+                  "musicians" => {
+                    "data" => [
+                      { "type" => "musicians", "id" => "1" },
+                      { "type" => "musicians", "id" => "2" }
+                    ]
+                  },
+                  "composer" => {
+                    "data" => {
+                      "type" => "composers", "id" => "10"
+                    }
+                  },
+                  "listeners" => {
+                    "data" => [
+                      { "type" => "listeners", "id" => "8" }
+                    ]
+                  },
                 }
               }
             ],
             "included" => [
               { "type" => "albums", "id" => "9", "attributes" => { "title" => "Hackers" } },
               { "type" => "musicians", "id" => "1", "attributes" => { "name" => "Eddie Van Halen" } },
-              { "type" => "musicians", "id" => "2", "attributes" => { "name" => "Greg Howe" } }
+              { "type" => "musicians", "id" => "2", "attributes" => { "name" => "Greg Howe"} }
             ]
           }
         end
@@ -274,17 +314,27 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
                     "title" => "Computadores Fazem Arte"
                   },
                   "relationships" => {
-                    "album" =>
-                      { "data" => { "type" => "albums", "id" => "9" } },
-                    "musicians" => [
-                      { "data" => { "type" => "musicians", "id" => "1" } },
-                      { "data" => { "type" => "musicians", "id" => "2" } }
-                    ],
-                    "composer" =>
-                      { "data" => { "type" => "composers", "id" => "10" } },
-                    "listeners" => [
-                      { "data" => { "type" => "listeners", "id" => "8" } }
-                    ]
+                    "album" => {
+                      "data" => {
+                        "type" => "albums", "id" => "9"
+                      }
+                    },
+                    "musicians" => {
+                      "data" => [
+                        { "type" => "musicians", "id" => "1" },
+                        { "type" => "musicians", "id" => "2" }
+                      ]
+                    },
+                    "composer" => {
+                      "data" => {
+                        "type" => "composers", "id" => "10"
+                      }
+                    },
+                    "listeners" => {
+                      "data" => [
+                        { "type" => "listeners", "id" => "8" }
+                      ]
+                    }
                   }
                 },
                 {
@@ -294,17 +344,27 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
                     "title" => "Talking To Remind Me"
                   },
                   "relationships" => {
-                    "album" =>
-                      { "data" => { "type" => "albums", "id" => "1" } },
-                    "musicians" => [
-                      { "data" => { "type" => "musicians", "id" => "3" } },
-                      { "data" => { "type" => "musicians", "id" => "4" } }
-                    ],
-                    "composer" =>
-                      { "data" => { "type" => "composers", "id" => "2" } },
-                    "listeners" => [
-                      { "data" => { "type" => "listeners", "id" => "6" } }
-                    ]
+                    "album" => {
+                      "data" => {
+                        "type" => "albums", "id" => "1"
+                      }
+                    },
+                    "musicians" => {
+                      "data" => [
+                        { "type" => "musicians", "id" => "3" },
+                        { "type" => "musicians", "id" => "4" }
+                      ]
+                    },
+                    "composer" => {
+                      "data" => {
+                        "type" => "composers", "id" => "2"
+                      }
+                    },
+                    "listeners" => {
+                      "data" => [
+                        { "type" => "listeners", "id" => "6" }
+                      ]
+                    }
                   }
                 }
               ]
@@ -359,17 +419,27 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
                 "title" => "Computadores Fazem Arte"
               },
               "relationships" => {
-                "album" =>
-                  { "data" => { "type" => "albums", "id" => "9" } },
-                "musicians" => [
-                  { "data" => { "type" => "musicians", "id" => "1" } },
-                  { "data" => { "type" => "musicians", "id" => "2" } }
-                ],
-                "composer" =>
-                  { "data" => { "type" => "composers", "id" => "10" } },
-                "listeners" => [
-                  { "data" => { "type" => "listeners", "id" => "8" } }
-                ]
+                "album" => {
+                  "data" => {
+                    "type" => "albums", "id" => "9"
+                  }
+                },
+                "musicians" => {
+                  "data" => [
+                    { "type" => "musicians", "id" => "1" },
+                    { "type" => "musicians", "id" => "2" }
+                  ]
+                },
+                "composer" => {
+                  "data" => {
+                    "type" => "composers", "id" => "10"
+                  }
+                },
+                "listeners" => {
+                  "data" => [
+                    { "type" => "listeners", "id" => "8" }
+                  ]
+                },
               }
             }, {
               "type" => "songs",
@@ -378,17 +448,27 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
                 "title" => "Computadores Fazem Arte"
               },
               "relationships" => {
-                "album" =>
-                  { "data" => { "type" => "albums", "id" => "9" } },
-                "musicians" => [
-                  { "data" => { "type" => "musicians", "id" => "1" } },
-                  { "data" => { "type" => "musicians", "id" => "2" } }
-                ],
-                "composer" =>
-                  { "data" => { "type" => "albums", "id" => "10" } },
-                "listeners" => [
-                  { "data" => { "type" => "listeners", "id" => "8" } }
-                ]
+                "album" => {
+                  "data" => {
+                    "type" => "albums", "id" => "9"
+                  }
+                },
+                "musicians" => {
+                  "data" => [
+                    { "type" => "musicians", "id" => "1" },
+                    { "type" => "musicians", "id" => "2" }
+                  ]
+                },
+                "composer" => {
+                  "data" => {
+                    "type" => "composers", "id" => "10"
+                  }
+                },
+                "listeners" => {
+                  "data" => [
+                    { "type" => "listeners", "id" => "8" }
+                  ]
+                },
               }
             } ]
           }
@@ -431,10 +511,12 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
             "type" => "albums",
             "id" => "1",
             "relationships" => {
-              "songs" => [
-                { "type" => "songs", "id" => "1" },
-                { "type" => "songs", "id" => "2" }
-              ]
+              "songs" => {
+                "data" => [
+                  { "type" => "songs", "id" => "1" },
+                  { "type" => "songs", "id" => "2" }
+                ]
+              }
             },
           },
           "included" => {
