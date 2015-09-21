@@ -141,6 +141,7 @@ module Roar
           if res.is_a?(Array)
             compound = collection_compound!(res, {})
           else
+            res = prepare_res(res)
             compound = compile_compound!(res.delete("included"), {})
           end
 
@@ -155,13 +156,27 @@ module Roar
           hash["data"]
         end
 
+        def prepare_res(res)
+          extracted = {
+            "type" => res.delete("type"),
+            "id" => res.delete("id").to_s
+          }
+
+          extracted["attributes"] = res unless res.empty?
+
+          extracted
+        end
+
         # Compiles the included: section for compound objects in the document.
         def collection_compound!(collection, compound)
           collection.each { |res|
             kv = res.delete("included") or next
 
+            kv = prepare_res(kv)
             compile_compound!(kv, compound)
           }
+
+          collection.map!(&method(:prepare_res))
 
           compound
         end
