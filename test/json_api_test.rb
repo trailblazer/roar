@@ -11,10 +11,10 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
         id: "1",
         title: 'Computadores Fazem Arte',
         album: OpenStruct.new(id: 9, title: "Hackers"),
-        :album_id => "9",
-        :musician_ids => ["1","2"],
-        :composer_id => "10",
-        :listener_ids => ["8"],
+        album_id: "9",
+        musician_ids: ["1","2"],
+        composer_id: "10",
+        listener_ids: ["8"],
         musicians: [OpenStruct.new(id: 1, name: "Eddie Van Halen"), OpenStruct.new(id: 2, name: "Greg Howe")]
       )
 
