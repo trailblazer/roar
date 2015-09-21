@@ -6,7 +6,7 @@ require "representable/version"
 if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO: remove check once we bump representable dependency.
   class JSONAPITest < MiniTest::Spec
     let(:song) {
-      s = OpenStruct.new(
+      OpenStruct.new(
         bla: "halo",
         id: "1",
         title: 'Computadores Fazem Arte',
