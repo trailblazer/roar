@@ -153,7 +153,29 @@ module Roar
         end
 
         def from_document(hash)
-          hash["data"]
+          if hash["data"].is_a?(Array)
+            hash["data"].map(&method(:from_document_data))
+          else
+            from_document_data hash["data"]
+          end
+        end
+
+        def from_document_data(data)
+          result = data.merge data.delete("attributes").to_h
+
+          if rels = result.delete("relationships")
+            result["links"] ||= {}
+
+            rels.each { |k, v|
+              if v["data"].is_a?(Array)
+                result["links"][k] = v["data"].map { |e| e["id"] }
+              else
+                result["links"][k] = v["data"]["id"]
+              end
+            }
+          end
+
+          result
         end
 
         def prepare_res(res)
