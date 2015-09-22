@@ -141,7 +141,8 @@ module Roar
           if res.is_a?(Array)
             compound = collection_compound!(res, {})
           else
-            compound = compile_compound!(res.delete("included"), {})
+            compound = compile_compound!(res.fetch("included", nil), {})
+            res = prepare_res(res)
           end
 
           {"data" => res}.tap do |doc|
@@ -152,16 +153,74 @@ module Roar
         end
 
         def from_document(hash)
-          hash["data"]
+          if hash["data"].is_a?(Array)
+            hash["data"].map(&method(:from_document_data))
+          else
+            from_document_data hash["data"]
+          end
+        end
+
+        def from_document_data(data)
+          result = data.merge data.delete("attributes").to_h
+
+          if rels = result.delete("relationships")
+            result["links"] ||= {}
+
+            rels.each { |k, v|
+              if v["data"].is_a?(Array)
+                result["links"][k] = v["data"].map { |e| e["id"] }
+              else
+                result["links"][k] = v["data"]["id"]
+              end
+            }
+          end
+
+          result
+        end
+
+        def prepare_res(res)
+          extracted = extract_identifiers(res)
+
+          relationships = prepare_rels(res.delete "included") if res.key? "included"
+          extracted["attributes"] = res unless res.empty?
+          extracted["relationships"] = relationships if relationships
+
+          extracted
+        end
+
+        def prepare_rels(rels)
+          final = {}
+          rels.each { |k, v|
+            if v.is_a?(Array)
+              final[k] = {
+                "data" => v.map(&method(:extract_identifiers))
+              }
+            else
+              final[k] = {
+                "data" => extract_identifiers(v)
+              }
+            end
+          }
+          final
+        end
+
+        def extract_identifiers(res)
+          {
+            "type" => res.delete("type"),
+            "id" => res.delete("id").to_s
+          }
         end
 
         # Compiles the included: section for compound objects in the document.
         def collection_compound!(collection, compound)
           collection.each { |res|
-            kv = res.delete("included") or next
+            kv = res.fetch("included", nil) or next
 
             compile_compound!(kv, compound)
+            kv = prepare_res(kv)
           }
+
+          collection.map!(&method(:prepare_res))
 
           compound
         end
@@ -175,15 +234,19 @@ module Roar
             compound[k] ||= []
 
             if v.is_a?(::Hash) # {"title"=>"Hackers"}
-              compound[k] << v
+              compound[k] << prepare_res(deep_copy(v))
             else
-              compound[k].push(*v) # [{"name"=>"Eddie Van Halen"}, {"name"=>"Greg Howe"}]
+              compound[k].push(*deep_copy(v).map(&method(:prepare_res))) # [{"name"=>"Eddie Van Halen"}, {"name"=>"Greg Howe"}]
             end
 
             compound[k] = compound[k].uniq
           }
 
           compound
+        end
+
+        def deep_copy(node)
+          Marshal.load(Marshal.dump(node))
         end
 
         def render_links
