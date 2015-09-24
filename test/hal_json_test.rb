@@ -132,6 +132,7 @@ end
 class JsonHalTest < MiniTest::Spec
   Album  = Struct.new(:artist, :songs)
   Artist = Struct.new(:name)
+  Song = Struct.new(:title)
 
   def self.representer!
     super([Roar::JSON::HAL])
@@ -146,9 +147,13 @@ class JsonHalTest < MiniTest::Spec
       property :artist, embedded: true, render_nil: false do
         property :name
       end
+
+      collection :songs, embedded: true, render_empty: false do
+        property :title
+      end
     end
 
-    it { Album.new(Artist.new("Bare, Jr.")).extend(representer).to_hash.must_equal({"_embedded"=>{"artist"=>{"name"=>"Bare, Jr."}}}) }
+    it { Album.new(Artist.new("Bare, Jr."), [Song.new("Tobacco Spit")]).extend(representer).to_hash.must_equal({"_embedded"=>{"artist"=>{"name"=>"Bare, Jr."}, "songs"=>[{"title"=>"Tobacco Spit"}]}}) }
     it { Album.new.extend(representer).to_hash.must_equal({}) }
   end
 end
