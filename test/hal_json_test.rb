@@ -126,7 +126,33 @@ class HalJsonTest < MiniTest::Spec
       @album.links.must_equal nil
     end
   end
+
 end
+
+class JsonHalTest < MiniTest::Spec
+  Album  = Struct.new(:artist, :songs)
+  Artist = Struct.new(:name)
+
+  def self.representer!
+    super([Roar::JSON::HAL])
+  end
+
+  def representer
+    rpr
+  end
+
+  describe "render_nil: false" do
+    representer! do
+      property :artist, embedded: true, render_nil: false do
+        property :name
+      end
+    end
+
+    it { Album.new(Artist.new("Bare, Jr.")).extend(representer).to_hash.must_equal({"_embedded"=>{"artist"=>{"name"=>"Bare, Jr."}}}) }
+    it { Album.new.extend(representer).to_hash.must_equal({}) }
+  end
+end
+
 
 class LinkCollectionTest < MiniTest::Spec
   subject { Roar::JSON::HAL::LinkCollection.new([:self, "next"]) }

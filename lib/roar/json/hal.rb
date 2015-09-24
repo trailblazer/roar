@@ -48,27 +48,26 @@ module Roar
           include Links       # overwrites #links_definition_options.
           extend ClassMethods # overwrites #links_definition_options, again.
           include Resources
-
-          def representable_mapper(*) # TODO: make this easier to override.
-            super.tap do |map|
-              map.extend Resources
-            end
-          end
         end
       end
 
       module Resources
-        # Write the property to the +_embedded+ hash when it's a resource.
-        def compile_fragment(bin, doc)
-          embedded = bin[:embedded]
-          return super unless embedded
-          super(bin, doc[:_embedded] ||= {})
+        def to_hash(*)
+          super.tap do |hash|
+            embedded = {}
+            representable_attrs.find_all do |dfn|
+              next unless dfn[:embedded] and fragment = hash.delete(dfn.name)
+              embedded[dfn.name] = fragment
+            end
+
+            hash["_embedded"] = embedded if embedded.any?
+            hash["_links"]    = hash.delete("_links") if hash["_links"] # always render _links after _embedded.
+          end
         end
 
-        def uncompile_fragment(bin, doc)
-          embedded = bin[:embedded]
-          return super unless embedded
-          super(bin, doc["_embedded"] || {})
+        def from_hash(hash, *)
+          hash.fetch("_embedded", []).each { |name, fragment| hash[name] = fragment }
+          super
         end
       end
 

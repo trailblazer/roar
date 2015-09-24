@@ -1,3 +1,10 @@
+# 1.0.3
+
+## JSON::HAL
+
+* `"_embedded"` will always be rendered before `"_links"`.
+* `render_nil: false` is now respected.
+
 # 1.0.2
 
 * Roar runs on Rubinius.
