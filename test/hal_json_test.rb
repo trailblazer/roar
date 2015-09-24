@@ -168,7 +168,7 @@ class JsonHalTest < MiniTest::Spec
       end
     end
 
-    it { Album.new(Artist.new("Bare, Jr."), [Song.new("Tobacco Spit")]).extend(representer).to_hash.must_equal({"_embedded"=>{"artist"=>{"name"=>"Bare, Jr."}, "songs"=>[{"title"=>"Tobacco Spit"}]}}) }
+    it { Album.new(Artist.new("Bare, Jr."), [Song.new("Tobacco Spit")]).extend(representer).to_hash.must_equal({"_embedded"=>{"artist"=>{"name"=>"Bare, Jr."}, "my_songs"=>[{"title"=>"Tobacco Spit"}]}}) }
     it { Album.new.extend(representer).to_hash.must_equal({}) }
   end
 end
