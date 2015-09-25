@@ -56,8 +56,9 @@ module Roar
           super.tap do |hash|
             embedded = {}
             representable_attrs.find_all do |dfn|
-              next unless dfn[:embedded] and fragment = hash.delete(dfn.name)
-              embedded[dfn.name] = fragment
+              name = dfn[:as].(nil) # DISCUSS: should we simplify that in Representable?
+              next unless dfn[:embedded] and fragment = hash.delete(name)
+              embedded[name] = fragment
             end
 
             hash["_embedded"] = embedded if embedded.any?
