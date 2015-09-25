@@ -1,3 +1,7 @@
+# 1.0.3
+
+* Make `:as` work with `HAL`.
+
 # 1.0.2
 
 * Roar runs on Rubinius.
