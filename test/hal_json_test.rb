@@ -156,6 +156,21 @@ class JsonHalTest < MiniTest::Spec
     it { Album.new(Artist.new("Bare, Jr."), [Song.new("Tobacco Spit")]).extend(representer).to_hash.must_equal({"_embedded"=>{"artist"=>{"name"=>"Bare, Jr."}, "songs"=>[{"title"=>"Tobacco Spit"}]}}) }
     it { Album.new.extend(representer).to_hash.must_equal({}) }
   end
+
+  describe "render_nil: false with as: alias" do
+    representer! do
+      property :artist, as: :my_artist, embedded: true, render_nil: false do
+        property :name
+      end
+
+      collection :songs, as: :my_songs, embedded: true, render_empty: false do
+        property :title
+      end
+    end
+
+    it { Album.new(Artist.new("Bare, Jr."), [Song.new("Tobacco Spit")]).extend(representer).to_hash.must_equal({"_embedded"=>{"artist"=>{"name"=>"Bare, Jr."}, "my_songs"=>[{"title"=>"Tobacco Spit"}]}}) }
+    it { Album.new.extend(representer).to_hash.must_equal({}) }
+  end
 end
 
 
