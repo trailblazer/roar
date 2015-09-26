@@ -136,18 +136,12 @@ module Roar
         def to_document(res, options)
           links = render_links
           meta  = render_meta(options)
-          # FIXME: provide two different #to_document
-
-          if res.is_a?(Array)
-            compound = collection_compound!(res, {})
-          else
-            compound = compile_compound!(res.delete("included"), {})
-          end
+          compound = render_compound(res)
 
           {"data" => res}.tap do |doc|
             doc.merge!(links)
             doc.merge!(meta)
-            doc.merge!("included" => compound) if compound && compound.size > 0 # FIXME: make that like the above line.
+            doc.merge!(compound)
           end
         end
 
@@ -155,35 +149,30 @@ module Roar
           hash["data"]
         end
 
-        # Compiles the included: section for compound objects in the document.
-        def collection_compound!(collection, compound)
-          collection.each { |res|
-            kv = res.delete("included") or next
-
-            compile_compound!(kv, compound)
-          }
-
-          compound
-        end
-
         # Go through {"album"=>{"title"=>"Hackers"}, "musicians"=>[{"name"=>"Eddie Van Halen"}, ..]} from included:
         # and wrap every item in an array.
         def compile_compound!(linked, compound)
-          return unless linked
+          return {} unless linked
 
           linked.each { |k,v| # {"album"=>{"title"=>"Hackers"}, "musicians"=>[{"name"=>"Eddie Van Halen"}, {"name"=>"Greg Howe"}]}
-            compound[k] ||= []
-
             if v.is_a?(::Hash) # {"title"=>"Hackers"}
+              k = "#{k}s" # "album" => "albums", so we merge singles with collections
+              compound[k] ||= []
               compound[k] << v
             else
+              compound[k] ||= []
               compound[k].push(*v) # [{"name"=>"Eddie Van Halen"}, {"name"=>"Greg Howe"}]
             end
 
             compound[k] = compound[k].uniq
           }
 
-          compound
+          return {} unless compound && compound.size > 0
+          {"included" => compound}
+        end
+
+        def render_compound(res)
+          compile_compound!(res.delete("included"), {})
         end
 
         def render_links
@@ -211,6 +200,23 @@ module Roar
           def from_hash(hash, options={})
             hash = from_document(hash)
             super(hash, options.merge(:only_body => true))
+          end
+
+        private
+          def render_compound(res)
+            collection_compound!(res, {})
+          end
+
+          # Compiles the included: section for compound objects in the document.
+          def collection_compound!(collection, compound)
+            collection.each { |res|
+              kv = res.delete("included") or next
+
+              compile_compound!(kv, compound)
+            }
+            return {} unless compound && compound.size > 0
+
+            {"included" => compound}
           end
         end
       end
