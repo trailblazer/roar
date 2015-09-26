@@ -134,11 +134,12 @@ module Roar
 
       private
         def to_document(res, options)
+          data = render_data(res)
           links = render_links
           meta  = render_meta(options)
           compound = render_compound(res)
 
-          {"data" => res}.tap do |doc|
+          {"data" => data}.tap do |doc|
             doc.merge!(links)
             doc.merge!(meta)
             doc.merge!(compound)
@@ -169,6 +170,15 @@ module Roar
 
           return {} unless compound && compound.size > 0
           {"included" => compound}
+        end
+
+        def render_data(res)
+          data = {
+            "id" => res.delete("id").to_s,
+            "type" => res.delete("type"),
+          }
+          data["attributes"] = res if res && res.size > 0
+          data
         end
 
         def render_compound(res)
@@ -203,6 +213,10 @@ module Roar
           end
 
         private
+          def render_data(collection)
+            collection.map { |res| super(res) }
+          end
+
           def render_compound(res)
             collection_compound!(res, {})
           end
