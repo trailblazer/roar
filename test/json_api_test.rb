@@ -51,11 +51,8 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
       property :id
       property :title, if: lambda { |args| args[:omit_title] != true }
 
-      # local per-model "id" links
-      links do
-        property :album_id, :as => :album
-        collection :musician_ids, :as => :musicians
-      end
+      has_one :album
+      has_many :musicians
       has_one :composer
       has_many :listeners
 
@@ -80,11 +77,8 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
       # NOTE: it is important to call has_one, then links, then has_many to assert that they all write
       #to the same _links property and do NOT override things.
       has_one :composer
-      # local per-model "id" links
-      links do
-        property :album_id, :as => :album
-        collection :musician_ids, :as => :musicians
-      end
+      has_one :album
+      has_many :musicians
       has_many :listeners
 
       compound do
@@ -397,13 +391,10 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
         property :id
         property :title
 
-        # local per-model "id" links
-        links do
-          property :album_id, :as => :album
-          collection :musician_ids, :as => :musicians
-        end
+        has_many :musicians
         has_one :composer
         has_many :listeners
+        has_one :album
       end
 
       subject { [song, song].extend(Singular.for_collection) }
@@ -490,6 +481,7 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
 
         type :albums
         property :id
+
         compound do
           collection :songs, extend: SongRepresenter
         end
