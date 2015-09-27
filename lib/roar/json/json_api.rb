@@ -13,7 +13,7 @@ module Roar
 
           extend ForCollection
 
-          representable_attrs[:resource_representer] = Class.new(Resource::Representer)
+          representable_attrs[:link_representer] = Class.new(Resource::LinkRepresenter)
 
           private
             def create_representation_with(doc, options, format)
@@ -30,9 +30,8 @@ module Roar
           build_inline(nil, [Representable::Hash::Collection, Document::Collection, Roar::JSON], "", {}) do
             items extend: singular, :parse_strategy => :sync
 
-            representable_attrs[:resource_representer] = singular.representable_attrs[:resource_representer]
+            representable_attrs[:link_representer] = singular.representable_attrs[:link_representer]
             representable_attrs[:meta_representer]     = singular.representable_attrs[:meta_representer] # DISCUSS: do we need that?
-            representable_attrs[:_wrap] = singular.representable_attrs[:_wrap]
           end
         end
       end
@@ -43,6 +42,7 @@ module Roar
           # per resource:
           super(options.merge(:exclude => [:links])).tap do |hash|
             hash["links"] = hash.delete("_links") if hash["_links"]
+            hash["relationships"] = hash.delete("_relationships") if hash["_relationships"]
           end
         end
 
@@ -54,9 +54,9 @@ module Roar
 
 
       module Resource
-        # ::link is delegated to Representer which handles the hypermedia (rendering
+        # ::link is delegated to LinRepresenter which handles the hypermedia (rendering
         # and parsing links).
-        class Representer < Roar::Decorator
+        class LinkRepresenter < Roar::Decorator
           include Roar::JSON
           include Roar::Hypermedia
 
@@ -82,24 +82,39 @@ module Roar
 
           # Define global document links for the links: directive.
           def link(*args, &block)
-            representable_attrs[:resource_representer].link(*args, &block)
+            representable_attrs[:link_representer].link(*args, &block)
           end
 
-          # Per-model links.
-          def links(&block)
-            nested(:_links, :inherit => true, &block)
-          end
+          # TODO: always create _relationships.
+          def has_one(name, options = {})
+            options[:type] ||= "#{name}s"
+            nested :_relationships, :inherit => true, :use_decorator => true do # simply extend the Decorator _relationships.
+              property "#{name}_id", as: name do
+                nested :data do
+                  property :type,
+                           writable: false,
+                           getter: ->(_) { options[:type] }
+                  property :id, getter: ->(_) { self }
+                end
 
-          # TODO: always create _links.
-          def has_one(name)
-            property :_links, :inherit => true, :use_decorator => true do # simply extend the Decorator _links.
-              property "#{name}_id", :as => name
+                yield if block_given?
+              end
             end
           end
 
-          def has_many(name)
-            property :_links, :inherit => true, :use_decorator => true do # simply extend the Decorator _links.
-              collection "#{name.to_s.sub(/s$/, "")}_ids", :as => name
+          def has_many(name, options = {})
+            options[:type] ||= name.to_s
+            nested :_relationships, :inherit => true, :use_decorator => true do # simply extend the Decorator _relationships.
+              nested name do
+                collection "#{name.to_s.sub(/s$/, "")}_ids", :as => :data do
+                  property :type,
+                           writable: false,
+                           getter: ->(_) { options[:type] }
+                  property :id, getter: ->(_) { self }
+                end
+
+                yield if block_given?
+              end
             end
           end
 
@@ -152,10 +167,10 @@ module Roar
 
         # Go through {"album"=>{"title"=>"Hackers"}, "musicians"=>[{"name"=>"Eddie Van Halen"}, ..]} from included:
         # and wrap every item in an array.
-        def compile_compound!(linked, compound)
-          return {} unless linked
+        def compile_compound!(included, compound)
+          return {} unless included
 
-          linked.each { |k,v| # {"album"=>{"title"=>"Hackers"}, "musicians"=>[{"name"=>"Eddie Van Halen"}, {"name"=>"Greg Howe"}]}
+          included.each { |k,v| # {"album"=>{"title"=>"Hackers"}, "musicians"=>[{"name"=>"Eddie Van Halen"}, {"name"=>"Greg Howe"}]}
             if v.is_a?(::Hash) # {"title"=>"Hackers"}
               k = "#{k}s" # "album" => "albums", so we merge singles with collections
               compound[k] ||= []
@@ -177,6 +192,7 @@ module Roar
             "id" => res.delete("id").to_s,
             "type" => res.delete("type"),
           }
+          data["relationships"] = res.delete("relationships") if res["relationships"]
           data["attributes"] = res if res && res.size > 0
           data
         end
@@ -186,7 +202,7 @@ module Roar
         end
 
         def render_links
-          representable_attrs[:resource_representer].new(represented).to_hash # creates links: section.
+          representable_attrs[:link_representer].new(represented).to_hash # creates links: section.
         end
 
         def render_meta(options)
@@ -240,7 +256,7 @@ module Roar
         include Roar::JSON
 
         property :href
-        property :type
+        property :meta
       end
 
       require 'representable/json/hash'
