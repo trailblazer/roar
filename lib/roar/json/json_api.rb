@@ -75,8 +75,9 @@ module Roar
         # New API for JSON-API representers.
         module Declarative
           def type(name=nil)
-            return super unless name # original name.
-            representable_attrs[:_wrap] = name.to_s
+            property :type,
+                     writable: false,
+                     getter: ->(_) { name.to_s }
           end
 
           # Define global document links for the links: directive.
@@ -103,7 +104,7 @@ module Roar
           end
 
           def compound(&block)
-            nested(:linked, &block)
+            nested(:included, &block)
           end
 
           def meta(&block)
@@ -140,24 +141,24 @@ module Roar
           if res.is_a?(Array)
             compound = collection_compound!(res, {})
           else
-            compound = compile_compound!(res.delete("linked"), {})
+            compound = compile_compound!(res.delete("included"), {})
           end
 
-          {representable_attrs[:_wrap] => res}.tap do |doc|
+          {"data" => res}.tap do |doc|
             doc.merge!(links)
             doc.merge!(meta)
-            doc.merge!("linked" => compound) if compound && compound.size > 0 # FIXME: make that like the above line.
+            doc.merge!("included" => compound) if compound && compound.size > 0 # FIXME: make that like the above line.
           end
         end
 
         def from_document(hash)
-          hash[representable_attrs[:_wrap]]
+          hash["data"]
         end
 
-        # Compiles the linked: section for compound objects in the document.
+        # Compiles the included: section for compound objects in the document.
         def collection_compound!(collection, compound)
           collection.each { |res|
-            kv = res.delete("linked") or next
+            kv = res.delete("included") or next
 
             compile_compound!(kv, compound)
           }
@@ -165,7 +166,7 @@ module Roar
           compound
         end
 
-        # Go through {"album"=>{"title"=>"Hackers"}, "musicians"=>[{"name"=>"Eddie Van Halen"}, ..]} from linked:
+        # Go through {"album"=>{"title"=>"Hackers"}, "musicians"=>[{"name"=>"Eddie Van Halen"}, ..]} from included:
         # and wrap every item in an array.
         def compile_compound!(linked, compound)
           return unless linked

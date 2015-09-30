@@ -39,8 +39,8 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
       describe "minimal singular with #{representer}" do
         subject { representer.prepare(song) }
 
-        it { subject.to_json.must_equal "{\"songs\":{\"id\":\"1\"}}" }
-        it { subject.from_json("{\"songs\":{\"id\":\"2\"}}").id.must_equal "2"  }
+        it { subject.to_json.must_equal '{"data":{"type":"songs","id":"1"}}' }
+        it { subject.from_json('{"data":{"type":"songs","id":"2"}}').id.must_equal "2" }
       end
     end
 
@@ -58,15 +58,6 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
       end
       has_one :composer
       has_many :listeners
-
-
-      # global document links.
-      link "songs.album" do
-        {
-          type: "album",
-          href: "http://example.com/albums/{songs.album}"
-        }
-      end
 
       compound do
         property :album do
@@ -96,15 +87,6 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
       end
       has_many :listeners
 
-
-      # global document links.
-      link "songs.album" do
-        {
-          type: "album",
-          href: "http://example.com/albums/{songs.album}"
-        }
-      end
-
       compound do
         property :album do
           property :title
@@ -122,26 +104,29 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
 
         let (:document) do
           {
-            "songs" => {
+            "data" => {
+              "type" => "songs",
               "id" => "1",
-              "title" => "Computadores Fazem Arte",
-              "links" => {
-                "album" => "9",
-                "musicians" => [ "1", "2" ],
-                "composer"=>"10",
-                "listeners"=>["8"]
-              }
-            },
-            "links" => {
-              "songs.album"=> {
-                "href"=>"http://example.com/albums/{songs.album}", "type"=>"album"
-              }
-            },
-            "linked" => {
-              "album"=> [{"title"=>"Hackers"}],
-              "musicians"=> [
-                {"name"=>"Eddie Van Halen"},
-                {"name"=>"Greg Howe"}
+              "attributes" => {
+                "title" => "Computadores Fazem Arte"
+              },
+              "relationships" => {
+                "album" =>
+                  { "data" => { "type" => "albums", "id" => "9" } },
+                "musicians" => [
+                  { "data" => { "type" => "musicians", "id" => "1" } },
+                  { "data" => { "type" => "musicians", "id" => "2" } }
+                ],
+                "composer" =>
+                  { "data" => { "type" => "composers", "id" => "10" } },
+                "listeners" => [
+                  { "data" => { "type" => "listeners", "id" => "8" } }
+                ]
+              },
+              "included" => [
+                { "type" => "albums", "id" => "9", "attributes" => { "title" => "Hackers" } },
+                { "type" => "musicians", "id" => "1", "attributes" => { "name" => "Eddie Van Halen" } },
+                { "type" => "musicians", "id" => "2", "attributes" => { "name" => "Greg Howe"} }
               ]
             }
           }
@@ -154,7 +139,7 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
 
         # to_hash(options)
         it do
-          subject.to_hash(omit_title: true)['songs'].wont_include('title')
+          subject.to_hash(omit_title: true).wont_include('title')
         end
 
         # #to_json
@@ -168,19 +153,24 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
           song.from_json(
             JSON.generate(
               {
-                "songs" => {
+                "data" => {
+                  "type" => "songs",
                   "id" => "1",
-                  "title" => "Computadores Fazem Arte",
-                  "links" => {
-                    "album" => "9",
-                    "musicians" => [ "1", "2" ],
-                    "composer"=>"10",
-                    "listeners"=>["8"]
-                  }
-                },
-                "links" => {
-                  "songs.album"=> {
-                    "href"=>"http://example.com/albums/{songs.album}", "type"=>"album"
+                  "attributes" => {
+                    "title" => "Computadores Fazem Arte"
+                  },
+                  "relationships" => {
+                    "album" =>
+                      { "data" => { "type" => "albums", "id" => "9" } },
+                    "musicians" => [
+                      { "data" => { "type" => "musicians", "id" => "1" } },
+                      { "data" => { "type" => "musicians", "id" => "2" } }
+                    ],
+                    "composer" =>
+                      { "data" => { "type" => "composers", "id" => "10" } },
+                    "listeners" => [
+                      { "data" => { "type" => "listeners", "id" => "8" } }
+                    ]
                   }
                 }
               }
@@ -205,37 +195,52 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
 
         let (:document) do
           {
-            "songs" => [
+            "data" => [
               {
+                "type" => "songs",
                 "id" => "1",
-                "title" => "Computadores Fazem Arte",
-                "links" => {
-                  "composer"=>"10",
-                  "album" => "9",
-                  "musicians" => [ "1", "2" ],
-                  "listeners"=>["8"]
+                "attributes" => {
+                  "title" => "Computadores Fazem Arte"
+                },
+                "relationships" => {
+                  "composer" =>
+                    { "data" => { "type" => "composers", "id" => "10" } },
+                  "album" =>
+                    { "data" => { "type" => "albums", "id" => "9" } },
+                  "musicians" => [
+                    { "data" => { "type" => "musicians", "id" => "1" } },
+                    { "data" => { "type" => "musicians", "id" => "2" } }
+                  ],
+                  "listeners" => [
+                    { "data" => { "type" => "listeners", "id" => "8" } }
+                  ]
                 }
               }, {
+                "type" => "songs",
                 "id" => "1",
-                "title" => "Computadores Fazem Arte",
-                "links" => {
-                  "composer"=>"10",
-                  "album" => "9",
-                  "musicians" => [ "1", "2" ],
-                  "listeners"=>["8"]
+                "attributes" => {
+                  "title" => "Computadores Fazem Arte"
+                },
+                "relationships" => {
+                  "composer" =>
+                    { "data" => { "type" => "composers", "id" => "10" } },
+                  "album" =>
+                    { "data" => { "type" => "albums", "id" => "9" } },
+                  "musicians" => [
+                    { "data" => { "type" => "musicians", "id" => "1" } },
+                    { "data" => { "type" => "musicians", "id" => "2" } }
+                  ],
+                  "listeners" => [
+                    { "data" => { "type" => "listeners", "id" => "8" } }
+                  ]
                 }
               }
             ],
-            "links" => {
-              "songs.album" => {
-                "href" => "http://example.com/albums/{songs.album}",
-                "type" => "album" # DISCUSS: does that have to be albums ?
-              },
-            },
-            "linked"=>{
-              "album"    =>[{"title"=>"Hackers"}], # only once!
-              "musicians"=>[{"name"=>"Eddie Van Halen"}, {"name"=>"Greg Howe"}]
-            }
+            "included" => [
+              { "type" => "albums", "id" => "9", "attributes" => { "title" => "Hackers" } },
+              { "type" => "musicians", "id" => "1", "attributes" => { "name" => "Eddie Van Halen" } },
+              { "type" => "musicians", "id" => "2", "attributes" => { "name" => "Greg Howe" } }
+            ]
           }
         end
 
@@ -246,13 +251,13 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
 
         # to_hash(options)
         it do
-          subject.to_hash(omit_title: true)['songs'].each do |song|
+          subject.to_hash(omit_title: true).each do |song|
             song.wont_include('title')
           end
         end
 
         # #to_json
-        it { subject.to_json.must_match /linked/ } # hash ordering changes, and i don't care why.
+        it { subject.to_json.must_match /included/ } # hash ordering changes, and i don't care why.
       end
 
 
@@ -261,33 +266,48 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
         song1, song2 = Singular.for_collection.prepare([OpenStruct.new, OpenStruct.new]).from_json(
           JSON.generate(
             {
-              "songs" => [
+              "data" => [
                 {
+                  "type" => "songs",
                   "id" => "1",
-                  "title" => "Computadores Fazem Arte",
-                  "links" => {
-                    "album" => "9",
-                    "musicians" => [ "1", "2" ],
-                    "composer"=>"10",
-                    "listeners"=>["8"]
+                  "attributes" => {
+                    "title" => "Computadores Fazem Arte"
                   },
-                },
-                {
-                  "id" => "2",
-                  "title" => "Talking To Remind Me",
-                  "links" => {
-                    "album" => "1",
-                    "musicians" => [ "3", "4" ],
-                    "composer"=>"2",
-                    "listeners"=>["6"]
+                  "relationships" => {
+                    "album" =>
+                      { "data" => { "type" => "albums", "id" => "9" } },
+                    "musicians" => [
+                      { "data" => { "type" => "musicians", "id" => "1" } },
+                      { "data" => { "type" => "musicians", "id" => "2" } }
+                    ],
+                    "composer" =>
+                      { "data" => { "type" => "composers", "id" => "10" } },
+                    "listeners" => [
+                      { "data" => { "type" => "listeners", "id" => "8" } }
+                    ]
                   }
                 },
-              ],
-              "links" => {
-                "songs.album"=> {
-                  "href"=>"http://example.com/albums/{songs.album}", "type"=>"album"
+                {
+                  "type" => "songs",
+                  "id" => "2",
+                  "attributes" => {
+                    "title" => "Talking To Remind Me"
+                  },
+                  "relationships" => {
+                    "album" =>
+                      { "data" => { "type" => "albums", "id" => "1" } },
+                    "musicians" => [
+                      { "data" => { "type" => "musicians", "id" => "3" } },
+                      { "data" => { "type" => "musicians", "id" => "4" } }
+                    ],
+                    "composer" =>
+                      { "data" => { "type" => "composers", "id" => "2" } },
+                    "listeners" => [
+                      { "data" => { "type" => "listeners", "id" => "6" } }
+                    ]
+                  }
                 }
-              }
+              ]
             }
           )
         )
@@ -324,15 +344,6 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
         end
         has_one :composer
         has_many :listeners
-
-
-        # global document links.
-        link "songs.album" do
-          {
-            type: "album",
-            href: "http://example.com/albums/{songs.album}"
-          }
-        end
       end
 
       subject { [song, song].extend(Singular.for_collection) }
@@ -341,9 +352,45 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
       it do
         subject.extend(Representer.for_collection).to_hash.must_equal(
           {
-            "songs"=>[{"id"=>"1", "title"=>"Computadores Fazem Arte", "links"=>{"album"=>"9", "musicians"=>["1", "2"], "composer"=>"10", "listeners"=>["8"]}}, {"id"=>"1", "title"=>"Computadores Fazem Arte", "links"=>{"album"=>"9", "musicians"=>["1", "2"], "composer"=>"10", "listeners"=>["8"]}}],
-            "links"=>{"songs.album"=>{"href"=>"http://example.com/albums/{songs.album}", "type"=>"album"}
-            }
+            "data" => [ {
+              "type" => "songs",
+              "id" => "1",
+              "attributes" => {
+                "title" => "Computadores Fazem Arte"
+              },
+              "relationships" => {
+                "album" =>
+                  { "data" => { "type" => "albums", "id" => "9" } },
+                "musicians" => [
+                  { "data" => { "type" => "musicians", "id" => "1" } },
+                  { "data" => { "type" => "musicians", "id" => "2" } }
+                ],
+                "composer" =>
+                  { "data" => { "type" => "composers", "id" => "10" } },
+                "listeners" => [
+                  { "data" => { "type" => "listeners", "id" => "8" } }
+                ]
+              }
+            }, {
+              "type" => "songs",
+              "id" => "1",
+              "attributes" => {
+                "title" => "Computadores Fazem Arte"
+              },
+              "relationships" => {
+                "album" =>
+                  { "data" => { "type" => "albums", "id" => "9" } },
+                "musicians" => [
+                  { "data" => { "type" => "musicians", "id" => "1" } },
+                  { "data" => { "type" => "musicians", "id" => "2" } }
+                ],
+                "composer" =>
+                  { "data" => { "type" => "albums", "id" => "10" } },
+                "listeners" => [
+                  { "data" => { "type" => "listeners", "id" => "8" } }
+                ]
+              }
+            } ]
           }
         )
       end
@@ -380,11 +427,20 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
       # to_hash
       it do
         subject.to_hash.must_equal({
-          'albums' => { 'id' => 1 },
-          'linked' => {
-            'songs' => [
-              {'id' => 1, 'title' => 'Stand Up'},
-              {'id' => 2, 'title' => 'Audition Mantra'}
+          "data" => {
+            "type" => "albums",
+            "id" => "1",
+            "relationships" => {
+              "songs" => [
+                { "type" => "songs", "id" => "1" },
+                { "type" => "songs", "id" => "2" }
+              ]
+            },
+          },
+          "included" => {
+            "songs" => [
+              { "type" => "songs", "id" => "1", "attributes" => { "title" => "Stand Up" } },
+              { "type" => "songs", "id" => "2", "attributes" => { "title" => "Audition Mantra" } }
             ]
           }
         })
@@ -417,8 +473,13 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
       it do
         subject.to_hash.must_equal(
           {
-            "songs"=>[{"id"=>1}, {"id"=>1}],
-            "meta" =>{"page"=>2}
+            "data" => [
+              { "type" => "songs", "id" => "1" },
+              { "type" => "songs", "id" => "1" }
+            ],
+            "meta" => {
+              "page" => 2
+            }
           }
         )
       end
@@ -441,8 +502,13 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
       it do
         subject.to_hash("meta" => {"page" => 2}).must_equal(
           {
-            "songs"=>[{"id"=>1}, {"id"=>1}],
-            "meta" =>{"page"=>2}
+            "data" => [
+              { "type" => "songs", "id" => "1" },
+              { "type" => "songs", "id" => "1" }
+            ],
+            "meta" => {
+              "page" => 2
+            }
           }
         )
       end
