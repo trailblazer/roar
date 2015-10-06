@@ -114,6 +114,7 @@ module Roar
         end
 
 
+        require 'representable/json/collection'
         require 'representable/json/hash'
         # Represents all links for  "_links":  [Hyperlink, [Hyperlink, Hyperlink]]
         class LinkCollectionRepresenter < Representable::Decorator
@@ -124,14 +125,16 @@ module Roar
 
           def to_hash(options)
             links = {}
-            super.each { |hash| links.merge!(hash) }
+            super.each { |hash| links.merge!(hash) } # [{ rel=>{}, rel=>[{}, {}] }]
             links
           end
 
           def from_hash(hash, *args)
-            super(hash.collect do |rel, value| # "self" => [{"href": "//"}, ] or {"href": "//"}
-                value.is_a?(Array) ? value.collect { |link| link.merge("rel"=>rel) } : value.merge("rel"=>rel)
-              end)
+            collection = hash.collect do |rel, value| # "self" => [{"href": "//"}, ] or {"href": "//"}
+              value.is_a?(Array) ? value.collect { |link| link.merge("rel"=>rel) } : value.merge("rel"=>rel)
+            end
+
+            super(collection) # [{rel=>self, href=>//}, ..] or {rel=>self, href=>//}
           end
         end
 
@@ -149,8 +152,8 @@ module Roar
         module LinkArrayRepresenter
           include Representable::JSON::Collection
 
-          items :extend => SingleLinkRepresenter,
-            :class => Roar::Hypermedia::Hyperlink
+          items extend: SingleLinkRepresenter,
+                class:  Roar::Hypermedia::Hyperlink
 
           def to_hash(*)
             links = []
@@ -161,7 +164,7 @@ module Roar
               links += hash.values
             }
 
-            ({rel.to_s => links}) # {"self"=>[{"lang"=>"en", "href"=>"http://en.hit"}, {"lang"=>"de", "href"=>"http://de.hit"}]}
+            {rel.to_s => links} # {"self"=>[{"lang"=>"en", "href"=>"http://en.hit"}, {"lang"=>"de", "href"=>"http://de.hit"}]}
           end
         end
 
