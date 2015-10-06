@@ -78,17 +78,6 @@ module Roar
         end
       end
 
-      class LinkCollection < Hypermedia::LinkCollection
-        def initialize(array_rels, *args)
-          super(*args)
-          @array_rels = array_rels.map(&:to_s)
-        end
-
-        def is_array?(rel)
-          @array_rels.include?(rel.to_s)
-        end
-      end
-
       # Including this module in your representer will render and parse your embedded hyperlinks
       # following the HAL specification: http://stateless.co/hal_specification.html
       #
@@ -112,72 +101,67 @@ module Roar
         end
 
         module InstanceMethods
+          def _links
+            links
+          end
+
         private
           def prepare_link_for(href, options)
             return super(href, options) unless options[:array]  # TODO: remove :array and use special instan
 
-            list = href.collect { |opts| Hypermedia::Hyperlink.new(opts.merge!(:rel => options[:rel])) }
-            LinkArray.new(list, options[:rel])
-          end
-
-          # TODO: move to LinksDefinition.
-          def link_array_rels
-            link_configs.collect { |cfg| cfg.first[:array] ? cfg.first[:rel] : nil }.compact
+            href.collect { |opts| Hypermedia::Hyperlink.new(opts.merge!(:rel => options[:rel])) }
           end
         end
 
 
         require 'representable/json/hash'
-        module LinkCollectionRepresenter
-          include Representable::JSON::Hash
+        # Represents all links for  "_links":  [Hyperlink, [Hyperlink, Hyperlink]]
+        class LinkCollectionRepresenter < Representable::Decorator
+          include Representable::JSON::Collection
 
-          values :extend => lambda { |item, *|
-            item.is_a?(Array) ? LinkArrayRepresenter : Roar::JSON::HyperlinkRepresenter },
-            :instance => lambda { |fragment, *| fragment.is_a?(LinkArray) ? fragment : Roar::Hypermedia::Hyperlink.new
-          }
+          items decorator: ->(options) { options[:input].is_a?(Array) ? LinkArrayRepresenter : SingleLinkRepresenter },
+                class:     ->(options) { options[:input].is_a?(Array) ? Array : Hypermedia::Hyperlink }
 
           def to_hash(options)
-            super.tap do |hsh|  # TODO: cool: super(:exclude => [:rel]).
-              hsh.each { |k,v| v.delete("rel") }
-            end
+            links = {}
+            super.each { |hash| links.merge!(hash) }
+            links
           end
 
-
           def from_hash(hash, *args)
-            hash.each { |k,v| hash[k] = LinkArray.new(v, k) if is_array?(k) }
-
-            hsh = super(hash) # this is where :class and :extend do the work.
-
-            hsh.each { |k, v| v.merge!(:rel => k) }
-            hsh.values # links= expects [Hyperlink, Hyperlink]
+            super(hash.collect do |rel, value| # "self" => [{"href": "//"}, ] or {"href": "//"}
+                value.is_a?(Array) ? value.collect { |link| link.merge("rel"=>rel) } : value.merge("rel"=>rel)
+              end)
           end
         end
 
-        # DISCUSS: we can probably get rid of this asset.
-        class LinkArray < Array
-          def initialize(elems, rel)
-            super(elems)
-            @rel = rel
-          end
+        class SingleLinkRepresenter < Representable::Decorator
+          include Representable::JSON::Hash
 
-          attr_reader :rel
-
-          def merge!(attrs)
-            each { |lnk| lnk.merge!(attrs) }
+          def to_hash(*)
+            hash = super
+            {hash.delete("rel").to_s => hash}
           end
         end
 
         require 'representable/json/collection'
+        # [Hyperlink, Hyperlink]
         module LinkArrayRepresenter
           include Representable::JSON::Collection
 
-          items :extend => Roar::JSON::HyperlinkRepresenter,
+          items :extend => SingleLinkRepresenter,
             :class => Roar::Hypermedia::Hyperlink
 
           def to_hash(*)
-            super.tap do |ary|
-              ary.each { |lnk| rel = lnk.delete("rel") }
-            end
+            links = []
+            rel = nil
+
+            super.each { |hash| # [{"self"=>{"href": ..}}, ..]
+              rel = hash.keys[0]
+              links += hash.values
+            }
+
+            ({rel.to_s => links}) # {"self"=>[{"lang"=>"en", "href"=>"http://en.hit"}, {"lang"=>"de", "href"=>"http://de.hit"}]}
           end
         end
 
@@ -186,9 +170,10 @@ module Roar
           def links_definition_options
             # property :links_array,
             {
+              # collection: false,
               :as       => :links,
-              :extend   => HAL::Links::LinkCollectionRepresenter,
-              :instance => lambda { |*| LinkCollection.new(link_array_rels) }, # defined in InstanceMethods as this is executed in represented context.
+              decorator: HAL::Links::LinkCollectionRepresenter,
+              instance: ->(*) { Array.new }, # defined in InstanceMethods as this is executed in represented context.
               :exec_context => :decorator,
             }
           end
