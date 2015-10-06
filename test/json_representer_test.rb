@@ -74,32 +74,6 @@ class JsonRepresenterTest < MiniTest::Spec
   end
 end
 
-# test the generic roar+json HyperlinkRepresenter
-class JsonHyperlinkRepresenterTest
-  describe "API" do
-    before do
-      @link = Roar::Hypermedia::Hyperlink.new.extend(Roar::JSON::HyperlinkRepresenter).from_json(
-        '{"rel":"self", "href":"http://roar.apotomo.de", "media":"web"}')
-    end
-
-    it "responds to #rel" do
-      assert_equal "self", @link.rel
-    end
-
-    it "responds to #href" do
-      assert_equal "http://roar.apotomo.de", @link.href
-    end
-
-    it "responds to #media" do
-      assert_equal "web", @link.media
-    end
-
-    it "responds to #to_json" do
-      assert_equal "{\"rel\":\"self\",\"href\":\"http://roar.apotomo.de\",\"media\":\"web\"}", @link.to_json
-    end
-  end
-end
-
 class JsonHypermediaTest
   describe "Hypermedia API" do
     before do

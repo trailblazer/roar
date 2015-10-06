@@ -33,8 +33,8 @@ class HalJsonTest < MiniTest::Spec
       end
 
       it "parses link and link array" do
-        obj = subject.from_json("{\"_links\":{\"next\":{\"href\":\"http://next\"}, \"self\":[{\"lang\":\"en\",\"href\":\"http://en.hit\"},{\"lang\":\"de\",\"href\":\"http://de.hit\"}]}}")
-        obj.links.must_equal "next" => link("rel" => "next", "href" => "http://next"), "self" => [link("rel" => "self", "href" => "http://en.hit", "lang" => "en"), link("rel" => "self", "href" => "http://de.hit", "lang" => "de")]
+        obj = subject.from_json(%@{"_links":{"next":{"href":"http://next"}, "self":[{"lang":"en","href":"http://en.hit"},{"lang":"de","href":"http://de.hit"}]}}@)
+        obj._links.must_equal [link("rel" => "next", "href" => "http://next"), [link("rel" => "self", "href" => "http://en.hit", "lang" => "en"), link("rel" => "self", "href" => "http://de.hit", "lang" => "de")]]
       end
 
       it "parses empty link array" do
@@ -56,30 +56,16 @@ class HalJsonTest < MiniTest::Spec
       it "renders link and link array" do
         subject.to_json.must_equal "{\"_links\":{\"self\":[{\"lang\":\"en\",\"href\":\"http://en.hit\"},{\"lang\":\"de\",\"href\":\"http://de.hit\"}],\"next\":{\"href\":\"http://next\"}}}"
       end
-
-      it "renders empty link array" do
-        rpr = Module.new do
-          include Roar::JSON::HAL
-
-          links :self do [] end
-        end
-        subject = Object.new.extend(rpr)
-
-        subject.to_json.must_equal "{\"_links\":{\"self\":[]}}"
-      end
     end
   end
 
-  # describe "#prepare_links!" do
-  #   it "should map link arrays correctly" do
-  #     subject.send :prepare_links!, {}
-  #     subject.links.must_equal :self => [link("rel" => "self", "href" => "http://en.hit", "lang" => "en"),link("rel" => :self, "href" => "http://de.hit", "lang" => "de")], "next" => link("href" => "http://next", "rel" => "next")
-  #   end
-  # end
+  describe "empty link array" do
+    representer!([Roar::JSON::HAL]) do
+      links(:self) { [] }
+    end
 
-  describe "#link_array_rels" do
-    it "returns list of rels for array links" do
-      subject.send(:link_array_rels).must_equal [:self]
+    it "gets render" do
+      Object.new.extend(representer).to_json.must_equal %@{"_links":{"self":[]}}@
     end
   end
 
@@ -173,22 +159,6 @@ class JsonHalTest < MiniTest::Spec
   end
 end
 
-
-class LinkCollectionTest < MiniTest::Spec
-  subject { Roar::JSON::HAL::LinkCollection.new([:self, "next"]) }
-  describe "#is_array?" do
-    it "returns true for array link" do
-      subject.is_array?(:self).must_equal true
-      subject.is_array?("self").must_equal true
-    end
-
-    it "returns false otherwise" do
-      subject.is_array?("prev").must_equal false
-    end
-  end
-end
-
-
 class HalCurieTest < MiniTest::Spec
   representer!([Roar::JSON::HAL]) do
     link "doc:self" do
@@ -202,5 +172,5 @@ class HalCurieTest < MiniTest::Spec
     end
   end
 
-  it { Object.new.extend(rpr).to_hash.must_equal({"_links"=>{"doc:self"=>{"href"=>"/"}, :curies=>[{"name"=>:doc, "href"=>"//docs/{rel}", "templated"=>true}]}}) }
+  it { Object.new.extend(rpr).to_hash.must_equal({"_links"=>{"doc:self"=>{"href"=>"/"}, "curies"=>[{"name"=>:doc, "href"=>"//docs/{rel}", "templated"=>true}]}}) }
 end

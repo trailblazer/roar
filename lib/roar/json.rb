@@ -39,6 +39,8 @@ module Roar
         {
           class:          Hypermedia::Hyperlink,
           decorator:      HyperlinkDecorator,
+          collection:     true,
+          exec_context:   :decorator
         }
       end
     end

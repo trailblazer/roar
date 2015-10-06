@@ -68,7 +68,7 @@ module Roar
     end
 
     def prepare_link_for(href, options)
-      options = options.merge(href.is_a?(::Hash) ? href : {:href => href})
+      options = options.merge(href.is_a?(::Hash) ? href : {href: href})
       Hyperlink.new(options)
     end
 
@@ -105,7 +105,7 @@ module Roar
         options = links_definition_options
         options.merge!(getter: ->(options) { prepare_links!(options) })
 
-        collection(:links, options) # this defines something along `collection :links, getter: ->(prepare)`.
+        property(:links, options) # this defines something along `collection :links, getter: ->(prepare)`.
       end
     end
 

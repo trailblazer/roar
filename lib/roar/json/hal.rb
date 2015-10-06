@@ -109,7 +109,7 @@ module Roar
           def prepare_link_for(href, options)
             return super(href, options) unless options[:array]  # TODO: remove :array and use special instan
 
-            href.collect { |opts| Hypermedia::Hyperlink.new(opts.merge!(:rel => options[:rel])) }
+            href.collect { |opts| Hypermedia::Hyperlink.new(opts.merge(rel: options[:rel])) }
           end
         end
 
@@ -117,7 +117,7 @@ module Roar
         require 'representable/json/collection'
         require 'representable/json/hash'
         # Represents all links for  "_links":  [Hyperlink, [Hyperlink, Hyperlink]]
-        class LinkCollectionRepresenter < Representable::Decorator
+        class LinkCollectionRepresenter < Representable::Decorator # links could be a simple collection property.
           include Representable::JSON::Collection
 
           items decorator: ->(options) { options[:input].is_a?(Array) ? LinkArrayRepresenter : SingleLinkRepresenter },
@@ -130,7 +130,7 @@ module Roar
           end
 
           def from_hash(hash, *args)
-            collection = hash.collect do |rel, value| # "self" => [{"href": "//"}, ] or {"href": "//"}
+            collection = hash.collect do |rel, value| # "self" => [{"href": "//"}, ] or "self" => {"href": "//"}
               value.is_a?(Array) ? value.collect { |link| link.merge("rel"=>rel) } : value.merge("rel"=>rel)
             end
 
@@ -175,7 +175,7 @@ module Roar
             {
               # collection: false,
               :as       => :links,
-              decorator: HAL::Links::LinkCollectionRepresenter,
+              decorator: LinkCollectionRepresenter,
               instance: ->(*) { Array.new }, # defined in InstanceMethods as this is executed in represented context.
               :exec_context => :decorator,
             }
