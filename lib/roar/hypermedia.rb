@@ -38,11 +38,7 @@ module Roar
       base.extend ClassMethods
     end
 
-    def links=(arr) # called when assigning parsed links.
-      @links = LinkCollection[*arr]
-    end
-
-    attr_reader :links # this is only useful after parsing.
+    attr_accessor :links # this is only useful after parsing.
 
 
     module LinkConfigsMethod
@@ -59,7 +55,7 @@ module Roar
     def prepare_links!(options)
       return [] if options[:links] == false
 
-      LinkCollection[*compile_links_for(link_configs, options)]
+      compile_links_for(link_configs, options)
     end
 
     def compile_links_for(configs, *args)
@@ -78,35 +74,6 @@ module Roar
 
     def run_link_block(block, *args)
       instance_exec(*args, &block)
-    end
-
-
-    # LinkCollection keeps an array of Hyperlinks to be rendered (setup in #prepare_links!)
-    # or parsed (array is passed to #links= which transforms it into a LinkCollection).
-    # It is implemented as a hash and keys links by their rel value.
-    #
-    #   {"self" => <Hyperlink ..>, ..}
-    class LinkCollection < ::Hash
-      # The only way to create is LinkCollection[<Hyperlink>, <Hyperlink>]
-      def self.[](*arr)
-        super(arr.collect { |link| [link.rel, link] })
-      end
-
-      def [](rel)
-        super(rel.to_s)
-      end
-
-      # Iterating links. Block parameters: |link| or |rel, link|.
-      # This is used Hash::HashBinding#serialize.
-      def each(&block)
-        return values.each(&block) if block.arity == 1
-        super(&block)
-      end
-
-      def collect(&block) # TODO: remove me when we drop representable 2.0.x support!
-        return values.collect(&block) if block.arity == 1
-        super(&block)
-      end
     end
 
 
@@ -136,9 +103,9 @@ module Roar
         return if representable_attrs.get(:links) # only create it once.
 
         options = links_definition_options
-        options.merge!(:getter => lambda { |opts| prepare_links!(opts) })
+        options.merge!(getter: ->(options) { prepare_links!(options) })
 
-        representable_attrs.add(:links, options)
+        collection(:links, options) # this defines something along `collection :links, getter: ->(prepare)`.
       end
     end
 

@@ -35,7 +35,6 @@ module Roar
         # FIXME: this doesn't belong into the generic XML representer.
         {
           :as => :link,
-          :collection   => true,
           :class        => Hypermedia::Hyperlink,
           :extend       => XML::HyperlinkRepresenter,
           :exec_context => :decorator,
