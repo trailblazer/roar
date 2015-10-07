@@ -1,5 +1,6 @@
 require "roar/json"
 require "representable/json/collection"
+require "representable/json/hash"
 
 module Roar
   module JSON
@@ -110,7 +111,7 @@ module Roar
           def prepare_link_for(href, options)
             return super(href, options) unless options[:array]  # returns Hyperlink.
 
-            LinkArray.new(options[:rel], href.collect { |opts| Hypermedia::Hyperlink.new(opts) })
+            ArrayLink.new(options[:rel], href.collect { |opts| Hypermedia::Hyperlink.new(opts) })
           end
         end
 
@@ -126,7 +127,7 @@ module Roar
           end
         end
 
-        class LinkArray < Array
+        class ArrayLink < Array
           def initialize(rel, links)
             @rel = rel
             super(links)
@@ -153,13 +154,13 @@ module Roar
         end
 
 
-        require 'representable/json/collection'
-        require 'representable/json/hash'
         # Represents all links for  "_links":  [Hyperlink, [Hyperlink, Hyperlink]]
-        class LinksRepresenter < Representable::Decorator # links could be a simple collection property.
+        class Representer < Representable::Decorator # links could be a simple collection property.
           include Representable::JSON::Collection
 
-          items decorator: ->(options) { options[:input].is_a?(Array) ? LinkArray::Representer : SingleLink::Representer },
+          # render: decorates represented.links with ArrayLink::R or SingleLink::R and calls #to_hash.
+          # parse:  instantiate either Array or Hypermedia instance, decorate respectively, call #from_hash.
+          items decorator: ->(options) { options[:input].is_a?(Array) ? ArrayLink::Representer : SingleLink::Representer },
                 class:     ->(options) { options[:input].is_a?(Array) ? Array : Hypermedia::Hyperlink }
 
           def to_hash(options)
@@ -180,11 +181,10 @@ module Roar
 
         module ClassMethods
           def links_definition_options
-            # property :links_array,
             {
               # collection: false,
               :as       => :links,
-              decorator: LinksRepresenter,
+              decorator: Links::Representer,
               instance: ->(*) { Array.new }, # defined in InstanceMethods as this is executed in represented context.
               :exec_context => :decorator,
             }
