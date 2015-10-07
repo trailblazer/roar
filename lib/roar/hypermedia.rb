@@ -38,7 +38,12 @@ module Roar
       base.extend ClassMethods
     end
 
-    attr_accessor :links # this is only useful after parsing.
+    # public API: #links (only helpful in clients, though).
+    attr_writer :links # this is called in parsing when Hyperlinks are deserialized.
+    def links # this is _not_ called by rendering as we go via ::links_config.
+      hash = {}
+      @links.collect { |link| [link.rel, link] }.to_h
+    end
 
 
     module LinkConfigsMethod
@@ -139,7 +144,6 @@ module Roar
         attrs.inject({}) { |hsh, kv| hsh[kv.first.to_s] = kv.last; hsh }.tap do |hsh|
           hsh["rel"] = hsh["rel"].to_s if hsh["rel"]
         end
-        # raise "Hyperlink without rel doesn't work!" unless @attrs["rel"]
       end
     end
   end

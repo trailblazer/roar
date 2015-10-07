@@ -2,35 +2,31 @@ require 'test_helper'
 
 class HypermediaTest < MiniTest::Spec
   describe "inheritance" do
-    before do
-      module BaseRepresenter
-        include Roar::JSON
-        include Roar::Hypermedia
+    module BaseRepresenter
+      include Roar::JSON
+      include Roar::Hypermedia
 
-        link(:base) { "http://base" }
-      end
+      link(:base) { "http://base" }
+    end
 
-      module Bar
-        include Roar::JSON
-        include Roar::Hypermedia
+    module Bar
+      include Roar::JSON
+      include Roar::Hypermedia
 
-        link(:bar) { "http://bar" }
-      end
+      link(:bar) { "http://bar" }
+    end
 
-      module Foo
-        include Roar::JSON
-        include Roar::Hypermedia
-        include BaseRepresenter
-        include Bar
+    module Foo
+      include Roar::JSON
+      include Roar::Hypermedia
+      include BaseRepresenter
+      include Bar
 
-        link(:foo) { "http://foo" }
-      end
+      link(:foo) { "http://foo" }
     end
 
     it "inherits parent links" do
-      foo = Object.new.extend(Foo)
-
-      assert_equal "{\"links\":[{\"rel\":\"base\",\"href\":\"http://base\"},{\"rel\":\"bar\",\"href\":\"http://bar\"},{\"rel\":\"foo\",\"href\":\"http://foo\"}]}", foo.to_json
+      Object.new.extend(Foo).to_json.must_equal "{\"links\":[{\"rel\":\"base\",\"href\":\"http://base\"},{\"rel\":\"bar\",\"href\":\"http://bar\"},{\"rel\":\"foo\",\"href\":\"http://foo\"}]}"
     end
 
     it "inherits links from all mixed-in representers" do
@@ -56,7 +52,7 @@ class HypermediaTest < MiniTest::Spec
     describe "#from_json" do
       it "parses" do
         subject.from_json "{\"links\":[{\"rel\":\"self\",\"href\":\"//self\"}]}"
-        subject.links.must_equal([link("rel" => "self", "href" => "//self")])
+        subject.links.must_equal("self" => link("rel" => "self", "href" => "//self"))
       end
     end
 

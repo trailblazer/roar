@@ -38,7 +38,7 @@ class HalJsonTest < MiniTest::Spec
       end
 
       it "parses empty link array" do
-        subject.from_json("{\"_links\":{\"self\":[]}}").links[:self].must_equal []
+        subject.from_json("{\"_links\":{\"self\":[]}}").links[:self].must_equal nil
       end
 
       it "parses non-existent link array" do

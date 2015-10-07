@@ -49,6 +49,7 @@ module Roar
           include Roar::JSON
           include Links       # overwrites #links_definition_options.
           include Resources
+          include LinksReader # gives us Decorator#links => {self=>< >}
         end
       end
 
@@ -192,6 +193,21 @@ module Roar
           def curies(&block)
             links(:curies, &block)
           end
+        end
+      end
+
+      # This is only helpful in client mode. It shouldn't be used per default.
+      module LinksReader
+        def links
+          return unless @links
+          @links.collect do |link|
+            if link.is_a?(Array)
+              next unless link.any?
+              [link.first.rel, link]
+            else
+              [link.rel, link]
+            end
+          end.compact.to_h
         end
       end
     end
