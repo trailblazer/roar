@@ -48,7 +48,6 @@ module Roar
         base.class_eval do
           include Roar::JSON
           include Links       # overwrites #links_definition_options.
-          extend ClassMethods # overwrites #links_definition_options, again.
           include Resources
         end
       end
@@ -74,27 +73,7 @@ module Roar
         end
       end
 
-      module ClassMethods
-        def links_definition_options
-          super.merge(:as => :_links)
-        end
-      end
 
-      # Including this module in your representer will render and parse your embedded hyperlinks
-      # following the HAL specification: http://stateless.co/hal_specification.html
-      #
-      #   module SongRepresenter
-      #     include Roar::JSON
-      #     include Roar::JSON::HAL::Links
-      #
-      #     link :self { "http://self" }
-      #   end
-      #
-      # Renders to
-      #
-      #   {"links":{"self":{"href":"http://self"}}}
-      #
-      # Note that the HAL::Links module alone doesn't prepend an underscore to +links+. Use the JSON::HAL module for that.
       module Links
         def self.included(base)
           base.extend ClassMethods  # ::links_definition_options
@@ -183,7 +162,7 @@ module Roar
           def links_definition_options
             {
               # collection: false,
-              :as       => :links,
+              :as       => :_links,
               decorator: Links::Representer,
               instance: ->(*) { Array.new }, # defined in InstanceMethods as this is executed in represented context.
               :exec_context => :decorator,
