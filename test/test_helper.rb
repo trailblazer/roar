@@ -1,3 +1,4 @@
+require "pry"
 require 'minitest/autorun'
 require 'ostruct'
 

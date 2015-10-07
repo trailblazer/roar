@@ -34,7 +34,7 @@ class HalJsonTest < MiniTest::Spec
 
       it "parses link and link array" do
         obj = subject.from_json(%@{"_links":{"next":{"href":"http://next"}, "self":[{"lang":"en","href":"http://en.hit"},{"lang":"de","href":"http://de.hit"}]}}@)
-        obj._links.must_equal [link("rel" => "next", "href" => "http://next"), [link("rel" => "self", "href" => "http://en.hit", "lang" => "en"), link("rel" => "self", "href" => "http://de.hit", "lang" => "de")]]
+        obj._links.must_equal "next"=>link("rel" => "next", "href" => "http://next"), "self"=>[link("rel" => "self", "href" => "http://en.hit", "lang" => "en"), link("rel" => "self", "href" => "http://de.hit", "lang" => "de")]
       end
 
       it "parses empty link array" do
@@ -45,11 +45,11 @@ class HalJsonTest < MiniTest::Spec
         subject.from_json("{\"_links\":{}}").links[:self].must_equal nil # DISCUSS: should this be []?
       end
 
-      it "rejects single links declared as array" do
-        assert_raises TypeError do
-          subject.from_json("{\"_links\":{\"self\":{\"href\":\"http://next\"}}}")
-        end
-      end
+      # it "rejects single links declared as array" do
+      #   assert_raises TypeError do
+      #     subject.from_json("{\"_links\":{\"self\":{\"href\":\"http://next\"}}}")
+      #   end
+      # end
     end
 
     describe "rendering" do
@@ -70,46 +70,40 @@ class HalJsonTest < MiniTest::Spec
   end
 
 
-  describe "HAL/JSON" do
-    Bla = Module.new do
-      include Roar::JSON::HAL
-      property :title
-      link :self do
-        "http://songs/#{title}"
-      end
-    end
-
+  describe "_links and _embedded" do
     representer_for([Roar::JSON::HAL]) do
       property :id
-      collection :songs, :class => Song, :extend => Bla, :embedded => true
-      link :self do
-        "http://albums/#{id}"
+      collection :songs, class: Song, embedded: true do
+        include Roar::JSON::HAL
+
+        property :title
+        link(:self) { "http://songs/#{title}" }
       end
+
+      link(:self) { "http://albums/#{id}" }
     end
 
-    before do
-      @album = Album.new(:songs => [Song.new(:title => "Beer")], :id => 1).extend(rpr)
-    end
+    let(:album) { Album.new(:songs => [Song.new(:title => "Beer")], :id => 1).extend(representer) }
 
     it "render links and embedded resources according to HAL" do
-      assert_equal "{\"id\":1,\"_embedded\":{\"songs\":[{\"title\":\"Beer\",\"_links\":{\"self\":{\"href\":\"http://songs/Beer\"}}}]},\"_links\":{\"self\":{\"href\":\"http://albums/1\"}}}", @album.to_json
+      album.to_json.must_equal "{\"id\":1,\"_embedded\":{\"songs\":[{\"title\":\"Beer\",\"_links\":{\"self\":{\"href\":\"http://songs/Beer\"}}}]},\"_links\":{\"self\":{\"href\":\"http://albums/1\"}}}"
     end
 
     it "parses links and resources following the mighty HAL" do
-      @album.from_json("{\"id\":2,\"_embedded\":{\"songs\":[{\"title\":\"Coffee\",\"_links\":{\"self\":{\"href\":\"http://songs/Coffee\"}}}]},\"_links\":{\"self\":{\"href\":\"http://albums/2\"}}}")
-      assert_equal 2, @album.id
-      assert_equal "Coffee", @album.songs.first.title
-      assert_equal "http://songs/Coffee", @album.songs.first.links[:self].href
-      assert_equal "http://albums/2", @album.links[:self].href
+      album.from_json("{\"id\":2,\"_embedded\":{\"songs\":[{\"title\":\"Coffee\",\"_links\":{\"self\":{\"href\":\"http://songs/Coffee\"}}}]},\"_links\":{\"self\":{\"href\":\"http://albums/2\"}}}")
+      assert_equal 2, album.id
+      assert_equal "Coffee", album.songs.first.title
+      assert_equal "http://songs/Coffee", album.songs.first.links["self"].href
+      assert_equal "http://albums/2", album.links["self"].href
     end
 
     it "doesn't require _links and _embedded to be present" do
-      @album.from_json("{\"id\":2}")
-      assert_equal 2, @album.id
+      album.from_json("{\"id\":2}")
+      assert_equal 2, album.id
 
       # in newer representables, this is not overwritten to an empty [] anymore.
-      assert_equal ["Beer"], @album.songs.map(&:title)
-      @album.links.must_equal nil
+      assert_equal ["Beer"], album.songs.map(&:title)
+      album.links.must_equal nil
     end
   end
 
