@@ -7,6 +7,49 @@ require 'json'
 require "representable/version"
 if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO: remove check once we bump representable dependency.
   class JSONAPITest < MiniTest::Spec
+    Author = Struct.new(:id) do
+      attr_reader :article_id
+      def article=(article)
+        @article_id = article.id
+      end
+    end
+    Article = Struct.new(:id, :title) do
+      attr_reader :author
+      def author=(author)
+        @author = author
+        @author.article = self
+      end
+    end
+    class ArticleDecorator < Roar::Decorator
+      include Roar::JSON::JSONAPI
+      type :articles
+      
+      href "http://api/articles"
+
+      property :id
+      property :title
+  
+      link :self do
+        "http://api/articles/#{id}"
+      end
+      
+      property :author, class: Author, type: 'people' do
+        include Roar::JSON
+        include Roar::Hypermedia
+
+        property :id
+        
+        # TODO: support links on relationships
+        link :self do
+          "http://api/articles/#{represented.article_id}/relationships/author"
+        end
+
+        link :related do
+          "http://api/articles/#{represented.article_id}/author"
+        end
+      end
+    end
+
     describe "Document Structure" do
       describe "Single Resource Object" do
         let(:document) {
@@ -81,51 +124,59 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
               }
             }
           }
-          Author = Struct.new(:id) do
-            attr_reader :article_id
-            def article=(article)
-              @article_id = article.id
-            end
-          end
-          Article = Struct.new(:id, :title) do
-            attr_reader :author
-            def author=(author)
-              @author = author
-              @author.article = self
-            end
-          end
-          class ArticleRelationshipDecorator < Roar::Decorator
-            include Roar::JSON::JSONAPI
-            type :articles
-
-            property :id
-            property :title
-        
-            link :self do
-              "http://api/articles/#{id}"
-            end
-            
-            property :author, class: Author, type: 'people' do
-              include Roar::JSON
-              include Roar::Hypermedia
-
-              property :id
-              
-              # TODO: support links on relationships
-              link :self do
-                "http://api/articles/#{represented.article_id}/relationships/author"
-              end
-
-              link :related do
-                "http://api/articles/#{represented.article_id}/author"
-              end
-            end
-          end
           
           let(:article) {
             Article.new(1, "My Article").send("author=", Author.new(9))
           }
-          subject { ArticleRelationshipDecorator.new(article).to_json }
+          subject { ArticleDecorator.new(article).to_json }
+          it { subject.must_equal document.to_json }
+        end
+      end
+      
+      describe "Fetching Data" do
+        describe "Fetching Resources" do
+          let(:document) {
+            {
+              "links": {
+                "self": "http://api/articles"
+              },
+              "data": [{
+                "type": "articles",
+                "id": "1",
+                "attributes": {
+                  "title": "JSON API paints my bikeshed!"
+                }
+              }, {
+                "type": "articles",
+                "id": "2",
+                "attributes": {
+                  "title": "Rails is Omakase"
+                }
+              }]
+            }
+          }
+          
+          let(:articles) {
+            [ Article.new(1, "JSON API paints my bikeshed!"), Article.new(2, "Rails is Omakase") ]
+          }
+          subject { ArticleDecorator.for_collection.new(articles).to_json }
+          it { subject.must_equal document.to_json }
+        end
+        
+        describe "Fetching Resources (empty collection)" do
+          let(:document) {
+            {
+              "links": {
+                "self": "http://api/articles"
+              },
+              "data": []
+            }
+          }
+          
+          let(:articles) {
+            []
+          }
+          subject { ArticleDecorator.for_collection.new(articles).to_json }
           it { subject.must_equal document.to_json }
         end
       end
