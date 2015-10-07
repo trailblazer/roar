@@ -65,14 +65,13 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
                 },
                 "relationships": {
                   "author": {
-                    # TODO: support links on relationships
-                    "links": {
-                      "self": "http://api/articles/1/relationships/author",
-                      "related": "http://api/articles/1/author"
-                    },
                     "data": { 
                       "id": "9",
                       "type": "people"
+                    },
+                    "links": {
+                      "self": "http://api/articles/1/relationships/author",
+                      "related": "http://api/articles/1/author"
                     }
                   }
                 },
@@ -114,11 +113,11 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
               
               # TODO: support links on relationships
               link :self do
-                "http://api/author/#{represented.id}"
+                "http://api/articles/#{represented.article_id}/relationships/author"
               end
 
               link :related do
-                "http://api/author/#{represented.article_id}/author"
+                "http://api/articles/#{represented.article_id}/author"
               end
             end
           end
@@ -160,16 +159,10 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
         end
         
         property :photographer, class: Photographer, type: 'people' do
+          include Roar::JSON
+          include Roar::Hypermedia
+
           property :id
-          
-          # TODO: support links on relationships
-          # link :self do
-          #   "http://api/author/#{id}"
-          # end
-          #
-          # link :related do
-          #   "http://api/author/#{article_id}/author"
-          # end
         end
       end
 

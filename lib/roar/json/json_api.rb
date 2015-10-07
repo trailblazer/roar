@@ -226,14 +226,14 @@ module Roar
           relationships
         end
         
-        def render_relationship_links(relation)
-          rep = representable_attrs[:resource_representer].new(represented)
-          links = {}
-          rep.link_configs.each do |link|
-            links[link[0][:rel]] = represented.instance_eval &link[1]
-          end
-          links
-        end
+        # def render_relationship_links(relation)
+        #   rep = representable_attrs[:resource_representer].new(represented)
+        #   links = {}
+        #   rep.link_configs.each do |link|
+        #     links[link[0][:rel]] = represented.instance_eval &link[1]
+        #   end
+        #   links
+        # end
         
         def remove_relationships(res)
           new_res = {}
@@ -246,11 +246,31 @@ module Roar
         def process_relationship(k, v)
           relation = {}
           relation["data"] = {}
+          
+          # add id
           relation["data"]["id"] = v["id"].to_s
-          relation["data"]["type"] = representable_attrs[:definitions][k][:type]
           v.delete("id")
+          
+          # add type
+          relation["data"]["type"] = representable_attrs[:definitions][k][:type]
+          
+          # process links
+          if v.has_key? ("links")
+            relation["links"] = render_relationship_links(v)
+            v.delete("links")
+          end
+          
+          # add attributes
           relation["data"]["attributes"] = v unless v.empty?
           relation
+        end
+        
+        def render_relationship_links(v)
+          links = {}
+          v["links"].each do |link|
+            links[link["rel"]] = link["href"]
+          end
+          links
         end
 
         def is_relationship?(fragment)
