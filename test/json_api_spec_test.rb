@@ -66,14 +66,13 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
                 "relationships": {
                   "author": {
                     # TODO: support links on relationships
-                    # "links": {
-                    #   "self": "http://api/articles/1/relationships/author",
-                    #   "related": "http://api/articles/1/author"
-                    # },
+                    "links": {
+                      "self": "http://api/articles/1/relationships/author",
+                      "related": "http://api/articles/1/author"
+                    },
                     "data": { 
-                      # TODO: support type on relationships
-                      # "type": "people",
-                      "id": "9"
+                      "id": "9",
+                      "type": "people"
                     }
                   }
                 },
@@ -107,20 +106,20 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
               "http://api/articles/#{id}"
             end
             
-            property :author, class: Author do
-              # TODO: support type on relationships
-              # type :people
+            property :author, class: Author, type: 'people' do
+              include Roar::JSON
+              include Roar::Hypermedia
 
               property :id
               
               # TODO: support links on relationships
-              # link :self do
-              #   "http://api/author/#{id}"
-              # end
-              #
-              # link :related do
-              #   "http://api/author/#{article_id}/author"
-              # end
+              link :self do
+                "http://api/author/#{represented.id}"
+              end
+
+              link :related do
+                "http://api/author/#{represented.article_id}/author"
+              end
             end
           end
           
@@ -134,6 +133,20 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
     end
 
     describe "CRUD" do
+      Photographer = Struct.new(:id) do
+        attr_reader :photo_id
+        def photo=(photo)
+          @photo_id = photo.id
+        end
+      end
+      Photo = Struct.new(:id, :title, :src) do
+        attr_reader :photographer
+        def photographer=(photographer)
+          @photographer = photographer
+          @photographer.photo = self
+        end
+      end
+
       class CrudPhotoCreateDecorator < Roar::Decorator
         include Roar::JSON::JSONAPI
         type :photos
@@ -144,6 +157,19 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
         
         link :self do
           "http://api/photos/#{id}"
+        end
+        
+        property :photographer, class: Photographer, type: 'people' do
+          property :id
+          
+          # TODO: support links on relationships
+          # link :self do
+          #   "http://api/author/#{id}"
+          # end
+          #
+          # link :related do
+          #   "http://api/author/#{article_id}/author"
+          # end
         end
       end
 
@@ -182,20 +208,26 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
                   "title": "Ember Hamster",
                   "src": "http://example.com/images/productivity.png"
                 },
+                "relationships": {
+                  "photographer": {
+                    "data": {
+                      # TODO: support type on relationships
+                      "id": "9",
+                      "type": "people"
+                    }
+                  }
+                },
                 "links": {
                   "self": "http://api/photos/2"
                 }
-                # },
-                # "relationships": {
-                #   "photographer": {
-                #     "data": { "type": "people", "id": "9" }
-                #   }
-                # }
               }
             }
           }
 
-          subject { CrudPhotoCreateDecorator.new(OpenStruct.new(id: 2, title: 'Ember Hamster', src: 'http://example.com/images/productivity.png')).to_json }
+          let(:photo) {
+            Photo.new(2, "Ember Hamster", "http://example.com/images/productivity.png").send("photographer=", Photographer.new(9))
+          }
+          subject { CrudPhotoCreateDecorator.new(photo).to_json }
           it { subject.must_equal rendered_post_photos.to_json }
         end
       end

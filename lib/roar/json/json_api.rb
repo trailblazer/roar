@@ -217,12 +217,22 @@ module Roar
         end
         
         def render_relationships(res)
-          # require "pry"; binding.pry
           relationships = {}
           res.each_pair do |k, v|
             relationships[k] = process_relationship(k, v) if is_relationship?(res[k])
+            # relationship_links = render_relationship_links(res[k])
+            # relationships[k]["links"] = relationship_links unless relationship_links.empty?
           end
           relationships
+        end
+        
+        def render_relationship_links(relation)
+          rep = representable_attrs[:resource_representer].new(represented)
+          links = {}
+          rep.link_configs.each do |link|
+            links[link[0][:rel]] = represented.instance_eval &link[1]
+          end
+          links
         end
         
         def remove_relationships(res)
@@ -237,6 +247,9 @@ module Roar
           relation = {}
           relation["data"] = {}
           relation["data"]["id"] = v["id"].to_s
+          relation["data"]["type"] = representable_attrs[:definitions][k][:type]
+          v.delete("id")
+          relation["data"]["attributes"] = v unless v.empty?
           relation
         end
 
