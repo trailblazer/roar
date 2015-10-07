@@ -1,4 +1,5 @@
-require 'roar/json'
+require "roar/json"
+require "representable/json/collection"
 
 module Roar
   module JSON
@@ -107,9 +108,47 @@ module Roar
 
         private
           def prepare_link_for(href, options)
-            return super(href, options) unless options[:array]  # TODO: remove :array and use special instan
+            return super(href, options) unless options[:array]  # returns Hyperlink.
 
-            href.collect { |opts| Hypermedia::Hyperlink.new(opts.merge(rel: options[:rel])) }
+            LinkArray.new(options[:rel], href.collect { |opts| Hypermedia::Hyperlink.new(opts) })
+          end
+        end
+
+
+        class SingleLink
+          class Representer < Representable::Decorator
+            include Representable::JSON::Hash
+
+            def to_hash(*)
+              hash = super
+              {hash.delete("rel").to_s => hash}
+            end
+          end
+        end
+
+        class LinkArray < Array
+          def initialize(rel, links)
+            @rel = rel
+            super(links)
+          end
+          attr_reader :rel
+
+
+          # [Hyperlink, Hyperlink]
+          class Representer < Representable::Decorator
+            include Representable::JSON::Collection
+
+            items extend: SingleLink::Representer,
+                  class:  Roar::Hypermedia::Hyperlink
+
+            def to_hash(*)
+              links = []
+              super.each { |hash|
+                links += hash.values # [{"self"=>{"href": ..}}, ..]
+              }
+
+              {represented.rel.to_s => links} # {"self"=>[{"lang"=>"en", "href"=>"http://en.hit"}, {"lang"=>"de", "href"=>"http://de.hit"}]}
+            end
           end
         end
 
@@ -117,10 +156,10 @@ module Roar
         require 'representable/json/collection'
         require 'representable/json/hash'
         # Represents all links for  "_links":  [Hyperlink, [Hyperlink, Hyperlink]]
-        class LinkCollectionRepresenter < Representable::Decorator # links could be a simple collection property.
+        class LinksRepresenter < Representable::Decorator # links could be a simple collection property.
           include Representable::JSON::Collection
 
-          items decorator: ->(options) { options[:input].is_a?(Array) ? LinkArrayRepresenter : SingleLinkRepresenter },
+          items decorator: ->(options) { options[:input].is_a?(Array) ? LinkArray::Representer : SingleLink::Representer },
                 class:     ->(options) { options[:input].is_a?(Array) ? Array : Hypermedia::Hyperlink }
 
           def to_hash(options)
@@ -138,36 +177,6 @@ module Roar
           end
         end
 
-        class SingleLinkRepresenter < Representable::Decorator
-          include Representable::JSON::Hash
-
-          def to_hash(*)
-            hash = super
-            {hash.delete("rel").to_s => hash}
-          end
-        end
-
-        require 'representable/json/collection'
-        # [Hyperlink, Hyperlink]
-        module LinkArrayRepresenter
-          include Representable::JSON::Collection
-
-          items extend: SingleLinkRepresenter,
-                class:  Roar::Hypermedia::Hyperlink
-
-          def to_hash(*)
-            links = []
-            rel = nil
-
-            super.each { |hash| # [{"self"=>{"href": ..}}, ..]
-              rel = hash.keys[0]
-              links += hash.values
-            }
-
-            {rel.to_s => links} # {"self"=>[{"lang"=>"en", "href"=>"http://en.hit"}, {"lang"=>"de", "href"=>"http://de.hit"}]}
-          end
-        end
-
 
         module ClassMethods
           def links_definition_options
@@ -175,7 +184,7 @@ module Roar
             {
               # collection: false,
               :as       => :links,
-              decorator: LinkCollectionRepresenter,
+              decorator: LinksRepresenter,
               instance: ->(*) { Array.new }, # defined in InstanceMethods as this is executed in represented context.
               :exec_context => :decorator,
             }
