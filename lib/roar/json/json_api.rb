@@ -136,6 +136,8 @@ module Roar
         def to_document(res, options)
           links = render_links
           meta  = render_meta(options)
+          relationships = render_relationships(res)
+          res = remove_relationships(res)
           # FIXME: provide two different #to_document
 
           if res.is_a?(Array)
@@ -152,6 +154,7 @@ module Roar
           }
           document.tap do |doc|
             doc[:data].merge!(attributes: res) unless res.empty?
+            doc[:data].merge!(relationships: relationships) unless relationships.empty?
             doc[:data].merge!(links: links) unless links.empty?
             doc.merge!(meta)
             doc.merge!("linked" => compound) if compound && compound.size > 0 # FIXME: make that like the above line.
@@ -211,6 +214,34 @@ module Roar
           return {"meta" => options["meta"]} if options["meta"]
           return {} unless representer = representable_attrs[:meta_representer]
           {"meta" => representer.new(represented).extend(Representable::Hash).to_hash}
+        end
+        
+        def render_relationships(res)
+          # require "pry"; binding.pry
+          relationships = {}
+          res.each_pair do |k, v|
+            relationships[k] = process_relationship(k, v) if is_relationship?(res[k])
+          end
+          relationships
+        end
+        
+        def remove_relationships(res)
+          new_res = {}
+          res.each_pair do |k, v|
+            new_res[k] = v unless is_relationship?(res[k])
+          end
+          new_res
+        end
+        
+        def process_relationship(k, v)
+          relation = {}
+          relation["data"] = {}
+          relation["data"]["id"] = v["id"].to_s
+          relation
+        end
+
+        def is_relationship?(fragment)
+          fragment.is_a?(Hash)
         end
 
 

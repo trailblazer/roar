@@ -63,18 +63,22 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
                 "attributes": {
                   "title": "My Article"
                 },
-                "links": {
-                  "self": "http://api/articles/1",
-                  "related": "http://api/articles/1/author"
-                },
                 "relationships": {
                   "author": {
-                    "links": {
-                      "self": "http://api/articles/1/relationships/author",
-                      "related": "http://api/articles/1/author"
-                    },
-                    "data": { "type": "people", "id": "9" }
+                    # TODO: support links on relationships
+                    # "links": {
+                    #   "self": "http://api/articles/1/relationships/author",
+                    #   "related": "http://api/articles/1/author"
+                    # },
+                    "data": { 
+                      # TODO: support type on relationships
+                      # "type": "people",
+                      "id": "9"
+                    }
                   }
+                },
+                "links": {
+                  "self": "http://api/articles/1",
                 }
               }
             }
@@ -104,10 +108,12 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
             end
             
             property :author, class: Author do
+              # TODO: support type on relationships
               # type :people
 
               property :id
               
+              # TODO: support links on relationships
               # link :self do
               #   "http://api/author/#{id}"
               # end
@@ -122,7 +128,7 @@ if Gem::Version.new(Representable::VERSION) >= Gem::Version.new("2.1.4") # TODO:
             Article.new(1, "My Article").send("author=", Author.new(9))
           }
           subject { ArticleRelationshipDecorator.new(article).to_json }
-          # it { subject.must_equal document.to_json }
+          it { subject.must_equal document.to_json }
         end
       end
     end
