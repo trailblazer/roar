@@ -116,6 +116,7 @@ module Roar
       # TODO: don't use Document for singular+wrap AND singular in collection (this way, we can get rid of the only_body)
       module Document
         def to_hash(options={})
+
           # per resource:
           res = super # render single resource or collection.
           return res if options[:only_body]
@@ -143,15 +144,24 @@ module Roar
             compound = compile_compound!(res.delete("linked"), {})
           end
 
-          {representable_attrs[:_wrap] => res}.tap do |doc|
-            doc.merge!(links)
+          document = {
+            data: {
+              type: representable_attrs[:_wrap],
+              id: res.delete('id').to_s
+            }
+          }
+          document.tap do |doc|
+            doc[:data].merge!(attributes: res) unless res.empty?
+            doc[:data].merge!(links: links) unless links.empty?
             doc.merge!(meta)
             doc.merge!("linked" => compound) if compound && compound.size > 0 # FIXME: make that like the above line.
           end
         end
 
         def from_document(hash)
-          hash[representable_attrs[:_wrap]]
+          # hash[representable_attrs[:_wrap]]
+          raise Exception.new('Unknown Type') unless hash['data']['type'] == representable_attrs[:_wrap]
+          hash['data']['attributes']
         end
 
         # Compiles the linked: section for compound objects in the document.
@@ -186,7 +196,12 @@ module Roar
         end
 
         def render_links
-          representable_attrs[:resource_representer].new(represented).to_hash # creates links: section.
+          rep = representable_attrs[:resource_representer].new(represented)
+          links = {}
+          rep.link_configs.each do |link|
+            links[link[0][:rel]] = represented.instance_eval &link[1]
+          end
+          links
         end
 
         def render_meta(options)
