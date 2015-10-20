@@ -277,14 +277,6 @@ module Roar
           relation
         end
 
-        def render_relationship_links(v)
-          links = {}
-          v["links"].each do |link|
-            links[link["rel"]] = link["href"]
-          end
-          links
-        end
-
         def is_relationship?(fragment)
           fragment.is_a?(Hash)
         end
