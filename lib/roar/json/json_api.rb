@@ -80,7 +80,7 @@ module Roar
             return super unless name # original name.
             representable_attrs[:_wrap] = name.to_s
           end
-          
+
           def href(name=nil)
             representable_attrs[:_href] = name.to_s
           end
@@ -167,7 +167,7 @@ module Roar
             doc.merge!("linked" => compound) if compound && compound.size > 0 # FIXME: make that like the above line.
           end
         end
-        
+
         def collection_item_to_document(res, options)
           # require "pry"; binding.pry
           meta  = render_meta(options)
@@ -197,7 +197,16 @@ module Roar
         def from_document(hash)
           # hash[representable_attrs[:_wrap]]
           raise Exception.new('Unknown Type') unless hash['data']['type'] == representable_attrs[:_wrap]
-          hash['data']['attributes']
+
+          # hash: {"data"=>{"type"=>"articles", "attributes"=>{"title"=>"Ember Hamster"}, "relationships"=>{"author"=>{"data"=>{"type"=>"people", "id"=>"9"}}}}}
+          attributes = hash["data"]["attributes"] || {}
+
+          hash["data"]["relationships"].each do |rel, fragment| # FIXME: what if nil?
+            attributes[rel] = fragment["data"] # DISCUSS: we could use a relationship representer here (but only if needed elsewhere).
+          end
+
+          # this is the format the object representer understands.
+          attributes # {"title"=>"Ember Hamster", "author"=>{"type"=>"people", "id"=>"9"}}
         end
 
         # Compiles the linked: section for compound objects in the document.
@@ -248,7 +257,7 @@ module Roar
           return {} unless representer = representable_attrs[:meta_representer]
           {"meta" => representer.new(represented).extend(Representable::Hash).to_hash}
         end
-        
+
         def render_relationships(res)
           relationships = {}
           res.each_pair do |k, v|
@@ -258,7 +267,7 @@ module Roar
           end
           relationships
         end
-        
+
         # def render_relationship_links(relation)
         #   rep = representable_attrs[:resource_representer].new(represented)
         #   links = {}
@@ -267,7 +276,7 @@ module Roar
         #   end
         #   links
         # end
-        
+
         def remove_relationships(res)
           new_res = {}
           res.each_pair do |k, v|
@@ -275,29 +284,29 @@ module Roar
           end
           new_res
         end
-        
+
         def process_relationship(k, v)
           relation = {}
           relation["data"] = {}
-          
+
           # add id
           relation["data"]["id"] = v["id"].to_s
           v.delete("id")
-          
+
           # add type
           relation["data"]["type"] = representable_attrs[:definitions][k][:type]
-          
+
           # process links
           if v.has_key? ("links")
             relation["links"] = render_relationship_links(v)
             v.delete("links")
           end
-          
+
           # add attributes
           relation["data"]["attributes"] = v unless v.empty?
           relation
         end
-        
+
         def render_relationship_links(v)
           links = {}
           v["links"].each do |link|
@@ -320,7 +329,7 @@ module Roar
               links: { self: representable_attrs[:_href] }
             }
             items = []
-            
+
             decorated.each do |item|
               # to_document()
               items << collection_item_to_document(item, options.merge({collection_item: true}))

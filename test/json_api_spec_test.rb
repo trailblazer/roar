@@ -5,12 +5,20 @@ require 'json'
 # this test is based on idea of http://jsonapi.org/format/1.0
 # we don't wanna reinvent the wheel so we are using examples provided by the spec itself
 class JSONAPITest < MiniTest::Spec
-  Author = Struct.new(:id) do
+  Author = Struct.new(:id, :email) do
     attr_reader :article_id
     def article=(article)
       @article_id = article.id
     end
+
+    def self.find_by(options)
+      puts "@@@@@ #{options.inspect}"
+      AuthorNine if options[:id].to_s=="9"
+    end
   end
+  AuthorNine = Author.new(9, "9@nine.to")
+
+
   Article = Struct.new(:id, :title) do
     attr_reader :author
     def author=(author)
@@ -181,33 +189,19 @@ class JSONAPITest < MiniTest::Spec
   end
 
   describe "CRUD" do
-    Photographer = Struct.new(:id) do
-      attr_reader :photo_id
-      def photo=(photo)
-        @photo_id = photo.id
-      end
-    end
-    Photo = Struct.new(:id, :title, :src) do
-      attr_reader :photographer
-      def photographer=(photographer)
-        @photographer = photographer
-        @photographer.photo = self
-      end
-    end
-
-    class CrudPhotoCreateDecorator < Roar::Decorator
+    class CrudArticleCreateDecorator < Roar::Decorator
       include Roar::JSON::JSONAPI
-      type :photos
+      type :articles
 
       property :id
       property :title
-      property :src
 
       link :self do
-        "http://api/photos/#{id}"
+        "http://api/articles/#{id}"
       end
 
-      property :photographer, class: Photographer, populator: ::Representable::FindOrInstantiate, type: "people" do
+include Representable::Debug
+      property :author, class: Author, populator: ::Representable::FindOrInstantiate, type: "people" do
         include Roar::JSON
         include Roar::Hypermedia
 
@@ -217,17 +211,16 @@ class JSONAPITest < MiniTest::Spec
 
     describe "Create" do
       describe "Parse" do
-        let(:post_photos) {
+        let(:post_article) {
           {
             "data": {
-              "type": "photos",
+              "type": "articles",
               "attributes": {
                 "title": "Ember Hamster",
-                "src": "http://example.com/images/productivity.png"
               },
               # does that do `photo.photographer= Photographer.find(9)` ?
               "relationships": {
-                "photographer": {
+                "author": {
                   "data": { "type": "people", "id": "9" }
                 }
               }
@@ -235,25 +228,23 @@ class JSONAPITest < MiniTest::Spec
           }
         }
 
-        subject { CrudPhotoCreateDecorator.new(Photo.new).from_json(post_photos.to_json) }
+        subject { CrudArticleCreateDecorator.new(Article.new).from_json(post_article.to_json) }
 
         it { subject.title.must_equal "Ember Hamster"  }
-        it { subject.src.must_equal "http://example.com/images/productivity.png"  }
-        it { subject.photographer.id.must_equal 9 }
+        it { subject.author.id.must_equal 9 }
       end
 
       describe "Render" do
         let(:rendered_post_photos) {
           {
             "data": {
-              "type": "photos",
+              "type": "articles",
               "id": "2",
               "attributes": {
                 "title": "Ember Hamster",
-                "src": "http://example.com/images/productivity.png"
               },
               "relationships": {
-                "photographer": {
+                "author": {
                   "data": {
                     # TODO: support type on relationships
                     "id": "9",
@@ -262,16 +253,18 @@ class JSONAPITest < MiniTest::Spec
                 }
               },
               "links": {
-                "self": "http://api/photos/2"
+                "self": "http://api/articles/2"
               }
             }
           }
         }
 
         let(:photo) {
-          Photo.new(2, "Ember Hamster", "http://example.com/images/productivity.png").send("photographer=", Photographer.new(9))
+          Article.new(2, "Ember Hamster").tap do |article|
+            article.author= Author.new(9)
+          end
         }
-        subject { CrudPhotoCreateDecorator.new(photo).to_json }
+        subject { CrudArticleCreateDecorator.new(photo).to_json }
         it { subject.must_equal rendered_post_photos.to_json }
       end
     end
