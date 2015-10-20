@@ -12,15 +12,9 @@ class JSONAPITest < MiniTest::Spec
   end
   AuthorNine = Author.new(9, "9@nine.to")
 
-  Article = Struct.new(:id, :title) do
-    attr_reader :author
-    def author=(author)
-      @author = author
-      @author.article = self
-    end
-  end
+  Article = Struct.new(:id, :title, :comments, :author)
 
-  Comment = Struct.new(:id)
+  Comment = Struct.new(:id, :author, :body)
 
   describe "Single Resource Object" do
     class DocumentSingleResourceObjectDecorator < Roar::Decorator
@@ -59,20 +53,39 @@ class JSONAPITest < MiniTest::Spec
 
     include Roar::JSON
     include Roar::Hypermedia
-    # link(:self) { "http://api/articles/#{id}" }
     link(:self) { "http://#{represented.class}/" }
 
 
-    property :author, class: Author, type: 'people' do
+    property :author, class: Author, type: 'people' do # relationship.
       include Roar::JSON
       include Roar::Hypermedia
 
       property :id
 
-      # TODO: support links on relationships
-      link(:self)    { "http://api/articles/#{represented.article.id}/relationships/author" }
-      link(:related) { "http://api/articles/#{represented.article.id}/author" }
+      link(:self)    { "http://api/articles/#{represented.id}/relationships/author" }
+      link(:related) { "http://api/articles/#{represented.id}/author" }
     end
+
+    # compound do
+    #   collection :comments, type: "comments" do
+    #     include Roar::JSON::JSONAPI
+    #     include Roar::JSON
+    #     include Roar::Hypermedia
+
+    #     property :id
+    #     property :body
+    #     link(:self) { "http://comments/#{represented.id}" }
+
+    #     property :author, type: "people" do # relationships in the compound entity.
+    #       include Roar::JSON
+    #       include Roar::Hypermedia
+
+
+    #       property :id
+    #       link(:self) { "http://author/#{represented.id}" } # optional
+    #     end
+    #   end
+    # end
 
   end
 
@@ -101,14 +114,24 @@ class JSONAPITest < MiniTest::Spec
             },
             "links": {
               "self": "http://JSONAPITest::Article/",
-            }
+            },
+            "included": [
+              {
+                "type": "comments",
+                "id":   1,
+                "attributes": {
+                  "body": "JSON 4 shizzl!"
+                },
+                "links": {
+                  "self": "http://comments/1",
+                }
+              }
+            ]
           }
         }
       }
 
-      let(:article) {
-        Article.new(1, "My Article").send("author=", Author.new(9))
-      }
+      let(:article) { Article.new(1, "My Article", [Comment.new(1, Author.new(9), "JSON 4 shizzl!")], Author.new(9)) }
       subject { ArticleDecorator.new(article).to_json }
       it { subject.must_equal document.to_json }
     end

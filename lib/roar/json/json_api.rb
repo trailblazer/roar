@@ -13,7 +13,7 @@ module Roar
 
           extend ForCollection
 
-          representable_attrs[:resource_representer] = Class.new(Resource::Representer)
+          # representable_attrs[:resource_representer] = Class.new(Resource::Representer)
 
           private
             def create_representation_with(doc, options, format)
@@ -48,20 +48,6 @@ module Roar
 
 
       module Resource
-        # ::link is delegated to Representer which handles the hypermedia (rendering
-        # and parsing links).
-        class Representer < Roar::Decorator
-          include Roar::JSON
-          include Roar::Hypermedia
-
-          def self.links_definition_options
-            {
-              :extend       => LinkCollectionRepresenter,
-              :exec_context => :decorator
-            }
-          end
-        end
-
         def self.included(base)
           base.extend Declarative # inject our ::link.
         end
@@ -96,7 +82,7 @@ module Roar
           end
 
           def compound(&block)
-            nested(:linked, &block)
+            nested(:included, &block)
           end
 
           def meta(&block)
@@ -127,18 +113,20 @@ module Roar
 
       private
         def to_document(res, options)
-          # require "pry"; binding.pry
           links = render_links(res, options)
           meta  = render_meta(options)
+
+          puts res.inspect
+          # compound      = render_compound(res)
           relationships = render_relationships(res)
           res = remove_relationships(res)
           # FIXME: provide two different #to_document
 
-          if res.is_a?(Array)
-            compound = collection_compound!(res, {})
-          else
-            compound = compile_compound!(res.delete("linked"), {})
-          end
+          # if res.is_a?(Array)
+          #   compound = collection_compound!(res, {})
+          # else
+            # compound = compile_compound!(res.delete("included"), {})
+          # end
 
           document = {
             data: {
@@ -151,7 +139,7 @@ module Roar
             doc[:data].merge!(relationships: relationships) unless relationships.empty?
             doc[:data].merge!(links: links) unless links.empty?
             doc.merge!(meta)
-            doc.merge!("linked" => compound) if compound && compound.size > 0 # FIXME: make that like the above line.
+            # doc.merge!("included" => compound) if compound && compound.size > 0 # FIXME: make that like the above line.
           end
         end
 
@@ -209,20 +197,9 @@ module Roar
 
         # Go through {"album"=>{"title"=>"Hackers"}, "musicians"=>[{"name"=>"Eddie Van Halen"}, ..]} from linked:
         # and wrap every item in an array.
-        def compile_compound!(linked, compound)
-          return unless linked
+        def render_compound(hash)
+          return unless compound = hash.delete("included")
 
-          linked.each { |k,v| # {"album"=>{"title"=>"Hackers"}, "musicians"=>[{"name"=>"Eddie Van Halen"}, {"name"=>"Greg Howe"}]}
-            compound[k] ||= []
-
-            if v.is_a?(::Hash) # {"title"=>"Hackers"}
-              compound[k] << v
-            else
-              compound[k].push(*v) # [{"name"=>"Eddie Van Halen"}, {"name"=>"Greg Howe"}]
-            end
-
-            compound[k] = compound[k].uniq
-          }
 
           compound
         end
@@ -244,8 +221,6 @@ module Roar
           relationships = {}
           res.each_pair do |k, v|
             relationships[k] = process_relationship(k, v) if is_relationship?(res[k])
-            # relationship_links = render_relationship_links(res[k])
-            # relationships[k]["links"] = relationship_links unless relationship_links.empty?
           end
           relationships
         end
@@ -270,10 +245,10 @@ module Roar
           relation["data"]["type"] = representable_attrs[:definitions][k][:type]
 
           # process links
-          relation["links"] = render_links(v, {}) if v["links"]# could also be LinkRenderer.().
+          relation["links"] = render_links(v, {}) if v["links"] # could also be LinkRenderer.().
 
           # add attributes
-          relation["data"]["attributes"] = v unless v.empty?
+          relation["data"]["attributes"] = v unless v.empty? # TODO: shouldn't that be "data"?
           relation
         end
 
