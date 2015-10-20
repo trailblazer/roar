@@ -5,12 +5,7 @@ require 'json'
 # this test is based on idea of http://jsonapi.org/format/1.0
 # we don't wanna reinvent the wheel so we are using examples provided by the spec itself
 class JSONAPITest < MiniTest::Spec
-  Author = Struct.new(:id, :email, :name) do
-    attr_reader :article_id
-    def article=(article)
-      @article_id = article.id
-    end
-
+  Author = Struct.new(:id, :email, :name, :article) do
     def self.find_by(options)
       AuthorNine if options[:id].to_s=="9"
     end
@@ -49,11 +44,11 @@ class JSONAPITest < MiniTest::Spec
 
       # TODO: support links on relationships
       link :self do
-        "http://api/articles/#{represented.article_id}/relationships/author"
+        "http://api/articles/#{represented.article.id}/relationships/author"
       end
 
       link :related do
-        "http://api/articles/#{represented.article_id}/author"
+        "http://api/articles/#{represented.article.id}/author"
       end
     end
   end

@@ -31,7 +31,7 @@ class JsonapiPostTest < MiniTest::Spec
       "http://api/articles/#{id}"
     end
 
-include Representable::Debug::Representable
+include Representable::Debug
     property :author, class: Author, populator: ::Representable::FindOrInstantiate, type: "people" do
       include Roar::JSON
       include Roar::Hypermedia
