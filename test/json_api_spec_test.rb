@@ -17,7 +17,6 @@ class JSONAPITest < MiniTest::Spec
   end
   AuthorNine = Author.new(9, "9@nine.to")
 
-
   Article = Struct.new(:id, :title) do
     attr_reader :author
     def author=(author)
@@ -25,6 +24,10 @@ class JSONAPITest < MiniTest::Spec
       @author.article = self
     end
   end
+
+  Comment = Struct.new(:id)
+
+
   class ArticleDecorator < Roar::Decorator
     include Roar::JSON::JSONAPI
     type :articles
@@ -187,90 +190,4 @@ class JSONAPITest < MiniTest::Spec
     end
   end
 
-  describe "CRUD" do
-    class CrudArticleCreateDecorator < Roar::Decorator
-      include Roar::JSON::JSONAPI
-      type :articles
-
-      property :id
-      property :title
-
-      link :self do
-        "http://api/articles/#{id}"
-      end
-
-include Representable::Debug::Representable
-      property :author, class: Author, populator: ::Representable::FindOrInstantiate, type: "people" do
-        include Roar::JSON
-        include Roar::Hypermedia
-
-        property :id
-        property :name
-      end
-    end
-
-    describe "Create" do
-      describe "Parse" do
-        let(:post_article) {
-          {
-            "data": {
-              "type": "articles",
-              "attributes": {
-                "title": "Ember Hamster",
-              },
-              # does that do `photo.photographer= Photographer.find(9)` ?
-              "relationships": {
-                "author": {
-                  "data": { "type": "people", "id": "9", "name": "Celsito" } # FIXME: what should happen if i add `"name": "Celsito"` here? should that be read or not?
-                }
-              }
-            }
-          }
-        }
-
-        subject { CrudArticleCreateDecorator.new(Article.new).from_json(post_article.to_json) }
-
-        it { subject.title.must_equal "Ember Hamster"  }
-        it do
-          subject.author.id.must_equal "9"
-          subject.author.email.must_equal "9@nine.to"
-          # subject.author.name.must_equal nil
-        end
-      end
-
-      describe "Render" do
-        let(:rendered_post_photos) {
-          {
-            "data": {
-              "type": "articles",
-              "id": "2",
-              "attributes": {
-                "title": "Ember Hamster",
-              },
-              "relationships": {
-                "author": {
-                  "data": {
-                    # TODO: support type on relationships
-                    "id": "9",
-                    "type": "people"
-                  }
-                }
-              },
-              "links": {
-                "self": "http://api/articles/2"
-              }
-            }
-          }
-        }
-
-        let(:photo) {
-          Article.new(2, "Ember Hamster").tap do |article|
-            article.author= Author.new(9)
-          end
-        }
-        subject { CrudArticleCreateDecorator.new(photo).to_json }
-        it { subject.must_equal rendered_post_photos.to_json }
-      end
-    end
-  end
 end
