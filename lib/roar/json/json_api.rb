@@ -27,12 +27,13 @@ module Roar
           singular = self # e.g. Song::Representer
 
           # this basically does Module.new { include Hash::Collection .. }
-          build_inline(nil, [Representable::Hash::Collection, Document::Collection, Roar::JSON], "", {}) do
+          build_inline(nil, [Representable::Hash::Collection, Document::Collection, Roar::JSON, Roar::JSON::JSONAPI, Roar::Hypermedia], "", {}) do
             items extend: singular, :parse_strategy => :sync
 
             representable_attrs[:resource_representer] = singular.representable_attrs[:resource_representer]
             representable_attrs[:meta_representer]     = singular.representable_attrs[:meta_representer] # DISCUSS: do we need that?
             representable_attrs[:_wrap] = singular.representable_attrs[:_wrap]
+            representable_attrs[:_href] = singular.representable_attrs[:_href]
           end
         end
       end
@@ -41,9 +42,10 @@ module Roar
       module Singular
         def to_hash(options={})
           # per resource:
-          super(options.merge(:exclude => [:links])).tap do |hash|
-            hash["links"] = hash.delete("_links") if hash["_links"]
-          end
+          # super(options.merge(:exclude => [:links])).tap do |hash|
+          #   hash["links"] = hash.delete("_links") if hash["_links"]
+          # end
+          super(options.merge(:exclude => [:links]))
         end
 
         def from_hash(hash, options={})
@@ -77,6 +79,10 @@ module Roar
           def type(name=nil)
             return super unless name # original name.
             representable_attrs[:_wrap] = name.to_s
+          end
+          
+          def href(name=nil)
+            representable_attrs[:_href] = name.to_s
           end
 
           # Define global document links for the links: directive.
@@ -116,6 +122,7 @@ module Roar
       # TODO: don't use Document for singular+wrap AND singular in collection (this way, we can get rid of the only_body)
       module Document
         def to_hash(options={})
+
           # per resource:
           res = super # render single resource or collection.
           return res if options[:only_body]
@@ -133,8 +140,11 @@ module Roar
 
       private
         def to_document(res, options)
-          links = render_links
+          # require "pry"; binding.pry
+          links = render_links(res, options)
           meta  = render_meta(options)
+          relationships = render_relationships(res)
+          res = remove_relationships(res)
           # FIXME: provide two different #to_document
 
           if res.is_a?(Array)
@@ -143,15 +153,51 @@ module Roar
             compound = compile_compound!(res.delete("linked"), {})
           end
 
-          {representable_attrs[:_wrap] => res}.tap do |doc|
-            doc.merge!(links)
+          document = {
+            data: {
+              type: representable_attrs[:_wrap],
+              id: res.delete('id').to_s
+            }
+          }
+          document.tap do |doc|
+            doc[:data].merge!(attributes: res) unless res.empty?
+            doc[:data].merge!(relationships: relationships) unless relationships.empty?
+            doc[:data].merge!(links: links) unless links.empty?
+            doc.merge!(meta)
+            doc.merge!("linked" => compound) if compound && compound.size > 0 # FIXME: make that like the above line.
+          end
+        end
+        
+        def collection_item_to_document(res, options)
+          # require "pry"; binding.pry
+          meta  = render_meta(options)
+          relationships = render_relationships(res)
+          res = remove_relationships(res)
+          # FIXME: provide two different #to_document
+
+          if res.is_a?(Array)
+            compound = collection_compound!(res, {})
+          else
+            compound = compile_compound!(res.delete("linked"), {})
+          end
+
+          # require "pry"; binding.pry
+          document = {
+            type: representable_attrs[:_wrap],
+            id: res.delete(:id).to_s
+          }
+          document.tap do |doc|
+            doc.merge!(attributes: res) unless res.empty?
+            # doc[:data].merge!(relationships: relationships) unless relationships.empty?
             doc.merge!(meta)
             doc.merge!("linked" => compound) if compound && compound.size > 0 # FIXME: make that like the above line.
           end
         end
 
         def from_document(hash)
-          hash[representable_attrs[:_wrap]]
+          # hash[representable_attrs[:_wrap]]
+          raise Exception.new('Unknown Type') unless hash['data']['type'] == representable_attrs[:_wrap]
+          hash['data']['attributes']
         end
 
         # Compiles the linked: section for compound objects in the document.
@@ -185,8 +231,13 @@ module Roar
           compound
         end
 
-        def render_links
-          representable_attrs[:resource_representer].new(represented).to_hash # creates links: section.
+        def render_links(res, options)
+          rep = representable_attrs[:resource_representer].new(represented)
+          links = {}
+          rep.link_configs.each do |link|
+            links[link[0][:rel]] = represented.instance_eval &link[1]
+          end
+          links
         end
 
         def render_meta(options)
@@ -197,14 +248,85 @@ module Roar
           return {} unless representer = representable_attrs[:meta_representer]
           {"meta" => representer.new(represented).extend(Representable::Hash).to_hash}
         end
+        
+        def render_relationships(res)
+          relationships = {}
+          res.each_pair do |k, v|
+            relationships[k] = process_relationship(k, v) if is_relationship?(res[k])
+            # relationship_links = render_relationship_links(res[k])
+            # relationships[k]["links"] = relationship_links unless relationship_links.empty?
+          end
+          relationships
+        end
+        
+        # def render_relationship_links(relation)
+        #   rep = representable_attrs[:resource_representer].new(represented)
+        #   links = {}
+        #   rep.link_configs.each do |link|
+        #     links[link[0][:rel]] = represented.instance_eval &link[1]
+        #   end
+        #   links
+        # end
+        
+        def remove_relationships(res)
+          new_res = {}
+          res.each_pair do |k, v|
+            new_res[k] = v unless is_relationship?(res[k])
+          end
+          new_res
+        end
+        
+        def process_relationship(k, v)
+          relation = {}
+          relation["data"] = {}
+          
+          # add id
+          relation["data"]["id"] = v["id"].to_s
+          v.delete("id")
+          
+          # add type
+          relation["data"]["type"] = representable_attrs[:definitions][k][:type]
+          
+          # process links
+          if v.has_key? ("links")
+            relation["links"] = render_relationship_links(v)
+            v.delete("links")
+          end
+          
+          # add attributes
+          relation["data"]["attributes"] = v unless v.empty?
+          relation
+        end
+        
+        def render_relationship_links(v)
+          links = {}
+          v["links"].each do |link|
+            links[link["rel"]] = link["href"]
+          end
+          links
+        end
+
+        def is_relationship?(fragment)
+          fragment.is_a?(Hash)
+        end
 
 
         module Collection
           include Document
 
           def to_hash(options={})
-            res = super(options.merge(:only_body => true))
-            to_document(res, options)
+            # res = super(options.merge(:only_body => true))
+            doc = {
+              links: { self: representable_attrs[:_href] }
+            }
+            items = []
+            
+            decorated.each do |item|
+              # to_document()
+              items << collection_item_to_document(item, options.merge({collection_item: true}))
+            end
+            doc[:data] = items
+            doc
           end
 
           def from_hash(hash, options={})
