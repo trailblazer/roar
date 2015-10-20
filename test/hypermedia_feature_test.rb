@@ -125,30 +125,13 @@ class HypermediaTest < MiniTest::Spec
         </bookmarks>
         })
 
-        assert_kind_of Roar::Hypermedia::LinkCollection, doc.links
+        assert_kind_of Hash, doc.links
         assert_equal 1, doc.links.size
         assert_equal(["self", "http://bookmarks"], [doc.links["self"].rel, doc.links["self"].href])
       end
 
       it "sets up an empty link list if no links found in the document" do
         @bookmarks_with_links.new.from_xml(%{<bookmarks/>}).links.must_equal nil
-      end
-    end
-  end
-end
-
-
-class LinkCollectionTest < MiniTest::Spec
-  describe "LinkCollection" do
-    subject {
-      Roar::Hypermedia::LinkCollection[
-        @self_link = link(:rel => :self), @next_link = link(:rel => :next)
-      ]
-    }
-
-    describe "::[]" do
-      it "keys by using rel string" do
-        subject.values.must_equal [@self_link, @next_link]
       end
     end
   end

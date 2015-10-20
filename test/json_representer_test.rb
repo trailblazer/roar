@@ -93,7 +93,7 @@ class JsonHypermediaTest
     end
 
     it "responds to #links" do
-      @r.links.must_equal nil
+      @r.links.must_equal({})
     end
 
     it "extracts links from JSON" do

@@ -41,7 +41,7 @@ module Roar
     # public API: #links (only helpful in clients, though).
     attr_writer :links # this is called in parsing when Hyperlinks are deserialized.
     def links # this is _not_ called by rendering as we go via ::links_config.
-      @links.collect { |link| [link.rel, link] }.to_h
+      (@links||[]).collect { |link| [link.rel, link] }.to_h
     end
 
 
