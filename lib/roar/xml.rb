@@ -38,6 +38,7 @@ module Roar
           :class        => Hypermedia::Hyperlink,
           :extend       => XML::HyperlinkRepresenter,
           :exec_context => :decorator,
+          collection: true
           } # TODO: merge with JSON.
       end
     end
