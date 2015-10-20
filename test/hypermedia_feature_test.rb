@@ -1,4 +1,4 @@
-require 'test_helper'
+  require 'test_helper'
 
 class HypermediaTest < MiniTest::Spec
 
@@ -131,7 +131,7 @@ class HypermediaTest < MiniTest::Spec
       end
 
       it "sets up an empty link list if no links found in the document" do
-        @bookmarks_with_links.new.from_xml(%{<bookmarks/>}).links.must_equal nil
+        @bookmarks_with_links.new.from_xml(%{<bookmarks/>}).links.must_equal({})
       end
     end
   end
