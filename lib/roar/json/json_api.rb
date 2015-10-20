@@ -40,14 +40,6 @@ module Roar
 
 
       module Singular
-        def to_hash(options={})
-          # per resource:
-          # super(options.merge(:exclude => [:links])).tap do |hash|
-          #   hash["links"] = hash.delete("_links") if hash["_links"]
-          # end
-          super(options.merge(:exclude => [:links]))
-        end
-
         def from_hash(hash, options={})
           hash["_links"] = hash["links"]
           super
@@ -83,11 +75,6 @@ module Roar
 
           def href(name=nil)
             representable_attrs[:_href] = name.to_s
-          end
-
-          # Define global document links for the links: directive.
-          def link(*args, &block)
-            representable_attrs[:resource_representer].link(*args, &block)
           end
 
           # Per-model links.
@@ -241,12 +228,7 @@ module Roar
         end
 
         def render_links(res, options)
-          rep = representable_attrs[:resource_representer].new(represented)
-          links = {}
-          rep.link_configs.each do |link|
-            links[link[0][:rel]] = represented.instance_eval &link[1]
-          end
-          links
+          (res.delete("links") || []).collect { |link| [link["rel"], link["href"]] }.to_h
         end
 
         def render_meta(options)

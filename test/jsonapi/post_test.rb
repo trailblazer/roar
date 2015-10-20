@@ -27,8 +27,10 @@ class JsonapiPostTest < MiniTest::Spec
     property :id
     property :title
 
+    include Roar::JSON
+    include Roar::Hypermedia
     link :self do
-      "http://api/articles/#{id}"
+      "http://api/articles/#{represented.id}"
     end
 
 include Representable::Debug
