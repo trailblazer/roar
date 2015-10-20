@@ -250,15 +250,6 @@ module Roar
           relationships
         end
 
-        # def render_relationship_links(relation)
-        #   rep = representable_attrs[:resource_representer].new(represented)
-        #   links = {}
-        #   rep.link_configs.each do |link|
-        #     links[link[0][:rel]] = represented.instance_eval &link[1]
-        #   end
-        #   links
-        # end
-
         def remove_relationships(res)
           new_res = {}
           res.each_pair do |k, v|
@@ -279,10 +270,7 @@ module Roar
           relation["data"]["type"] = representable_attrs[:definitions][k][:type]
 
           # process links
-          if v.has_key? ("links")
-            relation["links"] = render_relationship_links(v)
-            v.delete("links")
-          end
+          relation["links"] = render_links(v, {}) if v["links"]# could also be LinkRenderer.().
 
           # add attributes
           relation["data"]["attributes"] = v unless v.empty?
@@ -325,21 +313,6 @@ module Roar
             super(hash, options.merge(:only_body => true))
           end
         end
-      end
-
-
-      module LinkRepresenter
-        include Roar::JSON
-
-        property :href
-        property :type
-      end
-
-      require 'representable/json/hash'
-      module LinkCollectionRepresenter
-        include Representable::JSON::Hash
-
-        values :extend => LinkRepresenter # TODO: parsing.
       end
     end
   end
