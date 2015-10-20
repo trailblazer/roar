@@ -5,14 +5,13 @@ require 'json'
 # this test is based on idea of http://jsonapi.org/format/1.0
 # we don't wanna reinvent the wheel so we are using examples provided by the spec itself
 class JSONAPITest < MiniTest::Spec
-  Author = Struct.new(:id, :email) do
+  Author = Struct.new(:id, :email, :name) do
     attr_reader :article_id
     def article=(article)
       @article_id = article.id
     end
 
     def self.find_by(options)
-      puts "@@@@@ #{options.inspect}"
       AuthorNine if options[:id].to_s=="9"
     end
   end
@@ -200,12 +199,13 @@ class JSONAPITest < MiniTest::Spec
         "http://api/articles/#{id}"
       end
 
-include Representable::Debug
+include Representable::Debug::Representable
       property :author, class: Author, populator: ::Representable::FindOrInstantiate, type: "people" do
         include Roar::JSON
         include Roar::Hypermedia
 
         property :id
+        property :name
       end
     end
 
@@ -221,7 +221,7 @@ include Representable::Debug
               # does that do `photo.photographer= Photographer.find(9)` ?
               "relationships": {
                 "author": {
-                  "data": { "type": "people", "id": "9" }
+                  "data": { "type": "people", "id": "9", "name": "Celsito" } # FIXME: what should happen if i add `"name": "Celsito"` here? should that be read or not?
                 }
               }
             }
@@ -231,7 +231,11 @@ include Representable::Debug
         subject { CrudArticleCreateDecorator.new(Article.new).from_json(post_article.to_json) }
 
         it { subject.title.must_equal "Ember Hamster"  }
-        it { subject.author.id.must_equal 9 }
+        it do
+          subject.author.id.must_equal "9"
+          subject.author.email.must_equal "9@nine.to"
+          # subject.author.name.must_equal nil
+        end
       end
 
       describe "Render" do
