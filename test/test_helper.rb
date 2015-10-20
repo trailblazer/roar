@@ -8,6 +8,8 @@ require 'roar/http_verbs'
 require "roar/json"
 require "roar/json/hal"
 
+require "representable/debug"
+
 module AttributesConstructor  # TODO: remove me.
   def initialize(attrs={})
     attrs.each do |k,v|

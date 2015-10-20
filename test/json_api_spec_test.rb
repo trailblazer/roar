@@ -207,7 +207,7 @@ class JSONAPITest < MiniTest::Spec
         "http://api/photos/#{id}"
       end
 
-      property :photographer, class: Photographer, type: 'people' do
+      property :photographer, class: Photographer, populator: ::Representable::FindOrInstantiate, type: "people" do
         include Roar::JSON
         include Roar::Hypermedia
 
