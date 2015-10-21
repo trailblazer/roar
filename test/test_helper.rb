@@ -9,6 +9,7 @@ require "roar/json"
 require "roar/json/hal"
 
 require "representable/debug"
+require "pp"
 
 module AttributesConstructor  # TODO: remove me.
   def initialize(attrs={})

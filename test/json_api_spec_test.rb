@@ -67,24 +67,36 @@ class JSONAPITest < MiniTest::Spec
     end
 
     # compound do
-    #   collection :comments, type: "comments" do
-    #     include Roar::JSON::JSONAPI
-    #     include Roar::JSON
-    #     include Roar::Hypermedia
+      property :author, type: "author", decorator: true do
+        include Roar::JSON::JSONAPI
+        include Roar::JSON
+        include Roar::Hypermedia
+        type :authors
 
-    #     property :id
-    #     property :body
-    #     link(:self) { "http://comments/#{represented.id}" }
+        property :id
+        property :email
+        link(:self) { "http://comments/#{represented.id}" }
+      end
 
-    #     property :author, type: "people" do # relationships in the compound entity.
-    #       include Roar::JSON
-    #       include Roar::Hypermedia
+      # collection :comments, type: "comments" do
+      #   include Roar::JSON::JSONAPI
+      #   include Roar::JSON
+      #   include Roar::Hypermedia
+      #   type :comments
+
+      #   property :id
+      #   property :body
+      #   link(:self) { "http://comments/#{represented.id}" }
+
+      #   property :author, type: "people" do # relationships in the compound entity.
+      #     include Roar::JSON
+      #     include Roar::Hypermedia
 
 
-    #       property :id
-    #       link(:self) { "http://author/#{represented.id}" } # optional
-    #     end
-    #   end
+      #     property :id
+      #     link(:self) { "http://author/#{represented.id}" } # optional
+      #   end
+      # end
     # end
 
   end

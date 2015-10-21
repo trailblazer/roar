@@ -95,12 +95,9 @@ module Roar
       # TODO: don't use Document for singular+wrap AND singular in collection (this way, we can get rid of the only_body)
       module Document
         def to_hash(options={})
-
           # per resource:
           res = super # render single resource or collection.
-          return res if options[:only_body]
-          # this is the only "dirty" part: this module is always included in the Singular document representer, when used in collection, we don't want it to do the extra work. this mechanism here might be changed soon.
-
+          # return res if options[:only_body]
           to_document(res, options)
         end
 
@@ -116,11 +113,12 @@ module Roar
           links = render_links(res, options)
           meta  = render_meta(options)
 
-          puts res.inspect
-          # compound      = render_compound(res)
-          relationships = render_relationships(res)
-          res = remove_relationships(res)
-          # FIXME: provide two different #to_document
+          puts "$$$$$$$$#TODO"
+          require "pp"
+          pp res
+
+          compound      = render_compound(res)
+          relationships = render_relationships!(res)
 
           # if res.is_a?(Array)
           #   compound = collection_compound!(res, {})
@@ -134,9 +132,11 @@ module Roar
               id: res.delete('id').to_s
             }
           }
+          document[:data].merge!(attributes: res) unless res.empty?
+          document[:data][:relationships] = relationships if relationships and relationships.any?
+
+
           document.tap do |doc|
-            doc[:data].merge!(attributes: res) unless res.empty?
-            doc[:data].merge!(relationships: relationships) unless relationships.empty?
             doc[:data].merge!(links: links) unless links.empty?
             doc.merge!(meta)
             # doc.merge!("included" => compound) if compound && compound.size > 0 # FIXME: make that like the above line.
@@ -146,7 +146,7 @@ module Roar
         def collection_item_to_document(res, options)
           # require "pry"; binding.pry
           meta  = render_meta(options)
-          relationships = render_relationships(res)
+          relationships = render_relationships!(res)
           res = remove_relationships(res)
           # FIXME: provide two different #to_document
 
@@ -199,6 +199,7 @@ module Roar
         # and wrap every item in an array.
         def render_compound(hash)
           return unless compound = hash.delete("included")
+          # raise compound.inspect
 
 
           compound
@@ -217,43 +218,11 @@ module Roar
           {"meta" => representer.new(represented).extend(Representable::Hash).to_hash}
         end
 
-        def render_relationships(res)
-          relationships = {}
-          res.each_pair do |k, v|
-            relationships[k] = process_relationship(k, v) if is_relationship?(res[k])
+        def render_relationships!(res)
+          (res["relationships"] || []).each do |name, hash|
+            hash[:links] = hash[:data].delete(:links)
           end
-          relationships
-        end
-
-        def remove_relationships(res)
-          new_res = {}
-          res.each_pair do |k, v|
-            new_res[k] = v unless is_relationship?(res[k])
-          end
-          new_res
-        end
-
-        def process_relationship(k, v)
-          relation = {}
-          relation["data"] = {}
-
-          # add id
-          relation["data"]["id"] = v["id"].to_s
-          v.delete("id")
-
-          # add type
-          relation["data"]["type"] = representable_attrs[:definitions][k][:type]
-
-          # process links
-          relation["links"] = render_links(v, {}) if v["links"] # could also be LinkRenderer.().
-
-          # add attributes
-          relation["data"]["attributes"] = v unless v.empty? # TODO: shouldn't that be "data"?
-          relation
-        end
-
-        def is_relationship?(fragment)
-          fragment.is_a?(Hash)
+          res.delete("relationships")
         end
 
 
