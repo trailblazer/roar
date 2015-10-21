@@ -37,7 +37,7 @@ class JsonapiRenderTest < MiniTest::Spec
                       }
                     ], # FIXME.
                    :links=>{"self"=>"http://comments/comment:2"}}}, # FIXME: this only works when a relationship is present.
-               :links=>{"self"=>"http://Article/"},
+               :links=>{"self"=>"http://Article/1"},
               :included=>
                 [
                   {

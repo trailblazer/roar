@@ -20,7 +20,6 @@ class ArticleDecorator < Roar::Decorator
   type :articles
 
   link :self, toplevel: true do
-  # for_collection.link(:self) do
     "//articles"
   end
 
@@ -28,7 +27,7 @@ class ArticleDecorator < Roar::Decorator
   property :title
 
 
-  link(:self) { "http://#{represented.class}/" }
+  link(:self) { "http://#{represented.class}/#{represented.id}" }
 
   has_one :author, class: Author, type: "author", populator: ::Representable::FindOrInstantiate do
     type :authors

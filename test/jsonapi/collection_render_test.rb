@@ -6,7 +6,7 @@ require "jsonapi/representer"
 class JsonapiCollectionRenderTest < MiniTest::Spec
   it do
     article = Article.new(1, "Health walk", Author.new(2), Author.new("editor:1"), [Comment.new("comment:1", "Ice and Snow"),Comment.new("comment:2", "Red Stripe Skank")])
-    article2 = Article.new(1, "Virgin Ska", Author.new("author:1"), nil, [Comment.new("comment:3", "Cool song!")])
+    article2 = Article.new(2, "Virgin Ska", Author.new("author:1"), nil, [Comment.new("comment:3", "Cool song!")])
 
     pp hash = ArticleDecorator.for_collection.new([article, article2]).to_hash
 
@@ -31,9 +31,9 @@ class JsonapiCollectionRenderTest < MiniTest::Spec
                  :id=>"comment:2",
                  :attributes=>{"body"=>"Red Stripe Skank"}}],
               :links=>{"self"=>"http://comments/comment:2"}}},
-          :links=>{"self"=>"http://Article/"}},
+          :links=>{"self"=>"http://Article/1"}},
          {:type=>"articles",
-          :id=>"1",
+          :id=>"2",
           :attributes=>{"title"=>"Virgin Ska"},
           :relationships=>
            {"author"=>
@@ -45,7 +45,7 @@ class JsonapiCollectionRenderTest < MiniTest::Spec
                  :id=>"comment:3",
                  :attributes=>{"body"=>"Cool song!"}}],
               :links=>{"self"=>"http://comments/comment:3"}}},
-          :links=>{"self"=>"http://Article/"}}],
+          :links=>{"self"=>"http://Article/2"}}],
        :links=>{"self"=>"//articles"},
        :included=>
         [{:type=>"authors", :id=>"2", :links=>{"self"=>"http://authors/2"}},
