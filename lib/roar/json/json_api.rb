@@ -220,7 +220,15 @@ module Roar
 
         def render_relationships!(res)
           (res["relationships"] || []).each do |name, hash|
-            hash[:links] = hash[:data].delete(:links)
+            if hash.is_a?(Hash)
+              hash[:links] = hash[:data].delete(:links)
+            else # hash => [{data: {}}, ..]
+              hash.each do |hsh|
+                res["relationships"][name] = collection = {data: []}
+                collection[:links] = hsh[:data].delete(:links) # FIXME: this is horrible.
+                collection[:data] << hsh[:data]
+              end
+            end
           end
           res.delete("relationships")
         end
