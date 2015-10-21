@@ -47,42 +47,7 @@ include Representable::Debug
     end
   end
 
-  describe "Parse" do
-    let(:post_article) {
-      {
-        "data": {
-          "type": "articles",
-          "attributes": {
-            "title": "Ember Hamster",
-          },
-          # that does do `photo.photographer= Photographer.find(9)`
-          "relationships": {
-            "author": {
-              "data": { "type": "people", "id": "9", "name": "Celsito" } # FIXME: what should happen if i add `"name": "Celsito"` here? should that be read or not?
-            },
-            "comments": {
-              "data": [
-                { "type": "comment", "id": "2" },
-                { "type": "comment", "id": "3" },
-              ]
-            }
 
-          }
-        }
-      }
-    }
-
-    subject { CrudArticleCreateDecorator.new(Article.new(nil, nil, nil, [])).from_json(post_article.to_json) }
-
-    it { subject.title.must_equal "Ember Hamster"  }
-    it do
-      subject.author.id.must_equal "9"
-      subject.author.email.must_equal "9@nine.to"
-      # subject.author.name.must_equal nil
-
-      subject.comments.must_equal [Comment.new("2"), Comment.new("3")]
-    end
-  end
 
   describe "Render" do
     let(:rendered_post_photos) {

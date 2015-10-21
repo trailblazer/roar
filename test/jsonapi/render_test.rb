@@ -34,7 +34,7 @@ class JsonapiRenderTest < MiniTest::Spec
     link(:self) { "http://#{represented.class}/" }
 
     bla=nested :relationships do
-      property :author, type: "author" do
+      property :author, class: Author, type: "author", populator: ::Representable::FindOrInstantiate do
         include Roar::JSON::JSONAPI
         include Roar::JSON
         include Roar::Hypermedia
@@ -43,6 +43,10 @@ class JsonapiRenderTest < MiniTest::Spec
         property :id
         property :email
         link(:self) { "http://authors/#{represented.id}" }
+
+        def from_document(hash)
+          hash
+        end
       end
     end
 
@@ -60,7 +64,7 @@ class JsonapiRenderTest < MiniTest::Spec
     end
 
     nested :relationships, inherit: true do
-      collection :comments, type: "comments" do
+      collection :comments, class: Comment, type: "comments" do
         include Roar::JSON::JSONAPI
         include Roar::JSON
         include Roar::Hypermedia
@@ -69,6 +73,10 @@ class JsonapiRenderTest < MiniTest::Spec
         property :id
         property :body
         link(:self) { "http://comments/#{represented.id}" }
+
+        def from_document(hash)
+          hash
+        end
       end
     end
 
@@ -141,5 +149,43 @@ class JsonapiRenderTest < MiniTest::Spec
                 ]
            }
         })
+  end
+
+
+  describe "Parse" do
+    let(:post_article) {
+      {
+        "data": {
+          "type": "articles",
+          "attributes": {
+            "title": "Ember Hamster",
+          },
+          # that does do `photo.photographer= Photographer.find(9)`
+          "relationships": {
+            "author": {
+              "data": { "type": "people", "id": "9", "name": "Celsito" } # FIXME: what should happen if i add `"name": "Celsito"` here? should that be read or not?
+            },
+            "comments": {
+              "data": [
+                { "type": "comment", "id": "2" },
+                { "type": "comment", "id": "3" },
+              ]
+            }
+
+          }
+        }
+      }
+    }
+
+    subject { ArticleDecorator.new(Article.new(nil, nil, nil, nil, [])).from_json(post_article.to_json) }
+
+    it do
+      subject.title.must_equal "Ember Hamster"
+      subject.author.id.must_equal "9"
+      subject.author.email.must_equal "9@nine.to"
+      # subject.author.name.must_equal nil
+
+      subject.comments.must_equal [Comment.new("2"), Comment.new("3")]
+    end
   end
 end

@@ -95,17 +95,12 @@ module Roar
       # TODO: don't use Document for singular+wrap AND singular in collection (this way, we can get rid of the only_body)
       module Document
         def to_hash(options={})
-          # per resource:
           res = super # render single resource or collection.
-          # return res if options[:only_body]
           to_document(res, options)
         end
 
         def from_hash(hash, options={})
-
-          return super(hash, options) if options[:only_body] # singular
-
-          super(from_document(hash)) # singular
+          super(from_document(hash))
         end
 
       private
@@ -143,9 +138,10 @@ module Roar
 
           # hash: {"data"=>{"type"=>"articles", "attributes"=>{"title"=>"Ember Hamster"}, "relationships"=>{"author"=>{"data"=>{"type"=>"people", "id"=>"9"}}}}}
           attributes = hash["data"]["attributes"] || {}
+          attributes["relationships"] = {}
 
           hash["data"]["relationships"].each do |rel, fragment| # FIXME: what if nil?
-            attributes[rel] = fragment["data"] # DISCUSS: we could use a relationship representer here (but only if needed elsewhere).
+            attributes["relationships"][rel] = fragment["data"] # DISCUSS: we could use a relationship representer here (but only if needed elsewhere).
           end
 
           # this is the format the object representer understands.
@@ -192,31 +188,6 @@ module Roar
             end
           end
           res.delete("relationships")
-        end
-
-
-        module Collection
-          include Document
-
-          def to_hash(options={})
-            # res = super(options.merge(:only_body => true))
-            doc = {
-              links: { self: representable_attrs[:_href] }
-            }
-            items = []
-
-            decorated.each do |item|
-              # to_document()
-              items << collection_item_to_document(item, options.merge({collection_item: true}))
-            end
-            doc[:data] = items
-            doc
-          end
-
-          def from_hash(hash, options={})
-            hash = from_document(hash)
-            super(hash, options.merge(:only_body => true))
-          end
         end
       end
     end
