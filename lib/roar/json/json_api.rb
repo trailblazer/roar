@@ -11,13 +11,6 @@ module Roar
           include Roar::JSON::JSONAPI::Document
 
           extend ForCollection
-
-          # representable_attrs[:resource_representer] = Class.new(Resource::Representer)
-
-          private
-            def create_representation_with(doc, options, format)
-              super(doc, options.merge(:only_body => true), format)
-            end
         end
       end
 
@@ -26,13 +19,22 @@ module Roar
           singular = self # e.g. Song::Representer
 
           # this basically does Module.new { include Hash::Collection .. }
-          build_inline(nil, [Representable::Hash::Collection, Document::Collection, Roar::JSON, Roar::JSON::JSONAPI, Roar::Hypermedia], "", {}) do
-            items extend: singular, :parse_strategy => :sync
+          build_inline(nil, [Representable::Hash::Collection], "", {}) do
+            items extend: singular
 
-            representable_attrs[:resource_representer] = singular.representable_attrs[:resource_representer]
-            representable_attrs[:meta_representer]     = singular.representable_attrs[:meta_representer] # DISCUSS: do we need that?
-            representable_attrs[:_wrap] = singular.representable_attrs[:_wrap]
-            representable_attrs[:_href] = singular.representable_attrs[:_href]
+            def to_hash(*)
+              hash = super # [{data: {..}, data: {..}}]
+
+              document = {data: []}
+              included = []
+              hash.each do |single|
+                document[:data] << single[:data]
+                included += single[:data].delete(:included)
+              end
+
+              document[:included] = included
+              document
+            end
           end
         end
       end
