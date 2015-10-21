@@ -46,6 +46,7 @@ class JsonapiCollectionRenderTest < MiniTest::Spec
                  :attributes=>{"body"=>"Cool song!"}}],
               :links=>{"self"=>"http://comments/comment:3"}}},
           :links=>{"self"=>"http://Article/"}}],
+       :links=>{"self"=>"//articles"},
        :included=>
         [{:type=>"authors", :id=>"2", :links=>{"self"=>"http://authors/2"}},
          {:type=>"editors",

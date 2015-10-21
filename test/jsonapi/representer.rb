@@ -16,16 +16,18 @@ end
 
 class ArticleDecorator < Roar::Decorator
   include Roar::JSON::JSONAPI
+
   type :articles
 
-  href "http://api/articles"
+  link :self, toplevel: true do
+  # for_collection.link(:self) do
+    "//articles"
+  end
 
   property :id
   property :title
 
 
-  include Roar::JSON
-  include Roar::Hypermedia
   link(:self) { "http://#{represented.class}/" }
 
   bla=nested :relationships do

@@ -6,8 +6,9 @@ module Roar
     module JSONAPI
       def self.included(base)
         base.class_eval do
-          include Representable::JSON
-          include Roar::JSON::JSONAPI::Resource
+          include Roar::JSON
+          include Roar::Hypermedia
+          extend Roar::JSON::JSONAPI::Declarative
           include Roar::JSON::JSONAPI::Document
 
           extend ForCollection
@@ -15,70 +16,61 @@ module Roar
       end
 
       module ForCollection
-        def for_collection # same API as representable. TODO: we could use ::collection_representer! here.
-          singular = self # e.g. Song::Representer
+        def collection_representer # FIXME: cache.
+          single = self # e.g. Song::Representer
 
           # this basically does Module.new { include Hash::Collection .. }
-          build_inline(nil, [Representable::Hash::Collection], "", {}) do
-            items extend: singular
+          build_inline(nil, [Roar::Hypermedia, Roar::JSON], "", {}) do
+            collection :to_a, decorator: single # render/parse every item using the single representer.
+
+            # toplevel links are defined here, as in
+            # link(:self) { .. }
 
             def to_hash(*)
               hash = super # [{data: {..}, data: {..}}]
+              collection = hash["to_a"]
 
               document = {data: []}
               included = []
-              hash.each do |single|
+              collection.each do |single|
                 document[:data] << single[:data]
                 included += single[:data].delete(:included)
               end
 
+              document[:links] = Renderer::Links.new.(hash, {})
               document[:included] = included
               document
             end
           end
         end
+
+        def for_collection # FIXME: same API as representable. TODO: we could use ::collection_representer! here.
+          @collection_representer ||= collection_representer
+        end
       end
 
-      module Resource
-        def self.included(base)
-          base.extend Declarative # inject our ::link.
+      # New API for JSON-API representers.
+      module Declarative
+        def type(name=nil)
+          return super unless name # original name.
+          representable_attrs[:_wrap] = name.to_s
         end
 
-        # New API for JSON-API representers.
-        module Declarative
-          def type(name=nil)
-            return super unless name # original name.
-            representable_attrs[:_wrap] = name.to_s
-          end
+        def link(name, options={}, &block)
+          return super(name, &block) unless options[:toplevel]
+          for_collection.link(name, &block)
+        end
 
-          def href(name=nil)
-            representable_attrs[:_href] = name.to_s
-          end
+        def meta(&block)
+          representable_attrs[:meta_representer] = Class.new(Roar::Decorator, &block)
+        end
+      end
 
-          # Per-model links.
-          def links(&block)
-            nested(:_links, :inherit => true, &block)
-          end
 
-          # TODO: always create _links.
-          def has_one(name)
-            property :_links, :inherit => true, :use_decorator => true do # simply extend the Decorator _links.
-              property "#{name}_id", :as => name
-            end
-          end
-
-          def has_many(name)
-            property :_links, :inherit => true, :use_decorator => true do # simply extend the Decorator _links.
-              collection "#{name.to_s.sub(/s$/, "")}_ids", :as => name
-            end
-          end
-
-          def compound(&block)
-            nested(:included, &block)
-          end
-
-          def meta(&block)
-            representable_attrs[:meta_representer] = Class.new(Roar::Decorator, &block)
+      module Renderer
+        class Links
+          def call(res, options)
+            (res.delete("links") || []).collect { |link| [link["rel"], link["href"]] }.to_h
           end
         end
       end
@@ -87,32 +79,17 @@ module Roar
       # TODO: don't use Document for singular+wrap AND singular in collection (this way, we can get rid of the only_body)
       module Document
         def to_hash(options={})
-          res = super # render single resource or collection.
-          to_document(res, options)
-        end
-
-        def from_hash(hash, options={})
-          super(from_document(hash))
-        end
-
-      private
-        def to_document(res, options)
-          links = render_links(res, options)
+          res = super
+          links = Renderer::Links.new.call(res, options)
           # meta  = render_meta(options)
 
           relationships = render_relationships(res)
           included      = render_included(res)
 
-          # if res.is_a?(Array)
-          #   compound = collection_compound!(res, {})
-          # else
-            # compound = compile_compound!(res.delete("included"), {})
-          # end
-
           document = {
             data: data = {
               type: representable_attrs[:_wrap],
-              id: res.delete('id').to_s
+              id: res.delete("id").to_s
             }
           }
           data[:attributes]    = res unless res.empty?
@@ -120,10 +97,14 @@ module Roar
           data[:links]         = links unless links.empty?
           data[:included]      = included if included and included.any?
 
-          # doc.merge!(meta)
           document
         end
 
+        def from_hash(hash, options={})
+          super(from_document(hash))
+        end
+
+      private
         def from_document(hash)
           # hash[representable_attrs[:_wrap]]
           raise Exception.new('Unknown Type') unless hash['data']['type'] == representable_attrs[:_wrap]
@@ -152,10 +133,6 @@ module Roar
               hash.collect { |item| item[:data] }
             end
           end.flatten
-        end
-
-        def render_links(res, options)
-          (res.delete("links") || []).collect { |link| [link["rel"], link["href"]] }.to_h
         end
 
         def render_meta(options)
