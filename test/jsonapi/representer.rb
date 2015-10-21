@@ -30,53 +30,31 @@ class ArticleDecorator < Roar::Decorator
 
   link(:self) { "http://#{represented.class}/" }
 
-  bla=nested :relationships do
-    property :author, class: Author, type: "author", populator: ::Representable::FindOrInstantiate do
-      include Roar::JSON::JSONAPI
-      include Roar::JSON
-      include Roar::Hypermedia
-      type :authors
+  has_one :author, class: Author, type: "author", populator: ::Representable::FindOrInstantiate do
+    type :authors
 
-      property :id
-      property :email
-      link(:self) { "http://authors/#{represented.id}" }
-
-      def from_document(hash)
-        hash
-      end
-    end
+    property :id
+    property :email
+    link(:self) { "http://authors/#{represented.id}" }
   end
 
-  nested :relationships, inherit: true do
-    property :editor, type: "author" do
-      include Roar::JSON::JSONAPI
-      include Roar::JSON
-      include Roar::Hypermedia
-      type :editors
+  has_one :editor, type: "author" do
+    type :editors
 
-      property :id
-      property :email
-      link(:self) { "http://authors/#{represented.id}" }
-    end
+    property :id
+    property :email
+    link(:self) { "http://authors/#{represented.id}" }
   end
 
-  nested :relationships, inherit: true do
-    collection :comments, class: Comment, type: "comments", populator: ::Representable::FindOrInstantiate do
-      include Roar::JSON::JSONAPI
-      include Roar::JSON
-      include Roar::Hypermedia
-      type :comments
+  has_many :comments, class: Comment, type: "comments", populator: ::Representable::FindOrInstantiate do
+    type :comments
 
-      property :id
-      property :body
-      link(:self) { "http://comments/#{represented.id}" }
-
-      def from_document(hash)
-        hash
-      end
-    end
+    property :id
+    property :body
+    link(:self) { "http://comments/#{represented.id}" }
   end
 
+  bla = representable_attrs.get(:relationships)
   nested :included do
     property :author, decorator: bla[:extend].(nil).representable_attrs.get(:author)[:extend].(nil)
 

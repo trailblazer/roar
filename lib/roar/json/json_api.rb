@@ -12,6 +12,11 @@ module Roar
           include Roar::JSON::JSONAPI::Document
 
           extend ForCollection
+
+
+          nested :relationships do
+            # TODO: eh... ok.
+          end
         end
       end
 
@@ -64,8 +69,27 @@ module Roar
         def meta(&block)
           representable_attrs[:meta_representer] = Class.new(Roar::Decorator, &block)
         end
-      end
 
+        def has_one(name, options={}, &block)
+          nested(:relationships, inherit: true) do
+            property(name, options) do
+              include Roar::JSON::JSONAPI
+              include Roar::JSON
+              include Roar::Hypermedia
+
+              instance_exec(&block)
+
+              def from_document(hash)
+                hash
+              end
+            end
+          end
+        end
+
+        def has_many(name, options={}, &block)
+          has_one(name, options.merge(collection: true), &block)
+        end
+      end
 
       module Renderer
         class Links
@@ -74,7 +98,6 @@ module Roar
           end
         end
       end
-
 
       # TODO: don't use Document for singular+wrap AND singular in collection (this way, we can get rid of the only_body)
       module Document
