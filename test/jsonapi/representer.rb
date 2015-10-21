@@ -13,23 +13,25 @@ Comment = Struct.new(:id, :body) do
   end
 end
 
-
 class ArticleDecorator < Roar::Decorator
   include Roar::JSON::JSONAPI
-
   type :articles
 
+  # top-level link.
   link :self, toplevel: true do
     "//articles"
   end
 
+  # attributes: {}
   property :id
   property :title
 
 
+  # resource object links
   link(:self) { "http://#{represented.class}/#{represented.id}" }
 
-  has_one :author, class: Author, type: "author", populator: ::Representable::FindOrInstantiate do
+  # relationships
+  has_one :author, class: Author, populator: ::Representable::FindOrInstantiate do # populator is for parsing, only.
     type :authors
 
     property :id
@@ -37,7 +39,7 @@ class ArticleDecorator < Roar::Decorator
     link(:self) { "http://authors/#{represented.id}" }
   end
 
-  has_one :editor, type: "author" do
+  has_one :editor do
     type :editors
 
     property :id
@@ -45,7 +47,7 @@ class ArticleDecorator < Roar::Decorator
     link(:self) { "http://authors/#{represented.id}" }
   end
 
-  has_many :comments, class: Comment, type: "comments", populator: ::Representable::FindOrInstantiate do
+  has_many :comments, class: Comment, populator: ::Representable::FindOrInstantiate do
     type :comments
 
     property :id
