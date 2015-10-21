@@ -53,12 +53,4 @@ class ArticleDecorator < Roar::Decorator
     property :body
     link(:self) { "http://comments/#{represented.id}" }
   end
-
-  bla = representable_attrs.get(:relationships)
-  nested :included do
-    property :author, decorator: bla[:extend].(nil).representable_attrs.get(:author)[:extend].(nil)
-
-    property :editor, decorator: bla[:extend].(nil).representable_attrs.get(:editor)[:extend].(nil)
-    collection :comments, decorator: bla[:extend].(nil).representable_attrs.get(:comments)[:extend].(nil)
-  end
 end

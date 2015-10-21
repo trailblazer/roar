@@ -17,6 +17,9 @@ module Roar
           nested :relationships do
             # TODO: eh... ok.
           end
+
+          nested :included do
+          end
         end
       end
 
@@ -71,6 +74,7 @@ module Roar
         end
 
         def has_one(name, options={}, &block)
+          # every nested representer is a full-blown JSONAPI representer.
           nested(:relationships, inherit: true) do
             property(name, options) do
               include Roar::JSON::JSONAPI
@@ -83,6 +87,11 @@ module Roar
                 hash
               end
             end
+          end
+
+          bla = representable_attrs.get(:relationships)
+          nested(:included, inherit: true) do # FIXME: make that a bit nicer readable and document what i'm doing here.
+            property(name, decorator: bla[:extend].(nil).representable_attrs.get(name)[:extend].(nil), collection: options[:collection])
           end
         end
 
