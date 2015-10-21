@@ -7,7 +7,6 @@ module Roar
       def self.included(base)
         base.class_eval do
           include Representable::JSON
-          include Roar::JSON::JSONAPI::Singular
           include Roar::JSON::JSONAPI::Resource
           include Roar::JSON::JSONAPI::Document
 
@@ -37,15 +36,6 @@ module Roar
           end
         end
       end
-
-
-      module Singular
-        def from_hash(hash, options={})
-          hash["_links"] = hash["links"]
-          super
-        end
-      end
-
 
       module Resource
         def self.included(base)

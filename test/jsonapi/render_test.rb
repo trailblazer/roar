@@ -64,7 +64,7 @@ class JsonapiRenderTest < MiniTest::Spec
     end
 
     nested :relationships, inherit: true do
-      collection :comments, class: Comment, type: "comments" do
+      collection :comments, class: Comment, type: "comments", populator: ::Representable::FindOrInstantiate do
         include Roar::JSON::JSONAPI
         include Roar::JSON
         include Roar::Hypermedia
