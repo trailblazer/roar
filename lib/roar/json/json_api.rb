@@ -113,12 +113,11 @@ module Roar
           links = render_links(res, options)
           meta  = render_meta(options)
 
-          puts "$$$$$$$$#TODO"
-          require "pp"
-          pp res
+          # puts "$$$$$$$$#TODO"
+          # pp res
 
-          compound      = render_compound(res)
           relationships = render_relationships!(res)
+          included      = render_included(res)
 
           # if res.is_a?(Array)
           #   compound = collection_compound!(res, {})
@@ -132,40 +131,15 @@ module Roar
               id: res.delete('id').to_s
             }
           }
-          document[:data].merge!(attributes: res) unless res.empty?
+          document[:data][:attributes]    = res unless res.empty?
           document[:data][:relationships] = relationships if relationships and relationships.any?
+          document[:data][:links]         = links unless links.empty?
+          document[:data][:included]      = included if included and included.any?
 
 
           document.tap do |doc|
-            doc[:data].merge!(links: links) unless links.empty?
             doc.merge!(meta)
             # doc.merge!("included" => compound) if compound && compound.size > 0 # FIXME: make that like the above line.
-          end
-        end
-
-        def collection_item_to_document(res, options)
-          # require "pry"; binding.pry
-          meta  = render_meta(options)
-          relationships = render_relationships!(res)
-          res = remove_relationships(res)
-          # FIXME: provide two different #to_document
-
-          if res.is_a?(Array)
-            compound = collection_compound!(res, {})
-          else
-            compound = compile_compound!(res.delete("linked"), {})
-          end
-
-          # require "pry"; binding.pry
-          document = {
-            type: representable_attrs[:_wrap],
-            id: res.delete(:id).to_s
-          }
-          document.tap do |doc|
-            doc.merge!(attributes: res) unless res.empty?
-            # doc[:data].merge!(relationships: relationships) unless relationships.empty?
-            doc.merge!(meta)
-            doc.merge!("linked" => compound) if compound && compound.size > 0 # FIXME: make that like the above line.
           end
         end
 
@@ -197,12 +171,12 @@ module Roar
 
         # Go through {"album"=>{"title"=>"Hackers"}, "musicians"=>[{"name"=>"Eddie Van Halen"}, ..]} from linked:
         # and wrap every item in an array.
-        def render_compound(hash)
+        def render_included(hash)
           return unless compound = hash.delete("included")
-          # raise compound.inspect
 
-
-          compound
+          compound.collect do |name, hash|
+            hash[:data]
+          end
         end
 
         def render_links(res, options)

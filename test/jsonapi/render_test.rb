@@ -33,8 +33,8 @@ class JsonapiRenderTest < MiniTest::Spec
     include Roar::Hypermedia
     link(:self) { "http://#{represented.class}/" }
 
-    nested :relationships do
-      property :author, type: "author", decorator: true do
+    bla=nested :relationships do
+      property :author, type: "author" do
         include Roar::JSON::JSONAPI
         include Roar::JSON
         include Roar::Hypermedia
@@ -47,7 +47,7 @@ class JsonapiRenderTest < MiniTest::Spec
     end
 
     nested :relationships, inherit: true do
-      property :editor, type: "author", decorator: true do
+      property :editor, type: "author" do
         include Roar::JSON::JSONAPI
         include Roar::JSON
         include Roar::Hypermedia
@@ -60,7 +60,7 @@ class JsonapiRenderTest < MiniTest::Spec
     end
 
     nested :relationships, inherit: true do
-      collection :comments, type: "comments", decorator: true do
+      collection :comments, type: "comments" do
         include Roar::JSON::JSONAPI
         include Roar::JSON
         include Roar::Hypermedia
@@ -71,6 +71,10 @@ class JsonapiRenderTest < MiniTest::Spec
         link(:self) { "http://comments/#{represented.id}" }
       end
     end
+
+    nested :included do
+      property :author, decorator: bla[:extend].(nil).representable_attrs.get(:author)[:extend].(nil)
+    end
   end
 
   it do
@@ -80,23 +84,32 @@ class JsonapiRenderTest < MiniTest::Spec
 
     hash.must_equal( {
           :data=>
-            {:type=>"articles",
-             :id=>"1",
-             :attributes=>{"title"=>"Health walk"},
-             :relationships=>
-              {"author"=>
-                {:data=>{:type=>"authors", :id=>"2"},
-                 :links=>{"self"=>"http://authors/2"}},
-               "editor"=>
-                {:data=>{:type=>"editors", :id=>"editor:1"},
-                 :links=>{"self"=>"http://authors/editor:1"}},
-               "comments"=>
-                {:data=>
-                  [{:type=>"comments",
-                    :id=>"comment:1",
-                    :attributes=>{"body"=>"Ice and Snow"}}], # FIXME.
-                 :links=>{"self"=>"http://comments/comment:1"}}},
-             :links=>{"self"=>"http://JsonapiRenderTest::Article/"}}
+            {
+              :type=>"articles",
+               :id=>"1",
+               :attributes=>{"title"=>"Health walk"},
+               :relationships=>
+                {"author"=>
+                  {:data=>{:type=>"authors", :id=>"2"},
+                   :links=>{"self"=>"http://authors/2"}},
+                 "editor"=>
+                  {:data=>{:type=>"editors", :id=>"editor:1"},
+                   :links=>{"self"=>"http://authors/editor:1"}},
+                 "comments"=>
+                  {:data=>
+                    [{:type=>"comments",
+                      :id=>"comment:1",
+                      :attributes=>{"body"=>"Ice and Snow"}}], # FIXME.
+                   :links=>{"self"=>"http://comments/comment:1"}}}, # FIXME: this only works when a relationship is present.
+               :links=>{"self"=>"http://JsonapiRenderTest::Article/"},
+              :included=>
+                [
+                  {
+                    :type=>"authors", :id=>"2",
+                    :links=>{"self"=>"http://authors/2"}
+                  },
+                ]
+           }
         })
   end
 end
