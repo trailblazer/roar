@@ -111,12 +111,9 @@ module Roar
       private
         def to_document(res, options)
           links = render_links(res, options)
-          meta  = render_meta(options)
+          # meta  = render_meta(options)
 
-          # puts "$$$$$$$$#TODO"
-          # pp res
-
-          relationships = render_relationships!(res)
+          relationships = render_relationships(res)
           included      = render_included(res)
 
           # if res.is_a?(Array)
@@ -126,21 +123,18 @@ module Roar
           # end
 
           document = {
-            data: {
+            data: data = {
               type: representable_attrs[:_wrap],
               id: res.delete('id').to_s
             }
           }
-          document[:data][:attributes]    = res unless res.empty?
-          document[:data][:relationships] = relationships if relationships and relationships.any?
-          document[:data][:links]         = links unless links.empty?
-          document[:data][:included]      = included if included and included.any?
+          data[:attributes]    = res unless res.empty?
+          data[:relationships] = relationships if relationships and relationships.any?
+          data[:links]         = links unless links.empty?
+          data[:included]      = included if included and included.any?
 
-
-          document.tap do |doc|
-            doc.merge!(meta)
-            # doc.merge!("included" => compound) if compound && compound.size > 0 # FIXME: make that like the above line.
-          end
+          # doc.merge!(meta)
+          document
         end
 
         def from_document(hash)
@@ -158,25 +152,18 @@ module Roar
           attributes # {"title"=>"Ember Hamster", "author"=>{"type"=>"people", "id"=>"9"}}
         end
 
-        # Compiles the linked: section for compound objects in the document.
-        def collection_compound!(collection, compound)
-          collection.each { |res|
-            kv = res.delete("linked") or next
-
-            compile_compound!(kv, compound)
-          }
-
-          compound
-        end
-
         # Go through {"album"=>{"title"=>"Hackers"}, "musicians"=>[{"name"=>"Eddie Van Halen"}, ..]} from linked:
         # and wrap every item in an array.
         def render_included(hash)
           return unless compound = hash.delete("included")
 
           compound.collect do |name, hash|
-            hash[:data]
-          end
+            if hash.is_a?(Hash)
+              hash[:data]
+            else
+              hash.collect { |item| item[:data] }
+            end
+          end.flatten
         end
 
         def render_links(res, options)
@@ -192,13 +179,13 @@ module Roar
           {"meta" => representer.new(represented).extend(Representable::Hash).to_hash}
         end
 
-        def render_relationships!(res)
+        def render_relationships(res)
           (res["relationships"] || []).each do |name, hash|
             if hash.is_a?(Hash)
               hash[:links] = hash[:data].delete(:links)
             else # hash => [{data: {}}, ..]
+              res["relationships"][name] = collection = {data: []}
               hash.each do |hsh|
-                res["relationships"][name] = collection = {data: []}
                 collection[:links] = hsh[:data].delete(:links) # FIXME: this is horrible.
                 collection[:data] << hsh[:data]
               end

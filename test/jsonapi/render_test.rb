@@ -74,11 +74,14 @@ class JsonapiRenderTest < MiniTest::Spec
 
     nested :included do
       property :author, decorator: bla[:extend].(nil).representable_attrs.get(:author)[:extend].(nil)
+
+      property :editor, decorator: bla[:extend].(nil).representable_attrs.get(:editor)[:extend].(nil)
+      collection :comments, decorator: bla[:extend].(nil).representable_attrs.get(:comments)[:extend].(nil)
     end
   end
 
   it do
-    article = Article.new(1, "Health walk", Author.new(2), Author.new("editor:1"), [Comment.new("comment:1", "Ice and Snow")])
+    article = Article.new(1, "Health walk", Author.new(2), Author.new("editor:1"), [Comment.new("comment:1", "Ice and Snow"),Comment.new("comment:2", "Red Stripe Skank")])
 
     pp hash = ArticleDecorator.new(article).to_hash
 
@@ -97,17 +100,44 @@ class JsonapiRenderTest < MiniTest::Spec
                    :links=>{"self"=>"http://authors/editor:1"}},
                  "comments"=>
                   {:data=>
-                    [{:type=>"comments",
-                      :id=>"comment:1",
-                      :attributes=>{"body"=>"Ice and Snow"}}], # FIXME.
-                   :links=>{"self"=>"http://comments/comment:1"}}}, # FIXME: this only works when a relationship is present.
+                    [
+                      {
+                        :type=>"comments",
+                        :id=>"comment:1",
+                        :attributes=>{"body"=>"Ice and Snow"}
+                      },
+                      {
+                        :type=>"comments",
+                        :id=>"comment:2",
+                        :attributes=>{"body"=>"Red Stripe Skank"}
+                      }
+                    ], # FIXME.
+                   :links=>{"self"=>"http://comments/comment:2"}}}, # FIXME: this only works when a relationship is present.
                :links=>{"self"=>"http://JsonapiRenderTest::Article/"},
               :included=>
                 [
                   {
-                    :type=>"authors", :id=>"2",
+                    :type=>"authors",
+                    :id=>"2",
                     :links=>{"self"=>"http://authors/2"}
                   },
+                  {
+                    :type=>"editors",
+                    :id=>"editor:1",
+                    :links=>{"self"=>"http://authors/editor:1"}
+                  },
+                  {
+                    :type=>"comments",
+                    :id=>"comment:1",
+                    :attributes=>{"body"=>"Ice and Snow"},
+                    :links=>{"self"=>"http://comments/comment:1"}
+                  },
+                  {
+                    :type=>"comments",
+                    :id=>"comment:2",
+                    :attributes=>{"body"=>"Red Stripe Skank"},
+                    :links=>{"self"=>"http://comments/comment:2"}
+                    },
                 ]
            }
         })
