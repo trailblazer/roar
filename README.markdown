@@ -6,6 +6,8 @@ _Resource-Oriented Architectures in Ruby._
 [![Gem Version](https://badge.fury.io/rb/roar.svg)](http://badge.fury.io/rb/roar)
 [![Gitter Chat](https://badges.gitter.im/trailblazer/chat.svg)](https://gitter.im/trailblazer/chat)
 
+## Table of Contents
+
   * [Introduction](#introduction)
   * [Representable](#representable)
   * [Installation](#installation)
