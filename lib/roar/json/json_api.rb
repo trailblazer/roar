@@ -161,7 +161,7 @@ module Roar
           return unless compound = hash.delete("included")
 
           compound.collect do |name, hash|
-            if hash.is_a?(Hash)
+            if hash.is_a?(::Hash)
               hash[:data]
             else
               hash.collect { |item| item[:data] }
@@ -180,7 +180,7 @@ module Roar
 
         def render_relationships(res)
           (res["relationships"] || []).each do |name, hash|
-            if hash.is_a?(Hash)
+            if hash.is_a?(::Hash)
               hash[:links] = hash[:data].delete(:links)
             else # hash => [{data: {}}, ..]
               res["relationships"][name] = collection = {data: []}
