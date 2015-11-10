@@ -33,10 +33,8 @@ module Roar
   #
   #   model.to_json(:id => 1)
   module Hypermedia
-    # links= [Hyperlink, Hyperlink] is where parsing happens.
     def self.included(base)
       base.extend ClassMethods
-      # base.send(:create_links_definition!)
     end
 
     # public API: #links (only helpful in clients, though).

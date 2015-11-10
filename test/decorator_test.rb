@@ -67,10 +67,10 @@ class DecoratorTest < MiniTest::Spec
           decorator.from_hash("links"=>[{:rel=>:self, :href=>"http://percolator"}])
 
           # links are always set on decorator instance.
-          decorator       .links[:self].must_equal(link(:rel=>:self, :href=>"http://percolator"))
+          decorator.links["self"].must_equal(link(:rel=>:self, :href=>"http://percolator"))
 
           # and propagated to represented with HypermediaConsumer.
-          model_with_links.links[:self].must_equal(link(:rel=>:self, :href=>"http://percolator"))
+          model_with_links.links["self"].must_equal(link(:rel=>:self, :href=>"http://percolator"))
         end
       end
     end
@@ -127,15 +127,14 @@ class DecoratorTest < MiniTest::Spec
       describe "Decorator::HypermediaClient" do
         let (:decorator) { rpr_mod = rpr
           Class.new(Roar::Decorator) do
-            include Roar::JSON
-            include Roar::Hypermedia
+            include Roar::JSON::HAL
             include rpr_mod
             include Roar::Decorator::HypermediaConsumer
           end }
 
         it "propagates links to represented" do
           decorator.new(model_with_links).from_hash("_links"=>{"self"=>{:href=>"http://self"}})
-          model_with_links.links[:self].must_equal(link(:rel=>"self", :href=>"http://self"))
+          model_with_links.links["self"].must_equal(link(:rel=>"self", :href=>"http://self"))
         end
       end
     end

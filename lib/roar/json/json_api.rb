@@ -8,14 +8,11 @@ module Roar
         base.class_eval do
           include Roar::JSON
           include Roar::Hypermedia
-          extend Roar::JSON::JSONAPI::Declarative
-          include Roar::JSON::JSONAPI::Document
-
-          extend ForCollection
-
+          extend JSONAPI::Declarative
+          extend JSONAPI::ForCollection
+          include JSONAPI::Document
 
           nested :relationships do
-            # TODO: eh... ok.
           end
 
           nested :included do
