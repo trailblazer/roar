@@ -101,7 +101,9 @@ module Roar
       module Renderer
         class Links
           def call(res, options)
-            (res.delete("links") || []).collect { |link| [link["rel"], link["href"]] }.to_h
+            tuples = (res.delete("links") || []).collect { |link| [link["rel"], link["href"]] }
+            # tuples.to_h
+            ::Hash[[*tuples]] # TODO: tuples.to_h when dropping < 2.1.
           end
         end
       end
