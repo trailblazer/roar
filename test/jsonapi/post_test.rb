@@ -7,20 +7,20 @@ class JsonapiPostTest < MiniTest::Spec
   describe "Parse" do
     let(:post_article) {
       {
-        "data": {
-          "type": "articles",
-          "attributes": {
-            "title": "Ember Hamster",
+        "data" => {
+          "type" => "articles",
+          "attributes" => {
+            "title" => "Ember Hamster",
           },
           # that does do `photo.photographer= Photographer.find(9)`
-          "relationships": {
-            "author": {
-              "data": { "type": "people", "id": "9", "name": "Celsito" } # FIXME: what should happen if i add `"name": "Celsito"` here? should that be read or not?
+          "relationships" => {
+            "author" => {
+              "data" => { "type" => "people", "id" => "9", "name" => "Celsito" } # FIXME: what should happen if i add `"name" => "Celsito"` here? should that be read or not?
             },
-            "comments": {
-              "data": [
-                { "type": "comment", "id": "2" },
-                { "type": "comment", "id": "3" },
+            "comments" => {
+              "data" => [
+                { "type" => "comment", "id" => "2" },
+                { "type" => "comment", "id" => "3" },
               ]
             }
 

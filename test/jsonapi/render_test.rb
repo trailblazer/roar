@@ -78,11 +78,11 @@ class JsonapiRenderTest < MiniTest::Spec
 
     let(:document) {
       {
-        "data": {
-          "type": "articles",
-          "id": "1",
-          "attributes": {
-            "title": "My Article"
+        "data" => {
+          "type" => "articles",
+          "id" => "1",
+          "attributes" => {
+            "title" => "My Article"
           }
         }
       }

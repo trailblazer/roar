@@ -73,9 +73,9 @@ class JsonapiCollectionRenderTest < MiniTest::Spec
   describe "Fetching Resources (empty collection)" do
     let(:document) {
       {
-        "data": [],
-        "links": {
-          "self": "//articles"
+        "data" => [],
+        "links" => {
+          "self" => "//articles"
         },
       }
     }
