@@ -1,3 +1,7 @@
+# 1.1.0
+
+* Remove CollectionJSON support until we get more feedback.
+
 # 1.0.3
 
 * Make `:as` work with `HAL`.

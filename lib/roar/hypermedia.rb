@@ -36,6 +36,7 @@ module Roar
     # links= [Hyperlink, Hyperlink] is where parsing happens.
     def self.included(base)
       base.extend ClassMethods
+      # base.send(:create_links_definition!)
     end
 
     # public API: #links (only helpful in clients, though).
@@ -44,21 +45,13 @@ module Roar
       (@links||[]).collect { |link| [link.rel, link] }.to_h
     end
 
-
-    module LinkConfigsMethod
-      def link_configs # we could store the ::link configs in links Definition.
-        representable_attrs[:links] ||= Representable::Inheritable::Array.new
-      end
-    end
-
-    include LinkConfigsMethod
-
   private
     # Create hypermedia links for this instance by invoking their blocks.
     # This is called in links: getter: {}.
     def prepare_links!(options)
       return [] if options[:links] == false
 
+      link_configs = representable_attrs["links"].link_configs
       compile_links_for(link_configs, options)
     end
 
@@ -93,23 +86,34 @@ module Roar
       # The block is executed in instance context, so you may call properties or other accessors.
       # Note that you're free to put decider logic into #link blocks, too.
       def link(options, &block)
-        create_links_definition! # this assures the links are rendered at the right position.
+        heritage.record(:link, options, &block)
+
+        links_dfn = create_links_definition! # this assures the links are rendered at the right position.
 
         options = {:rel => options} unless options.is_a?(::Hash)
-        link_configs << [options, block]
-      end
 
-      include LinkConfigsMethod
+        links_dfn.link_configs << [options, block]
+      end
 
     private
       # Add a :links Definition to the representable_attrs so they get rendered/parsed.
       def create_links_definition!
-        return if representable_attrs.get(:links) # only create it once.
+        dfn = definitions["links"] and return dfn # only create it once.
 
         options = links_definition_options
         options.merge!(getter: ->(options) { prepare_links!(options) })
 
-        property(:links, options) # this defines something along `collection :links, getter: ->(prepare)`.
+        dfn = build_definition(:links, options)
+
+
+        dfn.extend(DefinitionOptions)
+        dfn
+      end
+    end
+
+    module DefinitionOptions
+      def link_configs
+        @link_configs ||= []
       end
     end
 

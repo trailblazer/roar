@@ -45,7 +45,7 @@ class JSONAPITest < MiniTest::Spec
     include Roar::JSON::JSONAPI
     type :articles
 
-    href "http://api/articles"
+    link( :self, toplevel: true) { "http://api/articles" }
 
     property :id
     property :title

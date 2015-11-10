@@ -75,6 +75,7 @@ class HypermediaTest < MiniTest::Spec
         end
 
         it "renders rel" do
+          # raise subject.inspect
           subject.to_json.must_equal "{\"links\":[{\"rel\":\"ns:self\",\"href\":\"//self\"}]}"
         end
       end

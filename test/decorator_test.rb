@@ -27,11 +27,15 @@ class DecoratorTest < MiniTest::Spec
     describe "JSON" do
       let (:decorator_class) { rpr_mod = rpr
         Class.new(Roar::Decorator) do
+          include Roar::JSON
+          include Roar::Hypermedia
+
           include rpr_mod
         end }
       let (:decorator) { decorator_class.new(model) }
 
-      it "rendering links works" do
+      it "xxxrendering links works" do
+        pp decorator.send(:representable_attrs)
         decorator.to_hash.must_equal({"links"=>[{"rel"=>"self", "href"=>"http://self"}]})
       end
 
@@ -78,6 +82,8 @@ class DecoratorTest < MiniTest::Spec
       end
       let (:decorator_class) { rpr_mod = rpr
         Class.new(Roar::Decorator) do
+          include Roar::XML
+          include Roar::Hypermedia
           include rpr_mod
           self.representation_wrap = :song
         end
@@ -97,10 +103,13 @@ class DecoratorTest < MiniTest::Spec
 
     describe "JSON::HAL" do
       representer_for([Roar::JSON::HAL]) do
+        # feature Roar::JSON::HAL
         link(:self) { "http://self" }
       end
       let (:decorator_class) { rpr_mod = rpr
         Class.new(Roar::Decorator) do
+          include Roar::JSON::HAL
+
           include rpr_mod
         end
       }
@@ -118,6 +127,8 @@ class DecoratorTest < MiniTest::Spec
       describe "Decorator::HypermediaClient" do
         let (:decorator) { rpr_mod = rpr
           Class.new(Roar::Decorator) do
+            include Roar::JSON
+            include Roar::Hypermedia
             include rpr_mod
             include Roar::Decorator::HypermediaConsumer
           end }

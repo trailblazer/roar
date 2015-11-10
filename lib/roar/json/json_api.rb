@@ -28,7 +28,7 @@ module Roar
           single = self # e.g. Song::Representer
 
           # this basically does Module.new { include Hash::Collection .. }
-          build_inline(nil, [Roar::Hypermedia, Roar::JSON], "", {}) do
+          nested_builder.(_base: default_nested_class, _features: [Roar::JSON, Roar::Hypermedia, ], _block: Proc.new do
             collection :to_a, decorator: single # render/parse every item using the single representer.
 
             # toplevel links are defined here, as in
@@ -49,7 +49,7 @@ module Roar
               document[:included] = included
               document
             end
-          end
+          end)
         end
 
         def for_collection # FIXME: same API as representable. TODO: we could use ::collection_representer! here.
