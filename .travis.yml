@@ -5,5 +5,4 @@ rvm:
   - 2.2
   - rbx-2
 gemfile:
-  - gemfiles/Gemfile.representable-2.0
-  - gemfiles/Gemfile.representable-2.1
+  - gemfiles/Gemfile.representable-2.4
