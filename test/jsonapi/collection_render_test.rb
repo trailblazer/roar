@@ -80,10 +80,9 @@ class JsonapiCollectionRenderTest < MiniTest::Spec
       }
     }
 
-    let(:articles) {
-      []
-    }
+    let(:articles) { [] }
     subject { ArticleDecorator.for_collection.new(articles).to_json }
+
     it { subject.must_equal document.to_json }
   end
 end

@@ -28,7 +28,7 @@ module Roar
           single = self # e.g. Song::Representer
 
           # this basically does Module.new { include Hash::Collection .. }
-          nested_builder.(_base: default_nested_class, _features: [Roar::JSON, Roar::Hypermedia, ], _block: Proc.new do
+          nested_builder.(_base: default_nested_class, _features: [Roar::JSON, Roar::Hypermedia], _block: Proc.new do
             collection :to_a, decorator: single # render/parse every item using the single representer.
 
             # toplevel links are defined here, as in
@@ -36,7 +36,6 @@ module Roar
 
             def to_hash(*)
               hash = super # [{data: {..}, data: {..}}]
-              puts "@@@@@ #{hash.inspect}"
               collection = hash["to_a"]
 
               document = {data: []}
@@ -48,7 +47,7 @@ module Roar
               end
 
               document[:links] = Renderer::Links.new.(hash, {})
-              document[:included] = included
+              document[:included] = included if included.any?
               document
             end
           end)
@@ -110,7 +109,6 @@ module Roar
         end
       end
 
-      # TODO: don't use Document for singular+wrap AND singular in collection (this way, we can get rid of the only_body)
       module Document
         def to_hash(options={})
           res = super
