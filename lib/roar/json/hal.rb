@@ -200,14 +200,17 @@ module Roar
       module LinksReader
         def links
           return unless @links
-          @links.collect do |link|
+          tuples = @links.collect do |link|
             if link.is_a?(Array)
               next unless link.any?
               [link.first.rel, link]
             else
               [link.rel, link]
             end
-          end.compact.to_h
+          end.compact
+
+          # tuples.to_h
+          ::Hash[[*tuples]] # TODO: tuples.to_h when dropping < 2.1.
         end
       end
     end

@@ -40,7 +40,9 @@ module Roar
     # public API: #links (only helpful in clients, though).
     attr_writer :links # this is called in parsing when Hyperlinks are deserialized.
     def links # this is _not_ called by rendering as we go via ::links_config.
-      (@links||[]).collect { |link| [link.rel, link] }.to_h
+      tuples = (@links||[]).collect { |link| [link.rel, link] }
+      # tuples.to_h
+      ::Hash[[*tuples]] # TODO: tuples.to_h when dropping < 2.1.
     end
 
   private
