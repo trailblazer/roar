@@ -36,13 +36,15 @@ module Roar
 
             def to_hash(*)
               hash = super # [{data: {..}, data: {..}}]
+              puts "@@@@@ #{hash.inspect}"
               collection = hash["to_a"]
 
               document = {data: []}
               included = []
               collection.each do |single|
                 document[:data] << single[:data]
-                included += single[:data].delete(:included)
+                # included += single[:data].delete(:included)
+                included += single[:data].delete(:included)||[]
               end
 
               document[:links] = Renderer::Links.new.(hash, {})

@@ -69,4 +69,21 @@ class JsonapiCollectionRenderTest < MiniTest::Spec
           :links=>{"self"=>"http://comments/comment:3"}}]}
       )
   end
+
+  describe "Fetching Resources (empty collection)" do
+    let(:document) {
+      {
+        "data": [],
+        "links": {
+          "self": "//articles"
+        },
+      }
+    }
+
+    let(:articles) {
+      []
+    }
+    subject { ArticleDecorator.for_collection.new(articles).to_json }
+    it { subject.must_equal document.to_json }
+  end
 end
