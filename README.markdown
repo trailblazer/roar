@@ -375,7 +375,7 @@ This allows an easy way to discover hypermedia and build navigational logic on t
 
 ## Media Formats
 
-While Roar comes with a built-in hypermedia format, there's official media types that are widely recognized. Roar currently supports HAL and Collection+JSON. Support for Siren and JSON-API is planned when there's sponsors.
+While Roar comes with a built-in hypermedia format, there's official media types that are widely recognized. Roar currently supports HAL and JSON API.
 
 Simply by including a module you make your representer understand the media type. This makes it easy to change formats during evaluation.
 
@@ -446,8 +446,6 @@ All HAL features in Roar are discussed in the [API docs](http://rdoc.info/github
 ## JSON-API
 
 Roar also supports [JSON-API](http://jsonapi.org/) - yay! It can render _and_ parse singular and collection documents.
-
-Note that you need representable >= 2.1.4 in your `Gemfile`.
 
 ### Resource
 
@@ -566,53 +564,6 @@ SongsRepresenter.for_collection.prepare([Song.new, Song.new]).from_json("..")
 
 
 Parsing currently works great with singular documents - for collections, we are still working out how to encode the application semantics. Feel free to help.
-
-
-## Collection+JSON
-
-The [Collection+JSON media format](http://amundsen.com/media-types/collection/) defines document format and semantics for requests. It is currently experimental as we're still exploring how we optimize the support with Roar. Let us know if you're using it.
-
-```ruby
-module SongRepresenter
-  include Roar::JSON::CollectionJSON
-  version "1.0"
-  href { "http://localhost/songs/" }
-
-  property :title
-
-  items(:class => Song) do
-    href { "//songs/#{title}" }
-
-    property :title, :prompt => "Song title"
-
-    link(:download) { "//songs/#{title}.mp3" }
-  end
-
-  template do
-    property :title, :prompt => "Song title"
-  end
-
-  queries do
-    link :search do
-      {:href => "//search", :data => [{:name => "q", :value => ""}]}
-    end
-  end
-end
-```
-
-It renders a document following the Collection+JSON specs.
-
-```
-#=> {"collection":{
-  "template":{"data":[{"name":"title","value":null}]},
-  "queries":[{"rel":"search","href":"//search","data":[{"name":"q","value":""}]}],
-  "version":"1.0",
-  "href":"http://localhost/songs/",
-  "title":"Roxanne",
-  "items":null}}
-```
-
-We have big plans with this media format, as the object model in Roar plays nicely with Collection+JSON's API semantics.
 
 
 ## Client-Side Support
