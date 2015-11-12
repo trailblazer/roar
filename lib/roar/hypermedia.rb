@@ -42,7 +42,7 @@ module Roar
     def links # this is _not_ called by rendering as we go via ::links_config.
       tuples = (@links||[]).collect { |link| [link.rel, link] }
       # tuples.to_h
-      ::Hash[[*tuples]] # TODO: tuples.to_h when dropping < 2.1.
+      ::Hash[tuples] # TODO: tuples.to_h when dropping < 2.1.
     end
 
   private

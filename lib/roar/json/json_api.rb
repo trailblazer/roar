@@ -103,7 +103,7 @@ module Roar
           def call(res, options)
             tuples = (res.delete("links") || []).collect { |link| [link["rel"], link["href"]] }
             # tuples.to_h
-            ::Hash[[*tuples]] # TODO: tuples.to_h when dropping < 2.1.
+            ::Hash[tuples] # TODO: tuples.to_h when dropping < 2.1.
           end
         end
       end

@@ -210,7 +210,7 @@ module Roar
           end.compact
 
           # tuples.to_h
-          ::Hash[[*tuples]] # TODO: tuples.to_h when dropping < 2.1.
+          ::Hash[tuples] # TODO: tuples.to_h when dropping < 2.1.
         end
       end
     end
