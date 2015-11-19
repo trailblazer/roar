@@ -31,7 +31,7 @@ module Roar
             # toplevel links are defined here, as in
             # link(:self) { .. }
 
-            def to_hash(*)
+            def to_hash(options={})
               hash = super # [{data: {..}, data: {..}}]
               collection = hash["to_a"]
 
@@ -39,12 +39,11 @@ module Roar
               included = []
               collection.each do |single|
                 document[:data] << single[:data]
-                # included += single[:data].delete(:included)
                 included += single[:data].delete(:included)||[]
               end
 
               document[:links] = Renderer::Links.new.(hash, {})
-              document[:included] = included if included.any?
+              Fragment::Included.new.(document, included, options)
               document
             end
           end)
@@ -108,6 +107,17 @@ module Roar
         end
       end
 
+      module Fragment
+        class Included
+          def call(document, included, options)
+            return unless included and included.any?
+            return if options[:included] == false
+
+            document[:included] = included
+          end
+        end
+      end
+
       module Document
         def to_hash(options={})
           res = super
@@ -126,7 +136,7 @@ module Roar
           data[:attributes]    = res unless res.empty?
           data[:relationships] = relationships if relationships and relationships.any?
           data[:links]         = links unless links.empty?
-          data[:included]      = included if included and included.any?
+          Fragment::Included.new.(data, included, options)
 
           document
         end
