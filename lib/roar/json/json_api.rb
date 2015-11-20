@@ -32,7 +32,8 @@ module Roar
             # link(:self) { .. }
 
             def to_hash(options={})
-              hash = super # [{data: {..}, data: {..}}]
+              hash = super(to_a: options) # [{data: {..}, data: {..}}]
+              pp hash
               collection = hash["to_a"]
 
               document = {data: []}
@@ -42,8 +43,8 @@ module Roar
                 included += single[:data].delete(:included)||[]
               end
 
-              document[:links] = Renderer::Links.new.(hash, {})
-              Fragment::Included.new.(document, included, options)
+              Fragment::Links.(document, Renderer::Links.new.(hash, {}), options)
+              Fragment::Included.(document, included, options)
               document
             end
           end)
@@ -108,13 +109,15 @@ module Roar
       end
 
       module Fragment
-        class Included
-          def call(document, included, options)
-            return unless included and included.any?
-            return if options[:included] == false
+        Included = ->(document, included, options) do
+          return unless included and included.any?
+          return if options[:included] == false
 
-            document[:included] = included
-          end
+          document[:included] = included
+        end
+
+        Links = ->(document, links, options) do
+          document[:links] = links if links.any?
         end
       end
 
@@ -135,8 +138,9 @@ module Roar
           }
           data[:attributes]    = res unless res.empty?
           data[:relationships] = relationships if relationships and relationships.any?
-          data[:links]         = links unless links.empty?
-          Fragment::Included.new.(data, included, options)
+
+          Fragment::Links.(data, links, options)
+          Fragment::Included.(data, included, options)
 
           document
         end

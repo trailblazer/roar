@@ -1,3 +1,8 @@
+require "test_helper"
+require "roar/json/json_api"
+require "json"
+require "jsonapi/representer"
+
 class JSONAPIFieldsetsTest < Minitest::Spec
   describe "Single Resource Object With Options" do
     class DocumentSingleResourceObjectDecorator < Roar::Decorator
@@ -56,12 +61,11 @@ class JSONAPIFieldsetsTest < Minitest::Spec
       }
     }
 
-    subject do
+    it do
       CollectionResourceObjectDecorator.for_collection.new([
         Article.new(1, "My Article", "Some Author"),
         Article.new(2, "My Other Article", "Some Author")
-      ]).to_json(include: [:title, :id])
+      ]).to_json(include: [:title, :id]).must_equal document.to_json
     end
-    it { subject.must_equal document.to_json }
   end
 end

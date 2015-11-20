@@ -125,7 +125,9 @@ class JsonapiRenderTest < MiniTest::Spec
       }
     }
 
-    subject { DocumentSingleResourceObjectDecorator.new(Article.new(1, 'My Article')).to_json }
-    it { subject.must_equal document.to_json }
+    let (:collection_document) { {:data=>[{:type=>"articles", :id=>"1", :attributes=>{"title"=>"My Article"}}]} }
+
+    it { DocumentSingleResourceObjectDecorator.new(Article.new(1, 'My Article')).to_json.must_equal document.to_json }
+    it { DocumentSingleResourceObjectDecorator.for_collection.new([Article.new(1, 'My Article')]).to_hash.must_equal collection_document }
   end
 end
