@@ -6,7 +6,8 @@ require "jsonapi/representer"
 class JsonapiCollectionRenderTest < MiniTest::Spec
   let (:article) { Article.new(1, "Health walk", Author.new(2), Author.new("editor:1"), [Comment.new("comment:1", "Ice and Snow"),Comment.new("comment:2", "Red Stripe Skank")])}
   let (:article2) { Article.new(2, "Virgin Ska", Author.new("author:1"), nil, [Comment.new("comment:3", "Cool song!")]) }
-  let (:decorator) { ArticleDecorator.for_collection.new([article, article2]) }
+  let (:article3) { Article.new(3, "Gramo echo", Author.new("author:1"), nil, [Comment.new("comment:4", "Skalar")]) }
+  let (:decorator) { ArticleDecorator.for_collection.new([article, article2, article3]) }
 
   it "renders full document" do
     pp hash = decorator.to_hash
@@ -46,7 +47,21 @@ class JsonapiCollectionRenderTest < MiniTest::Spec
                  :id=>"comment:3",
                  :attributes=>{"body"=>"Cool song!"}}],
               :links=>{"self"=>"http://comments/comment:3"}}},
-          :links=>{"self"=>"http://Article/2"}}],
+          :links=>{"self"=>"http://Article/2"}},
+          {:type=>"articles",
+           :id=>"3",
+           :attributes=>{"title"=>"Gramo echo"},
+           :relationships=>
+            {"author"=>
+              {:data=>{:type=>"authors", :id=>"author:1"},
+               :links=>{"self"=>"http://authors/author:1"}},
+             "comments"=>
+              {:data=>
+                [{:type=>"comments",
+                  :id=>"comment:4",
+                  :attributes=>{"body"=>"Skalar"}}],
+               :links=>{"self"=>"http://comments/comment:4"}}},
+           :links=>{"self"=>"http://Article/3"}}],
        :links=>{"self"=>"//articles"},
        :included=>
         [{:type=>"authors", :id=>"2", :links=>{"self"=>"http://authors/2"}},
@@ -67,7 +82,14 @@ class JsonapiCollectionRenderTest < MiniTest::Spec
          {:type=>"comments",
           :id=>"comment:3",
           :attributes=>{"body"=>"Cool song!"},
-          :links=>{"self"=>"http://comments/comment:3"}}]}
+          :links=>{"self"=>"http://comments/comment:3"}},
+         {:type=>"authors",
+          :id=>"author:1",
+          :links=>{"self"=>"http://authors/author:1"}},
+         {:type=>"comments",
+          :id=>"comment:4",
+          :attributes=>{"body"=>"Skalar"},
+          :links=>{"self"=>"http://comments/comment:4"}}]}
       )
   end
 
@@ -107,7 +129,21 @@ class JsonapiCollectionRenderTest < MiniTest::Spec
                  :id=>"comment:3",
                  :attributes=>{"body"=>"Cool song!"}}],
               :links=>{"self"=>"http://comments/comment:3"}}},
-          :links=>{"self"=>"http://Article/2"}}],
+          :links=>{"self"=>"http://Article/2"}},
+          {:type=>"articles",
+           :id=>"3",
+           :attributes=>{"title"=>"Gramo echo"},
+           :relationships=>
+            {"author"=>
+              {:data=>{:type=>"authors", :id=>"author:1"},
+               :links=>{"self"=>"http://authors/author:1"}},
+             "comments"=>
+              {:data=>
+                [{:type=>"comments",
+                  :id=>"comment:4",
+                  :attributes=>{"body"=>"Skalar"}}],
+               :links=>{"self"=>"http://comments/comment:4"}}},
+           :links=>{"self"=>"http://Article/3"}}],
        :links=>{"self"=>"//articles"},
       }
     )
