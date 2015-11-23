@@ -4,6 +4,8 @@ require "json"
 require "jsonapi/representer"
 
 class JSONAPIFieldsetsTest < Minitest::Spec
+  Article = Struct.new(:id, :title, :summary)
+
   describe "Single Resource Object With Options" do
     class DocumentSingleResourceObjectDecorator < Roar::Decorator
       include Roar::JSON::JSONAPI
@@ -11,7 +13,7 @@ class JSONAPIFieldsetsTest < Minitest::Spec
 
       property :id
       property :title
-      property :author
+      property :summary
     end
 
     let(:document) {
@@ -26,7 +28,7 @@ class JSONAPIFieldsetsTest < Minitest::Spec
       }
     }
 
-    subject { DocumentSingleResourceObjectDecorator.new(Article.new(1, "My Article", "Some Author")).to_json(include: [:title, :id]) }
+    subject { DocumentSingleResourceObjectDecorator.new(Article.new(1, "My Article", "An interesting read.")).to_json(include: [:title, :id]) }
     it { subject.must_equal document.to_json }
   end
 
@@ -37,7 +39,7 @@ class JSONAPIFieldsetsTest < Minitest::Spec
 
       property :id
       property :title
-      property :author
+      property :summary
     end
 
     let(:document) {
@@ -63,8 +65,8 @@ class JSONAPIFieldsetsTest < Minitest::Spec
 
     it do
       CollectionResourceObjectDecorator.for_collection.new([
-        Article.new(1, "My Article", "Some Author"),
-        Article.new(2, "My Other Article", "Some Author")
+        Article.new(1, "My Article", "An interesting read."),
+        Article.new(2, "My Other Article", "An interesting read.")
       ]).to_json(include: [:title, :id]).must_equal document.to_json
     end
   end
