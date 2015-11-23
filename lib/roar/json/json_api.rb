@@ -113,6 +113,12 @@ module Roar
           return unless included and included.any?
           return if options[:included] == false
 
+          type_and_id_seen = Set.new
+
+          included = included.select do |object|
+            type_and_id_seen.add? [object[:type], object[:id]]
+          end
+
           document[:included] = included
         end
 
