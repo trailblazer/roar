@@ -2,7 +2,7 @@ require "roar/http_verbs"
 
 module Roar
 
-  # Mix in HttpVerbs. 
+  # Mix in HttpVerbs.
   module Client
     include HttpVerbs
 
@@ -28,12 +28,17 @@ module Roar
     end
 
     def to_hash(options={})
-      options[:links] ||= false
+      # options[:links] ||= false
+      options[:user_options] ||= {}
+      options[:user_options][:links] ||= false
+
       super(options)
     end
 
     def to_xml(options={}) # sorry, but i'm not even sure if anyone uses this module.
-      options[:links] ||= false
+      options[:user_options] ||= {}
+      options[:user_options][:links] ||= false
+
       super(options)
     end
   end

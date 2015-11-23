@@ -6,7 +6,7 @@ class DecoratorClientTest < MiniTest::Spec
   class Crew
     attr_accessor :moniker, :company
   end
-  
+
   class CrewDecorator < Roar::Decorator
     include Roar::JSON
     include Roar::Hypermedia
@@ -26,7 +26,7 @@ class DecoratorClientTest < MiniTest::Spec
   before do
     @crew = Crew.new
     @client = CrewClient.new(@crew)
-  end    
+  end
 
   describe 'HttpVerbs integration' do
     describe '#get' do
@@ -54,11 +54,11 @@ class DecoratorClientTest < MiniTest::Spec
       @crew.moniker = 'Silence'
       @client.to_json.must_equal %{{\"name\":\"Silence\",\"links\":[]}}
     end
-    
+
     # since this is considered dangerous, we test the mutuable options.
     it "adds links: false to options" do
       @client.to_hash(options = {})
-      options.must_equal({:links => false})
+      options.must_equal(user_options: {links: false})
     end
   end
 end
