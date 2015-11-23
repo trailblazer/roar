@@ -200,6 +200,7 @@ module Roar
 
           (res["relationships"] || []).each do |name, hash|
             if hash.is_a?(::Hash)
+              hash[:data].delete :attributes unless include_attributes
               hash[:links] = hash[:data].delete(:links)
             else # hash => [{data: {}}, ..]
               res["relationships"][name] = collection = {data: []}
