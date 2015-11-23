@@ -123,6 +123,7 @@ module Roar
       module Document
         def to_hash(options={})
           res = super
+          pp res
           links = Renderer::Links.new.call(res, options)
           # meta  = render_meta(options)
 
