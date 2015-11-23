@@ -33,7 +33,6 @@ module Roar
 
             def to_hash(options={})
               hash = super(to_a: options) # [{data: {..}, data: {..}}]
-              pp hash
               collection = hash["to_a"]
 
               document = {data: []}
