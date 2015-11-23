@@ -28,13 +28,11 @@ class JsonapiRenderTest < MiniTest::Spec
                     [
                       {
                         :type=>"comments",
-                        :id=>"comment:1",
-                        :attributes=>{"body"=>"Ice and Snow"}
+                        :id=>"comment:1"
                       },
                       {
                         :type=>"comments",
-                        :id=>"comment:2",
-                        :attributes=>{"body"=>"Red Stripe Skank"}
+                        :id=>"comment:2"
                       }
                     ], # FIXME.
                    :links=>{"self"=>"http://comments/comment:2"}}}, # FIXME: this only works when a relationship is present.

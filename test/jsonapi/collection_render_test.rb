@@ -26,12 +26,8 @@ class JsonapiCollectionRenderTest < MiniTest::Spec
               :links=>{"self"=>"http://authors/editor:1"}},
             "comments"=>
              {:data=>
-               [{:type=>"comments",
-                 :id=>"comment:1",
-                 :attributes=>{"body"=>"Ice and Snow"}},
-                {:type=>"comments",
-                 :id=>"comment:2",
-                 :attributes=>{"body"=>"Red Stripe Skank"}}],
+               [{:type=>"comments", :id=>"comment:1"},
+                {:type=>"comments", :id=>"comment:2",}],
               :links=>{"self"=>"http://comments/comment:2"}}},
           :links=>{"self"=>"http://Article/1"}},
          {:type=>"articles",
@@ -43,9 +39,7 @@ class JsonapiCollectionRenderTest < MiniTest::Spec
               :links=>{"self"=>"http://authors/author:1"}},
             "comments"=>
              {:data=>
-               [{:type=>"comments",
-                 :id=>"comment:3",
-                 :attributes=>{"body"=>"Cool song!"}}],
+               [{:type=>"comments", :id=>"comment:3",}],
               :links=>{"self"=>"http://comments/comment:3"}}},
           :links=>{"self"=>"http://Article/2"}},
           {:type=>"articles",
@@ -57,9 +51,7 @@ class JsonapiCollectionRenderTest < MiniTest::Spec
                :links=>{"self"=>"http://authors/author:1"}},
              "comments"=>
               {:data=>
-                [{:type=>"comments",
-                  :id=>"comment:4",
-                  :attributes=>{"body"=>"Skalar"}}],
+                [{:type=>"comments", :id=>"comment:4"}],
                :links=>{"self"=>"http://comments/comment:4"}}},
            :links=>{"self"=>"http://Article/3"}}],
        :links=>{"self"=>"//articles"},

@@ -133,7 +133,7 @@ module Roar
           links = Renderer::Links.new.call(res, options)
           # meta  = render_meta(options)
 
-          relationships = render_relationships(res)
+          relationships = render_relationships(res, options)
           included      = render_included(res)
 
           document = {
@@ -195,7 +195,9 @@ module Roar
           {"meta" => representer.new(represented).extend(Representable::Hash).to_hash}
         end
 
-        def render_relationships(res)
+        def render_relationships(res, options)
+          include_attributes = options[:included] == false
+
           (res["relationships"] || []).each do |name, hash|
             if hash.is_a?(::Hash)
               hash[:links] = hash[:data].delete(:links)
@@ -203,6 +205,7 @@ module Roar
               res["relationships"][name] = collection = {data: []}
               hash.each do |hsh|
                 collection[:links] = hsh[:data].delete(:links) # FIXME: this is horrible.
+                hsh[:data].delete :attributes unless include_attributes
                 collection[:data] << hsh[:data]
               end
             end
