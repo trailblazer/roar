@@ -33,7 +33,6 @@ module Roar
 
             def to_hash(options={})
               hash = super(to_a: options) # [{data: {..}, data: {..}}]
-              pp hash
               collection = hash["to_a"]
 
               document = {data: []}
@@ -58,8 +57,10 @@ module Roar
       # New API for JSON-API representers.
       module Declarative
         def type(name=nil)
-          return super unless name # original name.
-          representable_attrs[:_wrap] = name.to_s
+          return @type unless name # original name.
+
+          heritage.record(:type, name)
+          @type = name.to_s
         end
 
         def link(name, options={}, &block)
@@ -73,8 +74,10 @@ module Roar
 
         def has_one(name, options={}, &block)
           # every nested representer is a full-blown JSONAPI representer.
-          nested(:relationships, inherit: true) do
-            property(name, options) do
+          dfn = nil
+
+          nested(:included, inherit: true) do
+            dfn = property(name, collection: options[:collection]) do
               include Roar::JSON::JSONAPI
               include Roar::JSON
               include Roar::Hypermedia
@@ -87,9 +90,15 @@ module Roar
             end
           end
 
-          bla = representable_attrs.get(:relationships)
-          nested(:included, inherit: true) do # FIXME: make that a bit nicer readable and document what i'm doing here.
-            property(name, decorator: bla[:extend].(nil).representable_attrs.get(name)[:extend].(nil), collection: options[:collection])
+          property_representer = Class.new(dfn[:extend].(nil))
+          property_representer.class_eval do
+            def to_hash(options)
+              super(include: [:type, :id, :links])
+            end
+          end
+
+          nested(:relationships, inherit: true) do # FIXME: make that a bit nicer readable and document what i'm doing here.
+            property(name, options.merge(decorator: property_representer))
           end
         end
 
@@ -130,6 +139,7 @@ module Roar
       module Document
         def to_hash(options={})
           res = super
+
           links = Renderer::Links.new.call(res, options)
           # meta  = render_meta(options)
 
@@ -138,7 +148,7 @@ module Roar
 
           document = {
             data: data = {
-              type: representable_attrs[:_wrap],
+              type: self.class.type,
               id: res.delete("id").to_s
             }
           }
@@ -157,9 +167,6 @@ module Roar
 
       private
         def from_document(hash)
-          # hash[representable_attrs[:_wrap]]
-          raise Exception.new('Unknown Type') unless hash['data']['type'] == representable_attrs[:_wrap]
-
           # hash: {"data"=>{"type"=>"articles", "attributes"=>{"title"=>"Ember Hamster"}, "relationships"=>{"author"=>{"data"=>{"type"=>"people", "id"=>"9"}}}}}
           attributes = hash["data"]["attributes"] || {}
           attributes["relationships"] = {}
@@ -200,13 +207,11 @@ module Roar
 
           (res["relationships"] || []).each do |name, hash|
             if hash.is_a?(::Hash)
-              hash[:data].delete :attributes unless include_attributes
               hash[:links] = hash[:data].delete(:links)
             else # hash => [{data: {}}, ..]
               res["relationships"][name] = collection = {data: []}
               hash.each do |hsh|
                 collection[:links] = hsh[:data].delete(:links) # FIXME: this is horrible.
-                hsh[:data].delete :attributes unless include_attributes
                 collection[:data] << hsh[:data]
               end
             end

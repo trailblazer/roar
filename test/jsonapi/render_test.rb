@@ -14,9 +14,9 @@ class JsonapiRenderTest < MiniTest::Spec
           :data=>
             {
               :type=>"articles",
-               :id=>"1",
-               :attributes=>{"title"=>"Health walk"},
-               :relationships=>
+              :id=>"1",
+              :attributes=>{"title"=>"Health walk"},
+              :relationships=>
                 {"author"=>
                   {:data=>{:type=>"authors", :id=>"2"},
                    :links=>{"self"=>"http://authors/2"}},
@@ -36,7 +36,7 @@ class JsonapiRenderTest < MiniTest::Spec
                       }
                     ], # FIXME.
                    :links=>{"self"=>"http://comments/comment:2"}}}, # FIXME: this only works when a relationship is present.
-               :links=>{"self"=>"http://Article/1"},
+              :links=>{"self"=>"http://Article/1"},
               :included=>
                 [
                   {
@@ -86,13 +86,11 @@ class JsonapiRenderTest < MiniTest::Spec
                   [
                     {
                       :type=>"comments",
-                      :id=>"comment:1",
-                      :attributes=>{"body"=>"Ice and Snow"}
+                      :id=>"comment:1"
                     },
                     {
                       :type=>"comments",
-                      :id=>"comment:2",
-                      :attributes=>{"body"=>"Red Stripe Skank"}
+                      :id=>"comment:2"
                     }
                   ], # FIXME.
                  :links=>{"self"=>"http://comments/comment:2"}}}, # FIXME: this only works when a relationship is present.

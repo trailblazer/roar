@@ -4,6 +4,12 @@ require "json"
 require "jsonapi/representer"
 
 class JSONAPIFieldsetsTest < Minitest::Spec
+  Article = Struct.new(:id, :title, :summary, :comments, :author)
+  Comment = Struct.new(:id, :body, :good)
+  Author = Struct.new(:id, :name, :email)
+
+  let (:comments) { [Comment.new("c:1", "Cool!", true), Comment.new("c:2", "Nah", false)] }
+
   describe "Single Resource Object With Options" do
     class DocumentSingleResourceObjectDecorator < Roar::Decorator
       include Roar::JSON::JSONAPI
@@ -11,23 +17,98 @@ class JSONAPIFieldsetsTest < Minitest::Spec
 
       property :id
       property :title
-      property :author
+      property :summary
+
+      has_many :comments do
+        type :comments
+
+        property :id
+        property :body
+        property :good
+      end
+
+      has_one :author do
+        type :author
+
+        property :id
+        property :name
+        property :email
+      end
     end
 
-    let(:document) {
-      {
-        "data" => {
-          "type" => "articles",
-          "id" => "1",
-          "attributes" => {
-            "title" => "My Article"
-          }
-        }
-      }
-    }
+    let (:article) { Article.new(1, "My Article", "An interesting read.", comments, Author.new("a:1", "Celso")) }
 
-    subject { DocumentSingleResourceObjectDecorator.new(Article.new(1, "My Article", "Some Author")).to_json(include: [:title, :id]) }
-    it { subject.must_equal document.to_json }
+    it "includes scalars" do
+      DocumentSingleResourceObjectDecorator.new(article).
+        to_json(include: [:title, :id]).
+        must_equal( {
+          "data" => {
+            "type" => "articles",
+            "id" => "1",
+            "attributes" => {
+              "title" => "My Article"
+            }
+          }
+        }.to_json )
+    end
+
+    it "includes compound objects" do
+      DocumentSingleResourceObjectDecorator.new(article).
+        to_hash(
+          include:  [:id, :title, :included],
+          included: {include: [:comments]}).
+        must_equal Hash[{
+          :data=>
+            {:type=>"articles",
+             :id=>"1",
+             :attributes=>{"title"=>"My Article"},
+             :included=>
+              [{:type=>"comments",
+                :id=>"c:1",
+                :attributes=>{"body"=>"Cool!", "good"=>true}},
+               {:type=>"comments",
+                :id=>"c:2",
+                :attributes=>{"body"=>"Nah", "good"=>false}}
+              ]
+            }
+        }]
+        # must_equal document.to_json
+    end
+
+    it "includes other compound objects" do
+      DocumentSingleResourceObjectDecorator.new(article).
+        to_hash(
+          include:  [:id, :title, :included],
+          included: {include: [:author]}).
+        must_equal Hash[{
+          :data=>
+            {:type=>"articles",
+             :id=>"1",
+             :attributes=>{"title"=>"My Article"},
+             :included=>
+              [{:type=>"author", :id=>"a:1", :attributes=>{"name"=>"Celso"}}]
+            }
+        }]
+        # must_equal document.to_json
+    end
+
+    describe "collection" do
+      it "supports :includes" do
+        DocumentSingleResourceObjectDecorator.for_collection.new([article]).
+          to_hash(
+            include:  [:id, :title, :included],
+            included: {include: [:author]}).
+          must_equal Hash[{
+            :data=>[
+              {:type=>"articles",
+               :id=>"1",
+               :attributes=>{"title"=>"My Article"},
+              }],
+            :included=>
+              [{:type=>"author", :id=>"a:1", :attributes=>{"name"=>"Celso"}}]
+          }]
+      end
+    end
   end
 
   describe "Collection Resources With Options" do
@@ -37,7 +118,7 @@ class JSONAPIFieldsetsTest < Minitest::Spec
 
       property :id
       property :title
-      property :author
+      property :summary
     end
 
     let(:document) {
@@ -63,8 +144,8 @@ class JSONAPIFieldsetsTest < Minitest::Spec
 
     it do
       CollectionResourceObjectDecorator.for_collection.new([
-        Article.new(1, "My Article", "Some Author"),
-        Article.new(2, "My Other Article", "Some Author")
+        Article.new(1, "My Article", "An interesting read."),
+        Article.new(2, "My Other Article", "An interesting read.")
       ]).to_json(include: [:title, :id]).must_equal document.to_json
     end
   end
