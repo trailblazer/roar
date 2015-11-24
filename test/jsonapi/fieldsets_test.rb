@@ -91,6 +91,24 @@ class JSONAPIFieldsetsTest < Minitest::Spec
         }]
         # must_equal document.to_json
     end
+
+    describe "collection" do
+      it "supports :includes" do
+        DocumentSingleResourceObjectDecorator.for_collection.new([article]).
+          to_hash(
+            include:  [:id, :title, :included],
+            included: {include: [:author]}).
+          must_equal Hash[{
+            :data=>[
+              {:type=>"articles",
+               :id=>"1",
+               :attributes=>{"title"=>"My Article"},
+              }],
+            :included=>
+              [{:type=>"author", :id=>"a:1", :attributes=>{"name"=>"Celso"}}]
+          }]
+      end
+    end
   end
 
   describe "Collection Resources With Options" do
