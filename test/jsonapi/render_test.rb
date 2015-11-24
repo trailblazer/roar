@@ -29,12 +29,10 @@ class JsonapiRenderTest < MiniTest::Spec
                       {
                         :type=>"comments",
                         :id=>"comment:1",
-                        :attributes=>{"body"=>"Ice and Snow"}
                       },
                       {
                         :type=>"comments",
                         :id=>"comment:2",
-                        :attributes=>{"body"=>"Red Stripe Skank"}
                       }
                     ], # FIXME.
                    :links=>{"self"=>"http://comments/comment:2"}}}, # FIXME: this only works when a relationship is present.
@@ -89,12 +87,10 @@ class JsonapiRenderTest < MiniTest::Spec
                     {
                       :type=>"comments",
                       :id=>"comment:1",
-                      :attributes=>{"body"=>"Ice and Snow"}
                     },
                     {
                       :type=>"comments",
                       :id=>"comment:2",
-                      :attributes=>{"body"=>"Red Stripe Skank"}
                     }
                   ], # FIXME.
                  :links=>{"self"=>"http://comments/comment:2"}}}, # FIXME: this only works when a relationship is present.

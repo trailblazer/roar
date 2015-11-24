@@ -57,8 +57,10 @@ module Roar
       # New API for JSON-API representers.
       module Declarative
         def type(name=nil)
-          return super unless name # original name.
-          representable_attrs[:_wrap] = name.to_s
+          return @type unless name # original name.
+
+          heritage.record(:type, name)
+          @type = name.to_s
         end
 
         def link(name, options={}, &block)
@@ -74,8 +76,8 @@ module Roar
           # every nested representer is a full-blown JSONAPI representer.
           dfn = nil
 
-          nested(:relationships, inherit: true) do
-            dfn = property(name, options) do
+          nested(:included, inherit: true) do
+            dfn = property(name, collection: options[:collection]) do
               include Roar::JSON::JSONAPI
               include Roar::JSON
               include Roar::Hypermedia
@@ -88,9 +90,15 @@ module Roar
             end
           end
 
-          # bla = representable_attrs.get(:relationships)
-          nested(:included, inherit: true) do # FIXME: make that a bit nicer readable and document what i'm doing here.
-            property(name, decorator: dfn[:extend].(nil), collection: options[:collection])
+          property_representer = Class.new(dfn[:extend].(nil))
+          property_representer.class_eval do
+            def to_hash(options)
+              super(include: [:type, :id, :links])
+            end
+          end
+
+          nested(:relationships, inherit: true) do # FIXME: make that a bit nicer readable and document what i'm doing here.
+            property(name, options.merge(decorator: property_representer))
           end
         end
 
@@ -134,7 +142,7 @@ module Roar
 
           document = {
             data: data = {
-              type: representable_attrs[:_wrap],
+              type: self.class.type,
               id: res.delete("id").to_s
             }
           }
@@ -153,9 +161,6 @@ module Roar
 
       private
         def from_document(hash)
-          # hash[representable_attrs[:_wrap]]
-          raise Exception.new('Unknown Type') unless hash['data']['type'] == representable_attrs[:_wrap]
-
           # hash: {"data"=>{"type"=>"articles", "attributes"=>{"title"=>"Ember Hamster"}, "relationships"=>{"author"=>{"data"=>{"type"=>"people", "id"=>"9"}}}}}
           attributes = hash["data"]["attributes"] || {}
           attributes["relationships"] = {}
