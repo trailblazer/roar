@@ -36,7 +36,7 @@ class JSONAPIFieldsetsTest < Minitest::Spec
       end
     end
 
-    let (:article) { Article.new(1, "My Article", "An interesting read.", comments, Author.new("a:1", "Celso")) }
+    let (:article) { Article.new(1, "My Article", "An interesting read.", comments, Author.new("a:1", "Celso", "celsito@trb.to")) }
 
     it "includes scalars" do
       DocumentSingleResourceObjectDecorator.new(article).
@@ -86,7 +86,7 @@ class JSONAPIFieldsetsTest < Minitest::Spec
              :id=>"1",
              :attributes=>{"title"=>"My Article"},
              :included=>
-              [{:type=>"author", :id=>"a:1", :attributes=>{"name"=>"Celso"}}]
+              [{:type=>"author", :id=>"a:1", :attributes=>{"name"=>"Celso", "email"=>"celsito@trb.to"}}]
             }
         }]
         # must_equal document.to_json
@@ -105,7 +105,25 @@ class JSONAPIFieldsetsTest < Minitest::Spec
                :attributes=>{"title"=>"My Article"},
               }],
             :included=>
-              [{:type=>"author", :id=>"a:1", :attributes=>{"name"=>"Celso"}}]
+              [{:type=>"author", :id=>"a:1", :attributes=>{"name"=>"Celso", "email"=>"celsito@trb.to"}}]
+          }]
+      end
+
+      # include: ROAR API
+      it "blaaaaaaa" do
+        DocumentSingleResourceObjectDecorator.for_collection.new([article]).
+          to_hash(
+            include:  [:id, :title, :author],
+            fields: {author: [:email]}
+          ).
+          must_equal Hash[{
+            :data=>[
+              {:type=>"articles",
+               :id=>"1",
+               :attributes=>{"title"=>"My Article"},
+              }],
+            :included=>
+              [{:type=>"author", :id=>"a:1", :attributes=>{"email"=>"celsito@trb.to"}}]
           }]
       end
     end

@@ -136,9 +136,30 @@ module Roar
         end
       end
 
+      # {:include=>[:id, :title, :author, :included],
+      #  :included=>{:include=>[:author], :author=>{:include=>[:email, :id]}}}
+      module Options
+        # TODO: make sure we don't change original params options.
+        Include = ->(options, decorator) do
+          return options unless fields = options[:fields]
+          return options unless included = options[:include]
+
+          internal_options = {}
+          internal_options[:include] = [*included, :included]
+
+          fields = options[:fields] || {}
+          internal_options[:included] = {include: fields.keys}
+          fields.each do |k,v|
+            internal_options[:included][k] = {include: v+[:id]}
+          end
+          # pp internal_options
+          options.merge(internal_options)
+        end
+      end
+
       module Document
         def to_hash(options={})
-          res = super
+          res = super(Options::Include.(options, self))
 
           links = Renderer::Links.new.call(res, options)
           # meta  = render_meta(options)
