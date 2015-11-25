@@ -40,7 +40,7 @@ class JSONAPIFieldsetsTest < Minitest::Spec
 
     it "includes scalars" do
       DocumentSingleResourceObjectDecorator.new(article).
-        to_json(include: [:title, :id]).
+        to_json(include: [:title]).
         must_equal( {
           "data" => {
             "type" => "articles",
@@ -78,7 +78,7 @@ class JSONAPIFieldsetsTest < Minitest::Spec
     it "includes other compound objects" do
       DocumentSingleResourceObjectDecorator.new(article).
         to_hash(
-          include:  [:id, :title, :included],
+          include:  [:title, :included],
           included: {include: [:author]}).
         must_equal Hash[{
           :data=>
@@ -96,7 +96,7 @@ class JSONAPIFieldsetsTest < Minitest::Spec
       it "supports :includes" do
         DocumentSingleResourceObjectDecorator.for_collection.new([article]).
           to_hash(
-            include:  [:id, :title, :included],
+            include:  [:title, :included],
             included: {include: [:author]}).
           must_equal Hash[{
             :data=>[
@@ -113,7 +113,7 @@ class JSONAPIFieldsetsTest < Minitest::Spec
       it "blaaaaaaa" do
         DocumentSingleResourceObjectDecorator.for_collection.new([article]).
           to_hash(
-            include:  [:id, :title, :author],
+            include:  [:title, :author],
             fields: {author: [:email]}
           ).
           must_equal Hash[{

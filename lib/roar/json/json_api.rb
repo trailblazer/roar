@@ -141,8 +141,9 @@ module Roar
       module Options
         # TODO: make sure we don't change original params options.
         Include = ->(options, decorator) do
-          return options unless fields = options[:fields]
           return options unless included = options[:include]
+          included << :id # FIXME: changes original options.
+          return options unless fields = options[:fields]
 
           internal_options = {}
           internal_options[:include] = [*included, :included]
@@ -152,7 +153,7 @@ module Roar
           fields.each do |k,v|
             internal_options[:included][k] = {include: v+[:id]}
           end
-          # pp internal_options
+           # pp internal_options
           options.merge(internal_options)
         end
       end
