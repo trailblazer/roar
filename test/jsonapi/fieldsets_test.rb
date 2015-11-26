@@ -62,15 +62,15 @@ class JSONAPIFieldsetsTest < Minitest::Spec
             {:type=>"articles",
              :id=>"1",
              :attributes=>{"title"=>"My Article"},
-             :included=>
-              [{:type=>"comments",
-                :id=>"c:1",
-                :attributes=>{"body"=>"Cool!", "good"=>true}},
-               {:type=>"comments",
-                :id=>"c:2",
-                :attributes=>{"body"=>"Nah", "good"=>false}}
-              ]
-            }
+            },
+           :included=>
+            [{:type=>"comments",
+              :id=>"c:1",
+              :attributes=>{"body"=>"Cool!", "good"=>true}},
+             {:type=>"comments",
+              :id=>"c:2",
+              :attributes=>{"body"=>"Nah", "good"=>false}}
+            ]
         }]
         # must_equal document.to_json
     end
@@ -85,9 +85,9 @@ class JSONAPIFieldsetsTest < Minitest::Spec
             {:type=>"articles",
              :id=>"1",
              :attributes=>{"title"=>"My Article"},
-             :included=>
-              [{:type=>"author", :id=>"a:1", :attributes=>{"name"=>"Celso", "email"=>"celsito@trb.to"}}]
-            }
+            },
+           :included=>
+            [{:type=>"author", :id=>"a:1", :attributes=>{"name"=>"Celso", "email"=>"celsito@trb.to"}}]
         }]
         # must_equal document.to_json
     end

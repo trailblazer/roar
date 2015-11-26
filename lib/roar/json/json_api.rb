@@ -39,7 +39,7 @@ module Roar
               included = []
               collection.each do |single|
                 document[:data] << single[:data]
-                included += single[:data].delete(:included)||[]
+                included += single.delete(:included)||[]
               end
 
               Fragment::Links.(document, Renderer::Links.new.(hash, {}), options)
@@ -178,7 +178,7 @@ module Roar
           data[:relationships] = relationships if relationships and relationships.any?
 
           Fragment::Links.(data, links, options)
-          Fragment::Included.(data, included, options)
+          Fragment::Included.(document, included, options)
 
           document
         end

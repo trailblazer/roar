@@ -10,60 +10,65 @@ class JsonapiRenderTest < MiniTest::Spec
   it "renders full document" do
     pp hash = decorator.to_hash
 
-    hash.must_equal( {
-          :data=>
-            {
-              :type=>"articles",
-              :id=>"1",
-              :attributes=>{"title"=>"Health walk"},
-              :relationships=>
-                {"author"=>
-                  {:data=>{:type=>"authors", :id=>"2"},
-                   :links=>{"self"=>"http://authors/2"}},
-                 "editor"=>
-                  {:data=>{:type=>"editors", :id=>"editor:1"},
-                   :links=>{"self"=>"http://authors/editor:1"}},
-                 "comments"=>
-                  {:data=>
-                    [
-                      {
-                        :type=>"comments",
-                        :id=>"comment:1"
-                      },
-                      {
-                        :type=>"comments",
-                        :id=>"comment:2"
-                      }
-                    ], # FIXME.
-                   :links=>{"self"=>"http://comments/comment:2"}}}, # FIXME: this only works when a relationship is present.
-              :links=>{"self"=>"http://Article/1"},
-              :included=>
+# puts hash.to_json
+    hash.must_equal(
+    {
+      :data=>
+        {
+          :type=>"articles",
+          :id=>"1",
+          :attributes=>{"title"=>"Health walk"},
+          :relationships=>
+            {"author"=>
+              {:data=>{:type=>"authors", :id=>"2"},
+               :links=>{"self"=>"http://authors/2"}},
+             "editor"=>
+              {:data=>{:type=>"editors", :id=>"editor:1"},
+               :links=>{"self"=>"http://authors/editor:1"}},
+             "comments"=>
+              {:data=>
                 [
                   {
-                    :type=>"authors",
-                    :id=>"2",
-                    :links=>{"self"=>"http://authors/2"}
-                  },
-                  {
-                    :type=>"editors",
-                    :id=>"editor:1",
-                    :links=>{"self"=>"http://authors/editor:1"}
+                    :type=>"comments",
+                    :id=>"comment:1"
                   },
                   {
                     :type=>"comments",
-                    :id=>"comment:1",
-                    :attributes=>{"body"=>"Ice and Snow"},
-                    :links=>{"self"=>"http://comments/comment:1"}
-                  },
-                  {
-                    :type=>"comments",
-                    :id=>"comment:2",
-                    :attributes=>{"body"=>"Red Stripe Skank"},
-                    :links=>{"self"=>"http://comments/comment:2"}
-                    },
-                ]
-           }
+                    :id=>"comment:2"
+                  }
+                ], # FIXME.
+               :links=>{"self"=>"http://comments/comment:2"}}}, # FIXME: this only works when a relationship is present.
+
+          :links=>{"self"=>"http://Article/1"},
+
+        },
+      :included=>
+        [
+          {
+            :type=>"authors",
+            :id=>"2",
+            :links=>{"self"=>"http://authors/2"}
+          },
+          {
+            :type=>"editors",
+            :id=>"editor:1",
+            :links=>{"self"=>"http://authors/editor:1"}
+          },
+          {
+            :type=>"comments",
+            :id=>"comment:1",
+            :attributes=>{"body"=>"Ice and Snow"},
+            :links=>{"self"=>"http://comments/comment:1"}
+          },
+          {
+            :type=>"comments",
+            :id=>"comment:2",
+            :attributes=>{"body"=>"Red Stripe Skank"},
+            :links=>{"self"=>"http://comments/comment:2"}
+            },
+          ]
         })
+
   end
 
   it "included: false suppresses compound docs" do

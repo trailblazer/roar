@@ -81,8 +81,9 @@ class JsonapiCollectionRenderTest < MiniTest::Spec
          {:type=>"comments",
           :id=>"comment:4",
           :attributes=>{"body"=>"Skalar"},
-          :links=>{"self"=>"http://comments/comment:4"}}]}
-      )
+          :links=>{"self"=>"http://comments/comment:4"}}]
+      }
+    )
   end
 
   it "included: false suppresses compound docs" do
