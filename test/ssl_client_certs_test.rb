@@ -57,7 +57,7 @@ class SslClientCertsTest < MiniTest::Spec
 
           describe "when a pem file has been provided with the request options" do
 
-            let(:pem_file) { File.expand_path("test/fixtures/sample.pem", Roar.root) }
+            let(:pem_file) { File.expand_path("test/fixtures/sample.pem", File.expand_path('../..', __FILE__)) }
 
             let(:pem) { File.read(pem_file) }
             let(:cert) { OpenSSL::X509::Certificate.new(pem) }
