@@ -1,3 +1,7 @@
+# 1.0.4
+
+* Representable < 2.4.
+
 # 1.0.3
 
 * Make `:as` work with `HAL`.
