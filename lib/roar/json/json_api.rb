@@ -189,6 +189,7 @@ module Roar
 
       private
         def from_document(hash)
+          return {} unless hash["data"] # DISCUSS: Is failing silently here a good idea?
           # hash: {"data"=>{"type"=>"articles", "attributes"=>{"title"=>"Ember Hamster"}, "relationships"=>{"author"=>{"data"=>{"type"=>"people", "id"=>"9"}}}}}
           attributes = hash["data"]["attributes"] || {}
           attributes["relationships"] = {}

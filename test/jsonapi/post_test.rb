@@ -59,4 +59,16 @@ class JsonapiPostTest < MiniTest::Spec
       subject.title.must_equal "Ember Hamster"
     end
   end
+
+  describe "Parse Badly Formed Document" do
+    let(:post_article) {
+      { "title" => "Ember Hamster" }
+    }
+
+    subject { ArticleDecorator.new(Article.new(nil, nil, nil, nil, [])).from_json(post_article.to_json) }
+
+    it do
+      subject.title.must_equal nil
+    end
+  end
 end
