@@ -40,4 +40,23 @@ class JsonapiPostTest < MiniTest::Spec
       subject.comments.must_equal [Comment.new("2"), Comment.new("3")]
     end
   end
+
+  describe "Parse Simple" do
+    let(:post_article) {
+      {
+        "data" => {
+          "type" => "articles",
+          "attributes" => {
+            "title" => "Ember Hamster",
+          }
+        }
+      }
+    }
+
+    subject { ArticleDecorator.new(Article.new(nil, nil, nil, nil, [])).from_json(post_article.to_json) }
+
+    it do
+      subject.title.must_equal "Ember Hamster"
+    end
+  end
 end

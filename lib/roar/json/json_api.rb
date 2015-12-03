@@ -193,7 +193,7 @@ module Roar
           attributes = hash["data"]["attributes"] || {}
           attributes["relationships"] = {}
 
-          hash["data"]["relationships"].each do |rel, fragment| # FIXME: what if nil?
+          hash["data"].fetch("relationships", []).each do |rel, fragment|
             attributes["relationships"][rel] = fragment["data"] # DISCUSS: we could use a relationship representer here (but only if needed elsewhere).
           end
 
