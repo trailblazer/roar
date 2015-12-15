@@ -55,15 +55,30 @@ class MasonJsonTest < MiniTest::Spec
 end
 
 class MasonCurieTest < MiniTest::Spec
-  representer!([Roar::JSON::Mason]) do
-    link "doc:self" do
-      "/"
+  representer_for([Roar::JSON::Mason]) do
+    collection :songs, class: Song, embedded: true do
+      include Roar::JSON::Mason
+
+      curies :inner do
+        "inner"
+      end
+      link(:self) { "http://songs/#{title}" }
     end
 
-    curies :doc do
-      "//docs/{rel}"
+    curies :top do
+      "top"
     end
+
+    link(:self) { "http://albums/#{id}" }
   end
 
-  it {  Object.new.extend(rpr).to_hash.must_equal({"@controls"=>{"doc:self"=>{"href"=>"/"}}, "@namespaces"=>{"doc" => { "name" => "//docs/{rel}"}}}) }
+  let(:album) { Album.new(:songs => [Song.new(:title => "Beer")], :id => 1).extend(representer) }
+
+  it "collects curies at the top level" do
+    album.to_hash["@namespaces"].must_equal({
+        "top" => {"name" => "top"},
+        "inner" => {"name" => "inner"}
+      })
+    album.to_hash["songs"][0]["@namespaces"].must_be_nil
+  end
 end

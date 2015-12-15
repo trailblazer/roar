@@ -14,9 +14,26 @@ module Roar
           include Roar::JSON
           include Links       # overwrites #links_definition_options.
           include Roar::Hypermedia
+          include Resources
         end
       end
-
+      module Resources
+      # remove the nested namespaces from each of the results
+        def to_hash(*args)
+          results = super
+          results.each do |key, value|
+            next if key.start_with?('@')
+            next unless value.is_a?(Array)
+            value.each do |element|
+              next if element['@namespaces'].nil?
+              results['@namespaces'] ||= {}
+              results['@namespaces'].merge! element['@namespaces']
+              element.delete '@namespaces'
+            end
+          end
+          results
+        end
+      end
       module Links
         def self.included(base)
           base.extend ClassMethods  # ::links_definition_options
@@ -39,14 +56,14 @@ module Roar
             options = options.merge({:name => name})
             Hypermedia::Hyperlink.new(options)
           end
-          
+
           def prepare_curies!(options)
             return [] if options[:curies] == false
             curies_configs = representable_attrs["curies"].link_configs
             compile_curies_for(curies_configs, options)
           end
         end
-        
+
         class SingleLink
           class Representer < Representable::Decorator
             include Representable::JSON::Hash
@@ -102,7 +119,7 @@ module Roar
               exec_context: :decorator
             }
           end
-          
+
           def create_curies_definition!
             dfn = definitions["curies"] and return dfn # only create it once.
 
@@ -112,7 +129,7 @@ module Roar
             dfn = build_definition(:curies, options)
             dfn.extend(Roar::Hypermedia::DefinitionOptions)
             dfn
-            
+
           end
 
           # Add a CURIEs link section as defined in
@@ -120,7 +137,7 @@ module Roar
           # curies :doc do
           #    "//docs/{rel}",
           # end
-          
+
           def curies(key, &block)
             create_curies_definition!
             options = {:rel => key}
