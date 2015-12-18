@@ -44,7 +44,7 @@ class ArticleDecorator < Roar::Decorator
 
     property :id
     property :email
-    link(:self) { "http://authors/#{represented.id}" }
+    # No self link for editors because we want to make sure the :links option does not appear in the hash.
   end
 
   has_many :comments, class: Comment, populator: ::Representable::FindOrInstantiate do

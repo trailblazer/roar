@@ -22,8 +22,7 @@ class JsonapiCollectionRenderTest < MiniTest::Spec
              {:data=>{:type=>"authors", :id=>"2"},
               :links=>{"self"=>"http://authors/2"}},
             "editor"=>
-             {:data=>{:type=>"editors", :id=>"editor:1"},
-              :links=>{"self"=>"http://authors/editor:1"}},
+             {:data=>{:type=>"editors", :id=>"editor:1"}},
             "comments"=>
              {:data=>
                [{:type=>"comments",
@@ -61,8 +60,7 @@ class JsonapiCollectionRenderTest < MiniTest::Spec
        :included=>
         [{:type=>"authors", :id=>"2", :links=>{"self"=>"http://authors/2"}},
          {:type=>"editors",
-          :id=>"editor:1",
-          :links=>{"self"=>"http://authors/editor:1"}},
+          :id=>"editor:1"},
          {:type=>"comments",
           :id=>"comment:1",
           :attributes=>{"body"=>"Ice and Snow"},
@@ -97,8 +95,7 @@ class JsonapiCollectionRenderTest < MiniTest::Spec
              {:data=>{:type=>"authors", :id=>"2"},
               :links=>{"self"=>"http://authors/2"}},
             "editor"=>
-             {:data=>{:type=>"editors", :id=>"editor:1"},
-              :links=>{"self"=>"http://authors/editor:1"}},
+             {:data=>{:type=>"editors", :id=>"editor:1"}},
             "comments"=>
              {:data=>
                [{:type=>"comments",

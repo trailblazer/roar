@@ -23,8 +23,7 @@ class JsonapiRenderTest < MiniTest::Spec
               {:data=>{:type=>"authors", :id=>"2"},
                :links=>{"self"=>"http://authors/2"}},
              "editor"=>
-              {:data=>{:type=>"editors", :id=>"editor:1"},
-               :links=>{"self"=>"http://authors/editor:1"}},
+              {:data=>{:type=>"editors", :id=>"editor:1"}},
              "comments"=>
               {:data=>
                 [
@@ -51,8 +50,7 @@ class JsonapiRenderTest < MiniTest::Spec
           },
           {
             :type=>"editors",
-            :id=>"editor:1",
-            :links=>{"self"=>"http://authors/editor:1"}
+            :id=>"editor:1"
           },
           {
             :type=>"comments",
@@ -84,8 +82,7 @@ class JsonapiRenderTest < MiniTest::Spec
                 {:data=>{:type=>"authors", :id=>"2"},
                  :links=>{"self"=>"http://authors/2"}},
                "editor"=>
-                {:data=>{:type=>"editors", :id=>"editor:1"},
-                 :links=>{"self"=>"http://authors/editor:1"}},
+                {:data=>{:type=>"editors", :id=>"editor:1"}},
                "comments"=>
                 {:data=>
                   [
