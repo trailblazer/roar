@@ -8,3 +8,5 @@ rvm:
 gemfile:
   - Gemfile
   # - gemfiles/Gemfile.representable-2.4
+before_install:
+  - gem install bundler
