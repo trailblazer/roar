@@ -69,8 +69,8 @@ module Roar
       Hyperlink.new(options)
     end
 
-    def run_link_block(block, *args)
-      instance_exec(*args, &block)
+    def run_link_block(block, options)
+      instance_exec(options[:user_options], &block)
     end
 
 
