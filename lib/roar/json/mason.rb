@@ -25,7 +25,11 @@ module Roar
             next if key.start_with?('@')
             next unless value.is_a?(Array)
             value.each do |element|
-              next if element['@namespaces'].nil?
+              begin
+                next if element['@namespaces'].nil?
+              rescue TypeError
+                next
+              end
               results['@namespaces'] ||= {}
               results['@namespaces'].merge! element['@namespaces']
               element.delete '@namespaces'
