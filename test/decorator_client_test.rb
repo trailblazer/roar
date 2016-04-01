@@ -58,7 +58,7 @@ class DecoratorClientTest < MiniTest::Spec
     # since this is considered dangerous, we test the mutuable options.
     it "adds links: false to options" do
       @client.to_hash(options = {})
-      options.must_equal(user_options: {links: false})
+      options.must_equal({links: false})
     end
   end
 end

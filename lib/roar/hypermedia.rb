@@ -49,7 +49,8 @@ module Roar
     # Create hypermedia links for this instance by invoking their blocks.
     # This is called in links: getter: {}.
     def prepare_links!(options)
-      return [] if options[:links] == false
+      # DISCUSS: making :links a non-user_options will not propagate it to nested representers.
+      return [] if options[:options][:links] == false
 
       link_configs = representable_attrs["links"].link_configs
       compile_links_for(link_configs, options)

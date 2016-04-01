@@ -62,7 +62,7 @@ class HypermediaTest < MiniTest::Spec
       end
 
       it "suppresses links when links: false" do
-        song.extend(rpr).to_xml(user_options: {links: false}).must_equal_xml "<song><title>Brandy Wine</title></song>"
+        song.extend(rpr).to_xml(links: false).must_equal_xml "<song><title>Brandy Wine</title></song>"
       end
 
       it "renders nested links" do

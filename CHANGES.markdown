@@ -2,7 +2,10 @@
 
 * When using `links[]`, you now need to provide the string name, as in `decorator.links["self"]`. Symbols are not supported, anymore.
 * Remove CollectionJSON support until we get more feedback.
-* Representable >= 2.4.
+* Representable > 2.4.
+
+# TODO: what about to_json(links: false) ???
+
 
 # 1.0.4
 

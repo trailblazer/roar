@@ -29,15 +29,15 @@ module Roar
 
     def to_hash(options={})
       # options[:links] ||= false
-      options[:user_options] ||= {}
-      options[:user_options][:links] ||= false
+      # options[:user_options] ||= {}
+      options[:links] ||= false
 
       super(options)
     end
 
     def to_xml(options={}) # sorry, but i'm not even sure if anyone uses this module.
-      options[:user_options] ||= {}
-      options[:user_options][:links] ||= false
+      # options[:user_options] ||= {}
+      options[:links] ||= false
 
       super(options)
     end

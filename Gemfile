@@ -10,3 +10,4 @@ gemspec
 # gem "declarative", path: "../declarative"
 gem "minitest-line"
 gem "pry"
+gem "representable", "3.0.0"
