@@ -108,6 +108,7 @@ Many people dislike `#extend` due to eventual performance issue or object pollut
 
 ```ruby
 require 'roar/decorator'
+require 'roar/json'
 
 class SongRepresenter < Roar::Decorator
   include Roar::JSON
@@ -265,6 +266,7 @@ Roar provides coercion with the [virtus](https://github.com/solnic/virtus) gem.
 
 ```ruby
 require 'roar/coercion'
+require 'roar/json'
 
 module SongRepresenter
   include Roar::JSON
@@ -591,6 +593,7 @@ In a client where you don't have access to the database it is common to use `Ope
 
 ```ruby
 require 'roar/client'
+require 'roar/json'
 
 class Song < OpenStruct
   include Roar::JSON
