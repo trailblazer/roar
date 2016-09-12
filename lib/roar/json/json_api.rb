@@ -1,5 +1,6 @@
 require 'roar/json'
 require 'roar/decorator'
+require 'pry'
 
 module Roar
   module JSON
@@ -90,7 +91,7 @@ module Roar
                 .select{|k, v| v[:as] && v[:as].evaluate(:value) == 'id'}
                 .keys
                 .first
-                .try(:to_sym)
+              id_key = id_key.to_sym if id_key
 
               def from_document(hash)
                 hash
@@ -98,11 +99,12 @@ module Roar
             end
           end
 
+          id_key ||= :id
+
           property_representer = Class.new(dfn[:extend].(nil))
           property_representer.class_eval do
-            @@id_key = id_key || :id
-            def to_hash(options)
-              super(include: [:type, @@id_key, :links])
+            define_method :to_hash do |options|
+              super(include: [:type, id_key, :links])
             end
           end
 
