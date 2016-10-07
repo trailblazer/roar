@@ -32,7 +32,7 @@ module Roar
             # link(:self) { .. }
 
             def to_hash(options={})
-              hash = super(to_a: options) # [{data: {..}, data: {..}}]
+              hash = super(to_a: options, user_options: options[:user_options]) # [{data: {..}, data: {..}}]
               collection = hash["to_a"]
 
               document = {data: []}

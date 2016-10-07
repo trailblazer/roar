@@ -18,8 +18,12 @@ class ArticleDecorator < Roar::Decorator
   type :articles
 
   # top-level link.
-  link :self, toplevel: true do
-    "//articles"
+  link :self, toplevel: true do |options|
+    if options
+      "//articles?page=#{options[:page]}&per_page=#{options[:per_page]}"
+    else
+      "//articles"
+    end
   end
 
   # attributes: {}

@@ -135,6 +135,13 @@ class JsonapiCollectionRenderTest < MiniTest::Spec
     )
   end
 
+  it "passes :user_options to toplevel links when rendering" do
+    hash = decorator.to_hash(user_options: { page: 2, per_page: 10 })
+    hash[:links].must_equal({
+      "self" => "//articles?page=2&per_page=10"
+    })
+  end
+
   describe "Fetching Resources (empty collection)" do
     let(:document) {
       {
