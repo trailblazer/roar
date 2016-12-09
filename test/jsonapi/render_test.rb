@@ -65,7 +65,7 @@ class JsonapiRenderTest < MiniTest::Spec
             :links=>{"self"=>"http://comments/comment:2"}
             },
           ],
-        :meta=>{"reviewer"=>"Christian Bernstein"}
+        :meta=>{"reviewer"=>"Christian Bernstein", "reviewer_initials"=>"C.B."}
         })
 
   end
@@ -99,7 +99,7 @@ class JsonapiRenderTest < MiniTest::Spec
                  :links=>{"self"=>"http://comments/comment:2"}}}, # FIXME: this only works when a relationship is present.
              :links=>{"self"=>"http://Article/1"}
         },
-        :meta=>{"reviewer"=>"Christian Bernstein"}
+        :meta=>{"reviewer"=>"Christian Bernstein", "reviewer_initials"=>"C.B."}
       }
     )
   end

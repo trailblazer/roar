@@ -38,6 +38,12 @@ class ArticleDecorator < Roar::Decorator
     property :reviewer
   end
 
+  meta do
+    property :reviewer_initials, getter: ->(_) {
+      reviewer.split.map { |name| "#{name[0]}." }.join
+    }
+  end
+
   # resource object links
   link(:self) { "http://#{represented.class}/#{represented.id}" }
 

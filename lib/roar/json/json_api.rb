@@ -33,11 +33,12 @@ module Roar
             # link(:self) { .. }
 
             def self.meta(options={}, &block)
-              meta_representer = Class.new(Roar::Decorator)
-              meta_representer.include(Roar::JSON)
-              meta_representer.instance_exec(&block)
-
-              representable_attrs[:meta_representer] = meta_representer
+              representable_attrs[:meta_representer] ||= begin
+                meta_representer = Class.new(Roar::Decorator)
+                meta_representer.include(Roar::JSON)
+                meta_representer
+              end
+              representable_attrs[:meta_representer].instance_exec(&block)
             end
 
             def to_hash(options={})
@@ -92,11 +93,12 @@ module Roar
         def meta(options={}, &block)
           return for_collection.meta(name, &block) if options[:toplevel]
 
-          meta_representer = Class.new(Roar::Decorator)
-          meta_representer.include(Roar::JSON)
-          meta_representer.instance_exec(&block)
-
-          representable_attrs[:meta_representer] = meta_representer
+          representable_attrs[:meta_representer] ||= begin
+            meta_representer = Class.new(Roar::Decorator)
+            meta_representer.include(Roar::JSON)
+            meta_representer
+          end
+          representable_attrs[:meta_representer].instance_exec(&block)
         end
 
         def has_one(name, options={}, &block)
