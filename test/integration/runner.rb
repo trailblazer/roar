@@ -1,6 +1,5 @@
 require "integration/band_representer"
-# require 'sinatra/runner' # TODO: merge that into sinatra-contrib.
-require 'lib/runner'
+require 'sinatra/runner'
 
 class ServerRunner < Sinatra::Runner
   def app_file
