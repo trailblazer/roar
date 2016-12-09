@@ -102,6 +102,16 @@ class JsonapiRenderTest < MiniTest::Spec
     )
   end
 
+  it 'renders meta information if meta option supplied' do
+    hash = decorator.to_hash('meta' => { 'copyright' => 'Nick Sutterer' })
+    hash[:meta].must_equal('copyright' => 'Nick Sutterer')
+  end
+
+  it 'does not render meta information if meta option is empty' do
+    hash = decorator.to_hash('meta' => {})
+    hash[:meta].must_be_nil
+  end
+
   describe "Single Resource Object" do
     class DocumentSingleResourceObjectDecorator < Roar::Decorator
       include Roar::JSON::JSONAPI
