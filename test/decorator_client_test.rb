@@ -1,4 +1,5 @@
 require 'test_helper'
+require 'integration/runner'
 require 'roar/decorator'
 require 'roar/client'
 

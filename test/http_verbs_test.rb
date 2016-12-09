@@ -1,4 +1,5 @@
 require 'test_helper'
+require 'integration/runner'
 require 'roar/http_verbs'
 require 'roar/json'
 
