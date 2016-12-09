@@ -1,5 +1,6 @@
 require 'roar/json'
 require 'roar/decorator'
+require 'set'
 
 module Roar
   module JSON
