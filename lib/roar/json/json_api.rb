@@ -32,10 +32,18 @@ module Roar
             # toplevel links are defined here, as in
             # link(:self) { .. }
 
+            def self.meta(options={}, &block)
+              meta_representer = Class.new(Roar::Decorator)
+              meta_representer.include(Roar::JSON)
+              meta_representer.instance_exec(&block)
+
+              representable_attrs[:meta_representer] = meta_representer
+            end
+
             def to_hash(options={})
               hash = super(to_a: options) # [{data: {..}, data: {..}}]
               collection = hash["to_a"]
-              meta       = options.fetch('meta', {})
+              meta       = render_meta(options)
 
               document = {data: []}
               included = []
@@ -49,6 +57,15 @@ module Roar
               Fragment::Meta.(document, meta, options)
 
               document
+            end
+
+            private
+
+            def render_meta(options)
+              return options["meta"] if options["meta"]
+              return {} unless representer = representable_attrs[:meta_representer]
+
+              representer.new(represented).to_hash
             end
           end)
         end
@@ -70,6 +87,16 @@ module Roar
         def link(name, options={}, &block)
           return super(name, &block) unless options[:toplevel]
           for_collection.link(name, &block)
+        end
+
+        def meta(options={}, &block)
+          return for_collection.meta(name, &block) if options[:toplevel]
+
+          meta_representer = Class.new(Roar::Decorator)
+          meta_representer.include(Roar::JSON)
+          meta_representer.instance_exec(&block)
+
+          representable_attrs[:meta_representer] = meta_representer
         end
 
         def has_one(name, options={}, &block)
@@ -167,7 +194,7 @@ module Roar
           res = super(Options::Include.(options, self))
 
           links = Renderer::Links.new.call(res, options)
-          meta  = options.fetch('meta', {})
+          meta  = render_meta(options)
 
           relationships = render_relationships(res)
           included      = render_included(res)
@@ -219,6 +246,13 @@ module Roar
               hash.collect { |item| item[:data] }
             end
           end.flatten
+        end
+
+        def render_meta(options)
+          return options["meta"] if options["meta"]
+          return {} unless representer = representable_attrs[:meta_representer]
+
+          representer.new(represented).to_hash
         end
 
         def render_relationships(res)

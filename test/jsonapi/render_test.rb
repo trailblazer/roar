@@ -64,7 +64,8 @@ class JsonapiRenderTest < MiniTest::Spec
             :attributes=>{"body"=>"Red Stripe Skank"},
             :links=>{"self"=>"http://comments/comment:2"}
             },
-          ]
+          ],
+        :meta=>{"reviewer"=>"Christian Bernstein"}
         })
 
   end
@@ -97,7 +98,8 @@ class JsonapiRenderTest < MiniTest::Spec
                   ], # FIXME.
                  :links=>{"self"=>"http://comments/comment:2"}}}, # FIXME: this only works when a relationship is present.
              :links=>{"self"=>"http://Article/1"}
-        }
+        },
+        :meta=>{"reviewer"=>"Christian Bernstein"}
       }
     )
   end
