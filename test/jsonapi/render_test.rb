@@ -65,7 +65,7 @@ class JsonapiRenderTest < MiniTest::Spec
             :links=>{"self"=>"http://comments/comment:2"}
             },
           ],
-        :meta=>{"reviewer"=>"Christian Bernstein", "reviewer_initials"=>"C.B."}
+        :meta=>{"reviewers"=>["Christian Bernstein"], "reviewer_initials"=>"C.B."}
         })
 
   end
@@ -99,19 +99,25 @@ class JsonapiRenderTest < MiniTest::Spec
                  :links=>{"self"=>"http://comments/comment:2"}}}, # FIXME: this only works when a relationship is present.
              :links=>{"self"=>"http://Article/1"}
         },
-        :meta=>{"reviewer"=>"Christian Bernstein", "reviewer_initials"=>"C.B."}
+        :meta=>{"reviewers"=>["Christian Bernstein"], "reviewer_initials"=>"C.B."}
       }
     )
   end
 
-  it 'renders meta information if meta option supplied' do
-    hash = decorator.to_hash('meta' => { 'copyright' => 'Nick Sutterer' })
-    hash[:meta].must_equal('copyright' => 'Nick Sutterer')
+  it 'renders additional meta information if meta option supplied' do
+    hash = decorator.to_hash('meta' => {
+      'copyright' => 'Nick Sutterer', 'reviewers' => []
+    })
+    hash[:meta]['copyright'].must_equal('Nick Sutterer')
+    hash[:meta]['reviewers'].must_equal([])
+    hash[:meta]['reviewer_initials'].must_equal('C.B.')
   end
 
-  it 'does not render meta information if meta option is empty' do
+  it 'does not render additonal meta information if meta option is empty' do
     hash = decorator.to_hash('meta' => {})
-    hash[:meta].must_be_nil
+    hash[:meta]['copyright'].must_be_nil
+    hash[:meta]['reviewers'].must_equal(['Christian Bernstein'])
+    hash[:meta]['reviewer_initials'].must_equal('C.B.')
   end
 
   describe "Single Resource Object" do

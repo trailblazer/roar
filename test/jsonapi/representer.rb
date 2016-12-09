@@ -6,8 +6,8 @@ end
 AuthorNine = Author.new(9, "9@nine.to")
 
 Article = Struct.new(:id, :title, :author, :editor, :comments) do
-  def reviewer
-    'Christian Bernstein'
+  def reviewers
+    ['Christian Bernstein']
   end
 end
 
@@ -35,12 +35,14 @@ class ArticleDecorator < Roar::Decorator
   property :title
 
   meta do
-    property :reviewer
+    collection :reviewers
   end
 
   meta do
     property :reviewer_initials, getter: ->(_) {
-      reviewer.split.map { |name| "#{name[0]}." }.join
+      reviewers.map {|reviewer|
+        reviewer.split.map { |name| "#{name[0]}." }.join
+      }.join(', ')
     }
   end
 

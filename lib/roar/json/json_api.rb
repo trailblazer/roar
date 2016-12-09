@@ -63,10 +63,10 @@ module Roar
             private
 
             def render_meta(options)
-              return options["meta"] if options["meta"]
-              return {} unless representer = representable_attrs[:meta_representer]
-
-              representer.new(represented).to_hash
+              representer = representable_attrs[:meta_representer]
+              meta        = representer ? representer.new(represented).to_hash : {}
+              meta.merge!(options['meta']) if options['meta']
+              meta
             end
           end)
         end
@@ -251,10 +251,10 @@ module Roar
         end
 
         def render_meta(options)
-          return options["meta"] if options["meta"]
-          return {} unless representer = representable_attrs[:meta_representer]
-
-          representer.new(represented).to_hash
+          representer = representable_attrs[:meta_representer]
+          meta        = representer ? representer.new(represented).to_hash : {}
+          meta.merge!(options['meta']) if options['meta']
+          meta
         end
 
         def render_relationships(res)

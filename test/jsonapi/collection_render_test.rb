@@ -137,14 +137,15 @@ class JsonapiCollectionRenderTest < MiniTest::Spec
     )
   end
 
-  it 'renders meta information if meta option supplied' do
+  it 'renders additional meta information if meta option supplied' do
     hash = decorator.to_hash('meta' => { page: 2, total: 9 })
-    hash[:meta].must_equal(page: 2, total: 9)
+    hash[:meta].must_equal("count" => 3, page: 2, total: 9)
   end
 
-  it 'does not render meta information if meta option is empty' do
+  it 'does not render additional meta information if meta option is empty' do
     hash = decorator.to_hash('meta' => {})
-    hash[:meta].must_be_nil
+    hash[:meta][:page].must_be_nil
+    hash[:meta][:total].must_be_nil
   end
 
   describe "Fetching Resources (empty collection)" do
