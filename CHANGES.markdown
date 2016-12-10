@@ -3,6 +3,7 @@
 * When using `links[]`, you now need to provide the string name, as in `decorator.links["self"]`. Symbols are not supported, anymore.
 * Remove CollectionJSON support until we get more feedback.
 * Representable >= 2.4.
+* Extract JSON API support (`Roar::JSON::JSONAPI`) to a separate `roar-jsonapi` gem.
 
 # 1.0.4
 
