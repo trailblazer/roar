@@ -1,5 +1,6 @@
 require 'roar/json'
 require 'roar/decorator'
+require 'set'
 
 module Roar
   module JSON
@@ -31,9 +32,19 @@ module Roar
             # toplevel links are defined here, as in
             # link(:self) { .. }
 
+            def self.meta(options={}, &block)
+              representable_attrs[:meta_representer] ||= begin
+                meta_representer = Class.new(Roar::Decorator)
+                meta_representer.include(Roar::JSON)
+                meta_representer
+              end
+              representable_attrs[:meta_representer].instance_exec(&block)
+            end
+
             def to_hash(options={})
               hash = super(to_a: options) # [{data: {..}, data: {..}}]
               collection = hash["to_a"]
+              meta       = render_meta(options)
 
               document = {data: []}
               included = []
@@ -44,7 +55,18 @@ module Roar
 
               Fragment::Links.(document, Renderer::Links.new.(hash, {}), options)
               Fragment::Included.(document, included, options)
+              Fragment::Meta.(document, meta, options)
+
               document
+            end
+
+            private
+
+            def render_meta(options)
+              representer = representable_attrs[:meta_representer]
+              meta        = representer ? representer.new(represented).to_hash : {}
+              meta.merge!(options['meta']) if options['meta']
+              meta
             end
           end)
         end
@@ -68,8 +90,15 @@ module Roar
           for_collection.link(name, &block)
         end
 
-        def meta(&block)
-          representable_attrs[:meta_representer] = Class.new(Roar::Decorator, &block)
+        def meta(options={}, &block)
+          return for_collection.meta(name, &block) if options[:toplevel]
+
+          representable_attrs[:meta_representer] ||= begin
+            meta_representer = Class.new(Roar::Decorator)
+            meta_representer.include(Roar::JSON)
+            meta_representer
+          end
+          representable_attrs[:meta_representer].instance_exec(&block)
         end
 
         def has_one(name, options={}, &block)
@@ -134,6 +163,10 @@ module Roar
         Links = ->(document, links, options) do
           document[:links] = links if links.any?
         end
+
+        Meta = ->(document, meta, options) do
+          document[:meta] = meta if meta.any?
+        end
       end
 
       # {:include=>[:id, :title, :author, :included],
@@ -163,7 +196,7 @@ module Roar
           res = super(Options::Include.(options, self))
 
           links = Renderer::Links.new.call(res, options)
-          # meta  = render_meta(options)
+          meta  = render_meta(options)
 
           relationships = render_relationships(res)
           included      = render_included(res)
@@ -179,6 +212,7 @@ module Roar
 
           Fragment::Links.(data, links, options)
           Fragment::Included.(document, included, options)
+          Fragment::Meta.(document, meta, options)
 
           document
         end
@@ -217,12 +251,10 @@ module Roar
         end
 
         def render_meta(options)
-          # TODO: this will call collection.page etc, directly on the collection. we could allow using a "meta"
-          # object to hold this data.
-          # `meta call_meta: true` or something
-          return {"meta" => options["meta"]} if options["meta"]
-          return {} unless representer = representable_attrs[:meta_representer]
-          {"meta" => representer.new(represented).extend(Representable::Hash).to_hash}
+          representer = representable_attrs[:meta_representer]
+          meta        = representer ? representer.new(represented).to_hash : {}
+          meta.merge!(options['meta']) if options['meta']
+          meta
         end
 
         def render_relationships(res)

@@ -5,7 +5,11 @@ Author = Struct.new(:id, :email, :name) do
 end
 AuthorNine = Author.new(9, "9@nine.to")
 
-Article = Struct.new(:id, :title, :author, :editor, :comments)
+Article = Struct.new(:id, :title, :author, :editor, :comments) do
+  def reviewers
+    ['Christian Bernstein']
+  end
+end
 
 Comment = Struct.new(:id, :body) do
   def self.find_by(options)
@@ -22,10 +26,25 @@ class ArticleDecorator < Roar::Decorator
     "//articles"
   end
 
+  meta toplevel: true do
+    property :count
+  end
+
   # attributes: {}
   property :id
   property :title
 
+  meta do
+    collection :reviewers
+  end
+
+  meta do
+    property :reviewer_initials, getter: ->(_) {
+      reviewers.map {|reviewer|
+        reviewer.split.map { |name| "#{name[0]}." }.join
+      }.join(', ')
+    }
+  end
 
   # resource object links
   link(:self) { "http://#{represented.class}/#{represented.id}" }

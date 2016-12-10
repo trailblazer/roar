@@ -64,7 +64,8 @@ class JsonapiRenderTest < MiniTest::Spec
             :attributes=>{"body"=>"Red Stripe Skank"},
             :links=>{"self"=>"http://comments/comment:2"}
             },
-          ]
+          ],
+        :meta=>{"reviewers"=>["Christian Bernstein"], "reviewer_initials"=>"C.B."}
         })
 
   end
@@ -97,9 +98,26 @@ class JsonapiRenderTest < MiniTest::Spec
                   ], # FIXME.
                  :links=>{"self"=>"http://comments/comment:2"}}}, # FIXME: this only works when a relationship is present.
              :links=>{"self"=>"http://Article/1"}
-        }
+        },
+        :meta=>{"reviewers"=>["Christian Bernstein"], "reviewer_initials"=>"C.B."}
       }
     )
+  end
+
+  it 'renders additional meta information if meta option supplied' do
+    hash = decorator.to_hash('meta' => {
+      'copyright' => 'Nick Sutterer', 'reviewers' => []
+    })
+    hash[:meta]['copyright'].must_equal('Nick Sutterer')
+    hash[:meta]['reviewers'].must_equal([])
+    hash[:meta]['reviewer_initials'].must_equal('C.B.')
+  end
+
+  it 'does not render additonal meta information if meta option is empty' do
+    hash = decorator.to_hash('meta' => {})
+    hash[:meta]['copyright'].must_be_nil
+    hash[:meta]['reviewers'].must_equal(['Christian Bernstein'])
+    hash[:meta]['reviewer_initials'].must_equal('C.B.')
   end
 
   describe "Single Resource Object" do

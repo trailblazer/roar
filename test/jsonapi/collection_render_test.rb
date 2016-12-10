@@ -57,6 +57,7 @@ class JsonapiCollectionRenderTest < MiniTest::Spec
                :links=>{"self"=>"http://comments/comment:4"}}},
            :links=>{"self"=>"http://Article/3"}}],
        :links=>{"self"=>"//articles"},
+       :meta=>{"count" => 3},
        :included=>
         [{:type=>"authors", :id=>"2", :links=>{"self"=>"http://authors/2"}},
          {:type=>"editors",
@@ -131,8 +132,20 @@ class JsonapiCollectionRenderTest < MiniTest::Spec
                :links=>{"self"=>"http://comments/comment:4"}}},
            :links=>{"self"=>"http://Article/3"}}],
        :links=>{"self"=>"//articles"},
+       :meta=>{"count" => 3}
       }
     )
+  end
+
+  it 'renders additional meta information if meta option supplied' do
+    hash = decorator.to_hash('meta' => { page: 2, total: 9 })
+    hash[:meta].must_equal("count" => 3, page: 2, total: 9)
+  end
+
+  it 'does not render additional meta information if meta option is empty' do
+    hash = decorator.to_hash('meta' => {})
+    hash[:meta][:page].must_be_nil
+    hash[:meta][:total].must_be_nil
   end
 
   describe "Fetching Resources (empty collection)" do
@@ -142,6 +155,9 @@ class JsonapiCollectionRenderTest < MiniTest::Spec
         "links" => {
           "self" => "//articles"
         },
+        "meta" => {
+          "count" => 0
+        }
       }
     }
 
