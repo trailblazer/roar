@@ -177,7 +177,7 @@ module Roar
           #      {:lang => "de", :href => "http://de.hit"}]
           #   end
           def links(options, &block)
-            options = {:rel => options} if options.is_a?(Symbol)
+            options = {:rel => options} if options.is_a?(Symbol) || options.is_a?(String)
             options[:array] = true
             link(options, &block)
           end
