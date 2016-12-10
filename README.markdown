@@ -4,7 +4,7 @@ _Resource-Oriented Architectures in Ruby._
 
 [![Gitter Chat](https://badges.gitter.im/trailblazer/chat.svg)](https://gitter.im/trailblazer/chat)
 [![TRB Newsletter](https://img.shields.io/badge/TRB-newsletter-lightgrey.svg)](http://trailblazer.to/newsletter/)
-[![Build Status](https://travis-ci.org/apotonick/roar.svg?branch=master)](https://travis-ci.org/apotonick/roar)
+[![Build Status](https://travis-ci.org/trailblazer/roar.svg?branch=master)](https://travis-ci.org/trailblazer/roar)
 [![Gem Version](https://badge.fury.io/rb/roar.svg)](http://badge.fury.io/rb/roar)
 
 ## Table of Contents
@@ -60,9 +60,9 @@ Roar is completely framework-agnostic and loves being used in web kits like Rail
 
 ## Representable
 
-Roar is just a thin layer on top of the [representable](https://github.com/apotonick/representable) gem. While Roar gives you a DSL and behaviour for creating hypermedia APIs, representable implements all the mapping functionality.
+Roar is just a thin layer on top of the [representable](https://github.com/trailblazer/representable) gem. While Roar gives you a DSL and behaviour for creating hypermedia APIs, representable implements all the mapping functionality.
 
-If in need for a feature, make sure to check the [representable API docs](https://github.com/apotonick/representable) first.
+If in need for a feature, make sure to check the [representable API docs](https://github.com/trailblazer/representable) first.
 
 ## Installation
 
@@ -251,7 +251,7 @@ puts album.songs[1] #=> #<Song title="Roadblock">
 
 The nesting of two representers can map composed object as you find them in many many APIs.
 
-In case you're after virtual nesting, where a nested block in your document still maps to the same outer object, [check out the `::nested` method](https://github.com/apotonick/representable#document-nesting).
+In case you're after virtual nesting, where a nested block in your document still maps to the same outer object, [check out the `::nested` method](https://github.com/trailblazer/representable#document-nesting).
 
 ## Inline Representer
 
@@ -298,7 +298,7 @@ album.songs[0].object_id #=> 81431220
 ```
 Roar didn't create a new `Song` instance but updated its attributes, only.
 
-We're currently [working on](https://github.com/apotonick/roar/issues/85) better strategies to easily implement `POST` and `PUT` semantics in your APIs without having to worry about the nitty-gritties.
+We're currently [working on](https://github.com/trailblazer/roar/issues/85) better strategies to easily implement `POST` and `PUT` semantics in your APIs without having to worry about the nitty-gritties.
 
 
 ## Coercion
@@ -332,7 +332,7 @@ song.released_at #=> 1981-03-31T00:00:00+00:00
 
 ## More Features
 
-Roar/representable gives you many more mapping features like [renaming attributes](https://github.com/apotonick/representable/#aliasing), [wrapping](https://github.com/apotonick/representable/#wrapping), [passing options](https://github.com/apotonick/representable/#passing-options), etc.
+Roar/representable gives you many more mapping features like [renaming attributes](https://github.com/trailblazer/representable/#aliasing), [wrapping](https://github.com/trailblazer/representable/#wrapping), [passing options](https://github.com/trailblazer/representable/#passing-options), etc.
 
 
 ## Hypermedia
@@ -441,7 +441,7 @@ module SongRepresenter
 end
 ```
 
-Documentation for HAL can be found in the [API docs](http://rdoc.info/github/apotonick/roar/Roar/JSON/HAL).
+Documentation for HAL can be found in the [API docs](http://rdoc.info/github/trailblazer/roar/Roar/JSON/HAL).
 
 Make sure you [understand the different contexts](#hypermedia) for links when using decorators.
 
@@ -484,7 +484,7 @@ album.to_json
 
 HAL keys nested resources under the `_embedded` key and then by their type.
 
-All HAL features in Roar are discussed in the [API docs](http://rdoc.info/github/apotonick/roar/Roar/JSON/HAL), including [array links](https://github.com/apotonick/roar/blob/master/lib/roar/json/hal.rb#L196).
+All HAL features in Roar are discussed in the [API docs](http://rdoc.info/github/trailblazer/roar/Roar/JSON/HAL), including [array links](https://github.com/trailblazer/roar/blob/master/lib/roar/json/hal.rb#L196).
 
 ## JSON API
 
@@ -642,7 +642,7 @@ Note that you now use `#to_xml` and `#from_xml`.
 </song>
 ```
 
-Please consult the [representable XML documentation](https://github.com/apotonick/representable/#more-on-xml) for all its great features.
+Please consult the [representable XML documentation](https://github.com/trailblazer/representable/#more-on-xml) for all its great features.
 
 
 ## Support
