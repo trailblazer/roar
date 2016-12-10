@@ -159,6 +159,10 @@ class HalCurieTest < MiniTest::Spec
       "/"
     end
 
+    links "doc:link_collection" do
+      [{:name => "link_collection", :href => "/"}]
+    end
+
     curies do
       [{:name => :doc,
         :href => "//docs/{rel}",
@@ -166,5 +170,5 @@ class HalCurieTest < MiniTest::Spec
     end
   end
 
-  it { Object.new.extend(rpr).to_hash.must_equal({"_links"=>{"doc:self"=>{"href"=>"/"}, "curies"=>[{"name"=>:doc, "href"=>"//docs/{rel}", "templated"=>true}]}}) }
+  it { Object.new.extend(rpr).to_hash.must_equal({"_links"=>{"doc:self"=>{"href"=>"/"}, "doc:link_collection"=>[{"name"=>"link_collection", "href"=>"/"}], "curies"=>[{"name"=>:doc, "href"=>"//docs/{rel}", "templated"=>true}]}}) }
 end
