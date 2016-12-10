@@ -55,6 +55,12 @@ post "/bands" do
   status 201
 end
 
+get '/bands' do
+  [OpenStruct.new(:name => "Slayer", :label => "Canadian Maple"),
+   OpenStruct.new(:name => "Nirvana", :label => "Sub Pop")]
+    .extend(Integration::BandRepresenter.for_collection).to_json
+end
+
 put "/bands/strungout" do
   # DISCUSS: as long as we don't agree on what to return in PUT/PATCH, let's return an updated document.
   body consume_band.to_json

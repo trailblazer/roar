@@ -1,3 +1,11 @@
-require "representable/json/collection"
+require 'roar/json'
 
-Roar::JSON::Collection = Representable::JSON::Collection
+module Roar::JSON
+  module Collection
+    include Roar::JSON
+
+    def self.included(base)
+      base.send :include, Representable::Hash::Collection
+    end
+  end
+end
