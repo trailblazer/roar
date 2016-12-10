@@ -17,14 +17,15 @@ Gem::Specification.new do |s|
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
 
-  s.add_runtime_dependency "representable", ">= 2.4.0", "< 3.1.0"
+  s.add_runtime_dependency "representable", "~> 3.0.0"
 
   s.add_development_dependency "rake", ">= 0.10.1"
   s.add_development_dependency "test_xml", "0.1.6"
   s.add_development_dependency "minitest"
-  s.add_development_dependency "sinatra"
-  s.add_development_dependency "sinatra-contrib"
+  s.add_development_dependency "sinatra", '>= 2.0.0'
+  s.add_development_dependency "sinatra-contrib", '>= 2.0.0'
   s.add_development_dependency "virtus", ">= 1.0.0"
   s.add_development_dependency "faraday"
   s.add_development_dependency "json"
+  s.add_development_dependency "multi_json"
 end

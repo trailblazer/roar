@@ -49,7 +49,7 @@ module Roar
     # Create hypermedia links for this instance by invoking their blocks.
     # This is called in links: getter: {}.
     def prepare_links!(options)
-      return [] if options[:links] == false
+      return [] if (options[:user_options] || {})[:links] == false
 
       link_configs = representable_attrs["links"].link_configs
       compile_links_for(link_configs, options)

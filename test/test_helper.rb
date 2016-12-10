@@ -32,7 +32,6 @@ end
 require "test_xml/mini_test"
 require "roar/xml"
 
-require "integration/runner"
 
 MiniTest::Spec.class_eval do
   def link(options)

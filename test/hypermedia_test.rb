@@ -86,7 +86,7 @@ class HypermediaTest < MiniTest::Spec
         end
 
         it "receives options when rendering" do
-          subject.to_json(:id => 1).must_equal "{\"links\":[{\"rel\":\"self\",\"href\":\"//self/1\"}]}"
+          subject.to_json(user_options: { id: 1 }).must_equal "{\"links\":[{\"rel\":\"self\",\"href\":\"//self/1\"}]}"
         end
 
         describe "in a composition" do
@@ -96,7 +96,7 @@ class HypermediaTest < MiniTest::Spec
           end
 
           it "propagates options" do
-            Song.new(:entity => Song.new).extend(rpr).to_json(:id => 1).must_equal "{\"entity\":{\"links\":[{\"rel\":\"self\",\"href\":\"//self/1\"}]},\"links\":[{\"rel\":\"self\",\"href\":\"//self/1\"}]}"
+            Song.new(:entity => Song.new).extend(rpr).to_json(user_options: { id: 1 }).must_equal "{\"entity\":{\"links\":[{\"rel\":\"self\",\"href\":\"//self/1\"}]},\"links\":[{\"rel\":\"self\",\"href\":\"//self/1\"}]}"
           end
         end
       end
@@ -116,7 +116,7 @@ class HypermediaTest < MiniTest::Spec
         end
 
         it "is rendered according to context" do
-          subject.to_json(type: true).must_equal "{\"links\":[{\"rel\":\"self\",\"href\":\"//self\",\"type\":\"image/jpg\"},{\"rel\":\"other\",\"href\":\"//other\",\"type\":\"image/jpg\"}]}"
+          subject.to_json(user_options: { type: true }).must_equal "{\"links\":[{\"rel\":\"self\",\"href\":\"//self\",\"type\":\"image/jpg\"},{\"rel\":\"other\",\"href\":\"//other\",\"type\":\"image/jpg\"}]}"
           subject.to_json.must_equal "{\"links\":[{\"rel\":\"self\",\"href\":\"//self\",\"type\":\"image/jpg\"},{\"rel\":\"other\",\"href\":\"//other\"}]}"
         end
       end
@@ -131,4 +131,3 @@ class HypermediaTest < MiniTest::Spec
     end
   end
 end
-
