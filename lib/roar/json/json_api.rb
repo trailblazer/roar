@@ -76,6 +76,8 @@ module Roar
           # every nested representer is a full-blown JSONAPI representer.
           dfn = nil
 
+          id_key = nil
+
           nested(:included, inherit: true) do
             dfn = property(name, collection: options[:collection]) do
               include Roar::JSON::JSONAPI
@@ -84,16 +86,24 @@ module Roar
 
               instance_exec(&block)
 
+              id_key = @definitions
+                .select{|k, v| v[:as] && v[:as].evaluate(:value) == 'id'}
+                .keys
+                .first
+              id_key = id_key.to_sym if id_key
+
               def from_document(hash)
                 hash
               end
             end
           end
 
+          id_key ||= :id
+
           property_representer = Class.new(dfn[:extend].(nil))
           property_representer.class_eval do
-            def to_hash(options)
-              super(include: [:type, :id, :links])
+            define_method :to_hash do |options|
+              super(include: [:type, id_key, :links])
             end
           end
 
