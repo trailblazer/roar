@@ -46,7 +46,7 @@ class DecoratorTest < MiniTest::Spec
 
       it "does not set links on represented" do
         decorator_class.new(model_with_links).from_hash("links"=>[{:rel=>:self, :href=>"http://self"}])
-        model_with_links.links.must_equal nil
+        model_with_links.links.must_be_nil
       end
 
       class ConsumingDecorator < Roar::Decorator

@@ -38,11 +38,11 @@ class HalJsonTest < MiniTest::Spec
       end
 
       it "parses empty link array" do
-        subject.from_json("{\"_links\":{\"self\":[]}}").links[:self].must_equal nil
+        subject.from_json("{\"_links\":{\"self\":[]}}").links[:self].must_be_nil
       end
 
       it "parses non-existent link array" do
-        subject.from_json("{\"_links\":{}}").links[:self].must_equal nil # DISCUSS: should this be []?
+        subject.from_json("{\"_links\":{}}").links[:self].must_be_nil # DISCUSS: should this be []?
       end
 
       # it "rejects single links declared as array" do
@@ -103,7 +103,7 @@ class HalJsonTest < MiniTest::Spec
 
       # in newer representables, this is not overwritten to an empty [] anymore.
       assert_equal ["Beer"], album.songs.map(&:title)
-      album.links.must_equal nil
+      album.links.must_be_nil
     end
   end
 

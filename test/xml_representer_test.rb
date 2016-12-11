@@ -39,7 +39,7 @@ class XMLRepresenterFunctionalTest < MiniTest::Spec
     it { order.deserialize("<order><id>1</id></order>").id.must_equal "1" }
 
     # accepts options
-    it { order.from_xml("<order><id>1</id></order>", exclude: [:id]).id.must_equal nil }
+    it { order.from_xml("<order><id>1</id></order>", exclude: [:id]).id.must_be_nil }
   end
 end
 
