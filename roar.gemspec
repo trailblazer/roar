@@ -21,7 +21,7 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency "rake", ">= 0.10.1"
   s.add_development_dependency "test_xml", "0.1.6"
-  s.add_development_dependency "minitest"
+  s.add_development_dependency 'minitest', '>= 5.10'
   s.add_development_dependency "sinatra", '>= 2.0.0'
   s.add_development_dependency "sinatra-contrib", '>= 2.0.0'
   s.add_development_dependency "virtus", ">= 1.0.0"
