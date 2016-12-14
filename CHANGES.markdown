@@ -1,9 +1,12 @@
 # 1.1.0
 
 * Require Representable 3.0.x
-* When using `links[]`, you now need to provide the string name, as in `decorator.links["self"]`. Symbols are not supported, anymore.
 * Remove CollectionJSON support until we get more feedback.
 * Move JSON API support (`Roar::JSON::JSONAPI`) to the separate [roar-jsonapi](https://github.com/trailblazer/roar-jsonapi) gem.
+* When using `links[]`, you now need to provide the string name, as in `decorator.links["self"]`. Symbols are not supported, anymore.
+* `::links` now accepts a String or Symbol as its first argument, enabling more straight-forward definition of CURIE links: e.g. `links 'doc:link_collection' do; end` (@edejong).
+* Clients can now parse lonely collections. (@hilary)
+
 
 # 1.0.4
 
