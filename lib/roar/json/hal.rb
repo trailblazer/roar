@@ -123,12 +123,9 @@ module Roar
                   class:  Roar::Hypermedia::Hyperlink
 
             def to_hash(*)
-              links = []
-              super.each { |hash|
-                links += hash.values # [{"self"=>{"href": ..}}, ..]
-              }
+              links = super.flat_map(&:values) # [{"self"=>{"href": ..}}, ..]
 
-              {represented.rel.to_s => links} # {"self"=>[{"lang"=>"en", "href"=>"http://en.hit"}, {"lang"=>"de", "href"=>"http://de.hit"}]}
+              { represented.rel.to_s => links } # {"self"=>[{"lang"=>"en", "href"=>"http://en.hit"}, {"lang"=>"de", "href"=>"http://de.hit"}]}
             end
           end
         end
@@ -144,9 +141,7 @@ module Roar
                 class:     ->(options) { options[:input].is_a?(Array) ? Array : Hypermedia::Hyperlink }
 
           def to_hash(options)
-            links = {}
-            super.each { |hash| links.merge!(hash) } # [{ rel=>{}, rel=>[{}, {}] }]
-            links
+            super.inject({}) { |links, hash| links.merge!(hash) } # [{ rel=>{}, rel=>[{}, {}] }]
           end
 
           def from_hash(hash, *args)
