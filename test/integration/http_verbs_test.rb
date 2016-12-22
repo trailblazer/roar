@@ -81,11 +81,11 @@ class HttpVerbsTest < MiniTest::Spec
     describe "#post" do
       it "updates instance with incoming representation" do
         @band.name = "Strung Out"
-        assert_equal nil, @band.label
+        assert_nil @band.label
 
         @band.post(:uri => "http://localhost:4567/bands", :as => "application/xml")
         assert_equal "STRUNG OUT", @band.name
-        assert_equal nil, @band.label
+        assert_nil @band.label
       end
     end
 

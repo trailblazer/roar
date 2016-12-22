@@ -61,7 +61,7 @@ class JsonRepresenterTest < MiniTest::Spec
 
       it "accepts :include and :exclude" do
         @order.from_json('{"id":1}', :exclude => [:id])
-        assert_equal nil, @order.id
+        assert_nil @order.id
       end
     end
 
@@ -120,4 +120,3 @@ class JsonHypermediaTest
 
   end
 end
-
