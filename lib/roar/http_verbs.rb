@@ -68,21 +68,5 @@ module Roar
     def http
       transport_engine.new
     end
-
-    def handle_deprecated_args(body, *args) # TODO: remove in 1.0.
-      options = args.first
-
-      if args.size > 1
-        warn %{DEPRECATION WARNING: #get, #post, #put, #delete and #patch no longer accept positional arguments. Please call them as follows:
- get(uri: "http://localhost/songs", as: "application/json")
-post(uri: "http://localhost/songs", as: "application/json")
-Thank you and have a beautiful day.}
-        options = {:uri => args[0], :as => args[1]} if args.size == 2
-        options = {:uri => args[0], :as => args[2]}
-      end
-
-      options[:body] = body
-      options
-    end
   end
 end
