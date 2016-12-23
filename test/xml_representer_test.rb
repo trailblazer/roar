@@ -1,7 +1,8 @@
 require 'test_helper'
+require 'roar/decorator'
 
 class XMLRepresenterFunctionalTest < MiniTest::Spec
-  module OrderRepresenter
+  class OrderRepresenter < Roar::Decorator
     include Roar::XML
 
     property :id
@@ -11,10 +12,10 @@ class XMLRepresenterFunctionalTest < MiniTest::Spec
   Order = Struct.new(:id, :items)
 
   describe "#to_xml" do
-    let (:order) { Order.new(1).extend(OrderRepresenter) }
+    let (:order) { OrderRepresenter.new(Order.new(1)) }
 
     # empty model
-    it { Order.new.extend(OrderRepresenter).to_xml.must_equal_xml "<order/>" }
+    it { OrderRepresenter.new(Order.new).to_xml.must_equal_xml "<order/>" }
 
     # populated model
     it { order.to_xml.must_equal_xml "<order><id>1</id></order>" }
@@ -30,7 +31,7 @@ class XMLRepresenterFunctionalTest < MiniTest::Spec
   end
 
   describe "#from_xml" do
-    let (:order) { Order.new.extend(OrderRepresenter) }
+    let (:order) { OrderRepresenter.new(Order.new) }
 
     # parses
     it { order.from_xml("<order><id>1</id></order>").id.must_equal "1" }

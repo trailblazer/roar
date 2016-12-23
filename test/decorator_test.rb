@@ -125,7 +125,7 @@ class DecoratorTest < MiniTest::Spec
       end
 
       describe "Decorator::HypermediaClient" do
-        let (:decorator) { rpr_mod = rpr
+        let (:decorator_class) { rpr_mod = rpr
           Class.new(Roar::Decorator) do
             include Roar::JSON::HAL
             include rpr_mod
@@ -133,7 +133,7 @@ class DecoratorTest < MiniTest::Spec
           end }
 
         it "propagates links to represented" do
-          decorator.new(model_with_links).from_hash("_links"=>{"self"=>{:href=>"http://self"}})
+          decorator_class.new(model_with_links).from_hash("_links"=>{"self"=>{:href=>"http://self"}})
           model_with_links.links["self"].must_equal(link(:rel=>"self", :href=>"http://self"))
         end
       end

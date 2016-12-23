@@ -1,47 +1,38 @@
 require 'test_helper'
+require 'roar/decorator'
 
 class HypermediaTest < MiniTest::Spec
   describe "inheritance" do
-    module BaseRepresenter
+    class BaseRepresenter < Roar::Decorator
       include Roar::JSON
       include Roar::Hypermedia
 
       link(:base) { "http://base" }
     end
 
-    module Bar
-      include Roar::JSON
-      include Roar::Hypermedia
-
+    class Bar < BaseRepresenter
       link(:bar) { "http://bar" }
     end
 
-    module Foo
-      include Roar::JSON
-      include Roar::Hypermedia
-      include BaseRepresenter
-      include Bar
-
+    class Foo < Bar
       link(:foo) { "http://foo" }
     end
 
     it "inherits parent links" do
-      Object.new.extend(Foo).to_json.must_equal "{\"links\":[{\"rel\":\"base\",\"href\":\"http://base\"},{\"rel\":\"bar\",\"href\":\"http://bar\"},{\"rel\":\"foo\",\"href\":\"http://foo\"}]}"
+      Foo.new(Object.new).to_json.must_equal "{\"links\":[{\"rel\":\"base\",\"href\":\"http://base\"},{\"rel\":\"bar\",\"href\":\"http://bar\"},{\"rel\":\"foo\",\"href\":\"http://foo\"}]}"
     end
 
     it "inherits links from all mixed-in representers" do
-      skip
-      Object.new.extend(BaseRepresenter).extend(Bar).to_json.must_equal "{\"links\":[{\"rel\":\"base\",\"href\":\"http://base\"},{\"rel\":\"bar\",\"href\":\"http://bar\"}]}"
+      Bar.new(Object.new).to_json.must_equal "{\"links\":[{\"rel\":\"base\",\"href\":\"http://base\"},{\"rel\":\"bar\",\"href\":\"http://bar\"}]}"
     end
   end
 
   describe "#links_array" do
-    subject { Object.new.extend(rpr) }
+    subject { decorator_class.new(Object.new) }
 
-    representer_for do
+    decorator_for do
       link(:self) { "//self" }
     end
-
 
     describe "#to_json" do
       it "renders" do
@@ -60,7 +51,7 @@ class HypermediaTest < MiniTest::Spec
     describe "#link" do
 
       describe "with any options" do
-        representer_for do
+        decorator_for do
           link(:rel => :self, :title => "Hey, @myabc") { "//self" }
         end
 
@@ -70,7 +61,7 @@ class HypermediaTest < MiniTest::Spec
       end
 
       describe "with string rel" do
-        representer_for do
+        decorator_for do
           link("ns:self") { "//self" }
         end
 
@@ -81,7 +72,7 @@ class HypermediaTest < MiniTest::Spec
       end
 
       describe "passing options to serialize" do
-        representer_for do
+        decorator_for do
           link(:self) { |opts| "//self/#{opts[:id]}" }
         end
 
@@ -90,19 +81,19 @@ class HypermediaTest < MiniTest::Spec
         end
 
         describe "in a composition" do
-          representer_for do
+          decorator_for do
             property :entity, :extend => self
             link(:self) { |opts| "//self/#{opts[:id]}" }
           end
 
           it "propagates options" do
-            Song.new(:entity => Song.new).extend(rpr).to_json(user_options: { id: 1 }).must_equal "{\"entity\":{\"links\":[{\"rel\":\"self\",\"href\":\"//self/1\"}]},\"links\":[{\"rel\":\"self\",\"href\":\"//self/1\"}]}"
+            decorator_class.new(Song.new(:entity => Song.new)).to_json(user_options: { id: 1 }).must_equal "{\"entity\":{\"links\":[{\"rel\":\"self\",\"href\":\"//self/1\"}]},\"links\":[{\"rel\":\"self\",\"href\":\"//self/1\"}]}"
           end
         end
       end
 
       describe "returning option hash from block" do
-        representer_for do
+        decorator_for do
           link(:self) do {:href => "//self", :type => "image/jpg"} end
           link(:other) do |params|
             hash = { :href => "//other" }
@@ -122,7 +113,7 @@ class HypermediaTest < MiniTest::Spec
       end
 
       describe "not calling #link" do
-        representer_for {}
+        decorator_for {}
 
         it "still allows rendering" do
           subject.to_json.must_equal "{}"

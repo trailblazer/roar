@@ -38,6 +38,16 @@ MiniTest::Spec.class_eval do
     Roar::Hypermedia::Hyperlink.new(options)
   end
 
+  def self.decorator_for(modules=[Roar::JSON, Roar::Hypermedia], &block)
+    let(:decorator_class) do
+      Class.new(Roar::Decorator) do
+        include *modules.reverse
+
+        instance_eval(&block)
+      end
+    end
+  end
+
   def self.representer_for(modules=[Roar::JSON, Roar::Hypermedia], &block)
     let (:rpr) do
       Module.new do

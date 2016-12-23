@@ -6,30 +6,29 @@ require 'roar/client'
 class JsonCollectionTest < MiniTest::Spec
   class Band < OpenStruct; end
 
-  module BandRepresenter
+  class BandRepresenter < Roar::Decorator
     include Roar::JSON
 
     property :name
     property :label
   end
 
-  module BandsRepresenter
+  class BandsRepresenter < Roar::Decorator
     include Roar::JSON::Collection
+    include Roar::Client
 
     items extend: BandRepresenter, class: Band
   end
-  
+
   class Bands < Array
     include Roar::JSON::Collection
-    include BandsRepresenter
-    include Roar::Client
   end
 
   let(:bands) { Bands.new }
 
   # "[{\"name\":\"Slayer\",\"label\":\"Canadian Maple\"},{\"name\":\"Nirvana\",\"label\":\"Sub Pop\"}])"
   it 'fetches lonely collection of existing bands' do
-    bands.get(uri: 'http://localhost:4567/bands', as: 'application/json')
+    BandsRepresenter.new(bands).get(uri: 'http://localhost:4567/bands', as: 'application/json')
     bands.size.must_equal(2)
     bands[0].name.must_equal('Slayer')
   end

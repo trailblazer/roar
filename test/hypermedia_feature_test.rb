@@ -30,7 +30,7 @@ class HypermediaTest < MiniTest::Spec
 
     describe "#to_xml" do
       it "works when no links defined" do
-        repr = Module.new do
+        decorator_class = Class.new(Roar::Decorator) do
           include Roar::XML
           include Roar::Hypermedia
 
@@ -38,22 +38,22 @@ class HypermediaTest < MiniTest::Spec
           property :title
         end
 
-        song.extend(repr).to_xml.must_equal_xml "<song><title>Brandy Wine</title></song>"
+        decorator_class.new(song).to_xml.must_equal_xml "<song><title>Brandy Wine</title></song>"
       end
 
-      let (:rpr) { Module.new do
+      let(:decorator_class) { Class.new(Roar::Decorator) do
         include Roar::XML
         include Roar::Hypermedia
 
         self.representation_wrap = "song"
         property :title
 
-        link(:self) { "/songs/#{title}" }
+        link(:self) { "/songs/#{represented.title}" }
         link(:all) { "/songs" }
       end }
 
       it "includes links in rendered document" do
-        song.extend(rpr).to_xml.must_equal_xml %{
+        decorator_class.new(song).to_xml.must_equal_xml %{
           <song>
             <title>Brandy Wine</title>
             <link rel="self" href="/songs/Brandy Wine"/>
@@ -62,23 +62,22 @@ class HypermediaTest < MiniTest::Spec
       end
 
       it "suppresses links when links: false" do
-        song.extend(rpr).to_xml(user_options: {links: false}).must_equal_xml "<song><title>Brandy Wine</title></song>"
+        decorator_class.new(song).to_xml(user_options: {links: false}).must_equal_xml "<song><title>Brandy Wine</title></song>"
       end
 
       it "renders nested links" do
-        song_rpr = rpr
-
-        album_rpr = Module.new do
+        song_decorator_class  = decorator_class
+        album_decorator_class = Class.new(Roar::Decorator) do
           include Roar::XML
           include Roar::Hypermedia
 
           self.representation_wrap = "album"
-          collection :songs, :extend => song_rpr
+          collection :songs, :extend => song_decorator_class
 
           link(:self) { "/albums/mixed" }
         end
 
-        Album.new(:songs => [song]).extend(album_rpr).to_xml.must_equal_xml %{
+        album_decorator_class.new(Album.new(:songs => [song])).to_xml.must_equal_xml %{
           <album>
             <song>
               <title>Brandy Wine</title>
