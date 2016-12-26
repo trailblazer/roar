@@ -102,7 +102,7 @@ API documents are defined using a representer module or decorator class. You can
 Now let's assume we'd have `Song` which is an `ActiveRecord` class. Please note that Roar is not limited to ActiveRecord. In fact, it doesn't really care whether it's representing ActiveRecord, Datamapper or just an OpenStruct instance.
 
 ```ruby
-class Song < ActiveRecord
+class Song < ActiveRecord::Base
 end
 ```
 
@@ -168,7 +168,7 @@ However, in this README we'll use modules to illustrate this framework.
 
 ## Collections
 
-Roar (or rather representable) also allows to map collections in documents.
+Roar (or rather representable) also allows mapping collections in documents.
 
 ```ruby
 module SongRepresenter
@@ -196,7 +196,7 @@ And, yes, this also works for parsing: `from_json` will create and populate the 
 Now what if we need to tackle with collections of `Song`s? We need to implement an `Album` class.
 
 ```ruby
-class Album < ActiveRecord
+class Album < ActiveRecord::Base
   has_many :songs
 end
 ```
