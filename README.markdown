@@ -25,6 +25,7 @@ _Resource-Oriented Architectures in Ruby._
   * [More Features](#more-features)
   * [Hypermedia](#hypermedia)
   * [Passing Options](#passing-options)
+  * [Specify Decorator](#specify-decorator)
   * [Consuming Hypermedia](#consuming-hypermedia)
   * [Media Formats](#media-formats)
   * [HAL\-JSON](#hal-json)
@@ -326,7 +327,7 @@ song.released_at #=> 1981-03-31T00:00:00+00:00
 
 ## More Features
 
-Roar/representable gives you many more mapping features like [renaming attributes](https://github.com/trailblazer/representable/#aliasing), [wrapping](https://github.com/trailblazer/representable/#wrapping), [passing options](https://github.com/trailblazer/representable/#passing-options), etc.
+Roar/representable gives you many more mapping features like renaming attributes, wrapping, passing options, etc. See the [representable documentation](http://trailblazer.to/gems/representable/3.0/api.html) for a detailed explanation.
 
 
 ## Hypermedia
@@ -394,6 +395,24 @@ song.to_json(base_url: "localhost:3001/")
 ```
 
 Any options passed to `#to_json` will be available as block arguments in the link blocks.
+
+
+## Specify Decorator
+
+If you have a property that is a separate class or model, you can specify a decorator for that property. Suppose there is a separate `Artist` model for an album. When the album is eagerly loaded, the artist model could be represented along with it.
+
+```ruby
+class ArtistRepresenter < Roar::Decorator
+  property :name
+end
+
+class AlbumRepresenter < Roar::Decorator
+  # ..
+  property :artist, decorator: ArtistRepresenter
+end
+```
+
+For using modules, use `extend: ArtistRepresenter`.
 
 
 ## Consuming Hypermedia
