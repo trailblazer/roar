@@ -101,7 +101,7 @@ module Roar
         dfn = definitions["links"] and return dfn # only create it once.
 
         options = links_definition_options
-        options.merge!(getter: ->(options) { prepare_links!(options) })
+        options.merge!(getter: ->(opts) { prepare_links!(opts) })
 
         dfn = build_definition(:links, options)
 
