@@ -6,7 +6,6 @@ rvm:
   - 2.3.1
   - 2.4.0
   - ruby-head
-  - rbx-3
 gemfile:
   - Gemfile
   # - gemfiles/Gemfile.representable-2.4
@@ -15,4 +14,3 @@ before_install:
 matrix:
   allow_failures:
     - rvm: ruby-head
-    - rvm: rbx-3
