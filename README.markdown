@@ -1,4 +1,4 @@
-# ROAR
+# Roar
 
 _Resource-Oriented Architectures in Ruby._
 
@@ -16,7 +16,7 @@ _Resource-Oriented Architectures in Ruby._
   * [Defining Representers](#defining-representers)
   * [Rendering](#rendering)
   * [Parsing](#parsing)
-  * [Decorator](#decorator)
+  * [Module Representers](#module-representers)
   * [Collections](#collections)
   * [Nesting](#nesting)
   * [Inline Representer](#inline-representer)
@@ -49,9 +49,9 @@ Roar is a framework for parsing and rendering REST documents. Nothing more.
 
 Representers let you define your API document structure and semantics. They allow both rendering representations from your models _and_ parsing documents to update your Ruby objects. The bi-directional nature of representers make them interesting for both server and client usage.
 
-Roar comes with built-in JSON, JSON-HAL, JSON-API and XML support. Its highly modular architecture provides features like coercion, hypermedia, HTTP transport, client caching and more.
+Roar comes with built-in JSON, JSON-HAL and XML support. JSON API support is available via the [JSON API](https://github.com/trailblazer/roar-jsonapi) gem. Its highly modular architecture provides features like coercion, hypermedia, HTTP transport, client caching and more.
 
-Roar is completely framework-agnostic and loves being used in web kits like Rails, Webmachine, Sinatra, Padrino, etc. If you use Rails, consider [roar-rails](https://github.com/apotonick/roar-rails) for an enjoyable integration.
+Roar is completely framework-agnostic and loves being used in web kits like Rails, Hanami, Sinatra, Roda, etc. If you use Rails, consider [roar-rails](https://github.com/apotonick/roar-rails) for an enjoyable integration.
 
 ## Representable
 
@@ -71,13 +71,13 @@ gem 'roar'
 
 Roar does not bundle dependencies for JSON and XML.
 
-If you want to use JSON, add the following to your Gemfile:
+If you want to use JSON, add the following to your `Gemfile`:
 
 ```ruby
 gem 'multi_json'
 ```
 
-If you want to use XML, add the following to your Gemfile:
+If you want to use XML, add the following to your `Gemfile`:
 
 ```ruby
 gem 'nokogiri'
@@ -89,18 +89,19 @@ gem 'nokogiri'
 Let's see how representers work. They're fun to use.
 
 ```ruby
+require 'roar/decorator'
 require 'roar/json'
 
-module SongRepresenter
+class SongRepresenter < Roar::Decorator
   include Roar::JSON
 
   property :title
 end
 ```
 
-API documents are defined using a representer module or decorator class. You can define plain attributes using the `::property` method.
+API documents are defined using a decorator class. You can define plain attributes using the `::property` method.
 
-Now let's assume we'd have `Song` which is an `ActiveRecord` class. Please note that Roar is not limited to ActiveRecord. In fact, it doesn't really care whether it's representing ActiveRecord, Datamapper or just an OpenStruct instance.
+Now let's assume we'd have `Song` which is an `ActiveRecord` class. Please note that Roar is not limited to ActiveRecord. In fact, it doesn't really care whether it's representing ActiveRecord, `Sequel::Model` or just an OpenStruct instance.
 
 ```ruby
 class Song < ActiveRecord::Base
@@ -112,6 +113,35 @@ end
 To render a document, you apply the representer to your model.
 
 ```ruby
+song = Song.new(title: "Medicine Balls")
+
+SongRepresenter.new(song).to_json #=> {"title":"Medicine Balls"}
+```
+
+Here, the `song` objects gets wrapped (or "decorated") by the decorator. It is treated as immutable - Roar won't mix in any behaviour.
+
+## Parsing
+
+The cool thing about representers is: they can be used for rendering and parsing. See how easy updating your model from a document is.
+
+```ruby
+song = Song.new(title: "Medicine Balls")
+
+SongRepresenter.new(song).from_json('{"title":"Linoleum"}')
+song.title #=> Linoleum
+```
+
+Unknown attributes in the parsed document are simply ignored, making half-baked solutions like `strong_parameters` redundant.
+
+
+## Module Representers
+
+**Module Representers are deprecated in Roar 1.1 and will be removed in Roar 2.0.**
+
+In place of inheriting from `Roar::Decorator`, you can also extend a singleton object with a representer module. Decorators and module representers actually have identical features. You can parse, render, nest, go nuts with both of them.
+
+
+```ruby
 song = Song.new(title: "Fate")
 song.extend(SongRepresenter)
 
@@ -120,51 +150,17 @@ song.to_json #=> {"title":"Fate"}
 
 Here, the representer is injected into the actual model and gives us a new `#to_json` method.
 
-## Parsing
-
-The cool thing about representers is: they can be used for rendering and parsing. See how easy updating your model from a document is.
+This also works both ways.
 
 ```ruby
 song = Song.new
 song.extend(SongRepresenter)
 
-song.from_json('{"title":"Linoleum"}')
-
-song.title #=> Linoleum
+song.from_json('{"title":"Fate"}')
+song #=> {"title":"Fate"}
 ```
 
-Again, `#from_json` comes from the representer and just updates the known properties.
-
-Unknown attributes in the parsed document are simply ignored, making half-baked solutions like `strong_parameters` redundant.
-
-
-## Decorator
-
-Many people dislike `#extend` due to eventual performance issue or object pollution. If you're one of those, just go with a decorator representer. They almost work identical to the module approach we just discovered.
-
-```ruby
-require 'roar/decorator'
-require 'roar/json'
-
-class SongRepresenter < Roar::Decorator
-  include Roar::JSON
-
-  property :title
-end
-```
-In place of a module you use a class, the DSL inside is the same you already know.
-
-```ruby
-song = Song.new(title: "Medicine Balls")
-
-SongRepresenter.new(song).to_json #=> {"title":"Medicine Balls"}
-```
-
-Here, the `song` objects gets wrapped (or "decorated") by the decorator. It is treated as immutuable - Roar won't mix in any behaviour.
-
-Note that decorators and representer modules have identical features. You can parse, render, nest, go nuts with both of them.
-
-However, in this README we'll use modules to illustrate this framework.
+It's worth noting though that many people dislike `#extend` due to well-known performance issues and object pollution. As such this approach is no longer recommended. In this README we'll use decorators to illustrate this library.
 
 
 ## Collections
@@ -172,7 +168,7 @@ However, in this README we'll use modules to illustrate this framework.
 Roar (or rather representable) also allows mapping collections in documents.
 
 ```ruby
-module SongRepresenter
+class SongRepresenter < Roar::Decorator
   include Roar::JSON
 
   property :title
@@ -184,9 +180,8 @@ Where `::property` knows how to handle plain attributes, `::collection` does lis
 
 ```ruby
 song = Song.new(title: "Roxanne", composers: ["Sting", "Stu Copeland"])
-song.extend(SongRepresenter)
 
-song.to_json #=> {"title":"Roxanne","composers":["Sting","Stu Copeland"]}
+SongRepresenter.new(song).to_json #=> {"title":"Roxanne","composers":["Sting","Stu Copeland"]}
 ```
 
 And, yes, this also works for parsing: `from_json` will create and populate the array of the `composers` attribute.
@@ -205,7 +200,7 @@ end
 Another representer to represent.
 
 ```ruby
-module AlbumRepresenter
+class AlbumRepresenter < Roar::Decorator
   include Roar::JSON
 
   property :title
@@ -222,24 +217,21 @@ Consider the following object setup.
 ```ruby
 album = Album.new(title: "True North")
 album.songs << Song.new(title: "The Island")
-album.songs << Song.new(:title => "Changing Tide")
+album.songs << Song.new(title: "Changing Tide")
 ```
 
 You apply the `AlbumRepresenter` and you get a nested document.
 
 ```ruby
-album.extend(AlbumRepresenter)
-
-album.to_json #=> {"title":"True North","songs":[{"title":"The Island"},{"title":"Changing Tide"}]}
+AlbumRepresenter.new(album).to_json #=> {"title":"True North","songs":[{"title":"The Island"},{"title":"Changing Tide"}]}
 ```
 
 This works vice-versa.
 
 ```ruby
 album = Album.new
-album.extend(AlbumRepresenter)
 
-album.from_json('{"title":"Indestructible","songs":[{"title":"Tropical London"},{"title":"Roadblock"}]}')
+AlbumRepresenter.new(album).from_json('{"title":"Indestructible","songs":[{"title":"Tropical London"},{"title":"Roadblock"}]}')
 
 puts album.songs[1] #=> #<Song title="Roadblock">
 ```
@@ -253,7 +245,7 @@ In case you're after virtual nesting, where a nested block in your document stil
 Sometimes you don't wanna create two separate representers - although it makes them reusable across your app. Use inline representers if you're not intending this.
 
 ```ruby
-module AlbumRepresenter
+class AlbumRepresenter < Roar::Decorator
   include Roar::JSON
 
   property :title
@@ -272,7 +264,7 @@ This will give you the same rendering and parsing behaviour as in the previous e
 Usually, when parsing, nested objects are created from scratch. If you want nested objects to be updated instead of being newly created, use `parse_strategy:`.
 
 ```ruby
-module AlbumRepresenter
+class AlbumRepresenter < Roar::Decorator
   include Roar::JSON
 
   property :title
@@ -286,7 +278,7 @@ This will advise Roar to update existing `songs`.
 ```ruby
 album.songs[0].object_id #=> 81431220
 
-album.from_json('{"title":"True North","songs":[{"title":"Secret Society"},{"title":"Changing Tide"}]}')
+AlbumRepresenter.new(album).from_json('{"title":"True North","songs":[{"title":"Secret Society"},{"title":"Changing Tide"}]}')
 
 album.songs[0].title #=> Secret Society
 album.songs[0].object_id #=> 81431220
@@ -304,7 +296,7 @@ Roar provides coercion with the [virtus](https://github.com/solnic/virtus) gem.
 require 'roar/coercion'
 require 'roar/json'
 
-module SongRepresenter
+class SongRepresenter < Roar::Decorator
   include Roar::JSON
   include Roar::Coercion
 
@@ -317,9 +309,8 @@ The `:type` option allows to set a virtus-compatible type.
 
 ```ruby
 song = Song.new
-song.extend(SongRepresenter)
 
-song.from_json('{"released_at":"1981/03/31"}')
+SongRepresenter.new(song).from_json('{"released_at":"1981/03/31"}')
 
 song.released_at #=> 1981-03-31T00:00:00+00:00
 ```
@@ -335,7 +326,7 @@ Roar/representable gives you many more mapping features like renaming attributes
 Roar comes with built-in support for embedding and processing hypermedia in your documents.
 
 ```ruby
-module SongRepresenter
+class SongRepresenter < Roar::Decorator
   include Roar::JSON
   include Roar::Hypermedia
 
@@ -363,8 +354,7 @@ end
 This will render links into your representation.
 
 ```ruby
-song.extend(SongRepresenter)
-song.to_json #=> {"title":"Roxanne","links":[{"rel":"self","href":"http://songs/Roxanne"}]}
+SongRepresenter.new(song).to_json #=> {"title":"Roxanne","links":[{"rel":"self","href":"http://songs/Roxanne"}]}
 ```
 
 Per default, links are pushed into the hash using the `links` key. Link blocks are executed in represented context, allowing you to call any instance method of your model (here, we call `#title`).
@@ -377,7 +367,7 @@ Also, note that [roar-rails](https://github.com/apotonick/roar-rails) allows usi
 Sometimes you need more data in the link block. Data that's not available from the represented model.
 
 ```ruby
-module SongRepresenter
+class SongRepresenter < Roar::Decorator
   include Roar::JSON
 
   property :title
@@ -391,7 +381,8 @@ end
 Pass this data to the rendering method.
 
 ```ruby
-song.to_json(base_url: "localhost:3001/")
+representer = SongRepresenter.new(song)
+representer.to_json(base_url: "localhost:3001/")
 ```
 
 Any options passed to `#to_json` will be available as block arguments in the link blocks.
@@ -412,17 +403,14 @@ class AlbumRepresenter < Roar::Decorator
 end
 ```
 
-For using modules, use `extend: ArtistRepresenter`.
-
-
 ## Consuming Hypermedia
 
 Since we defined hypermedia attributes in the representer we can also consume this hypermedia when we parse documents.
 
 ```ruby
-song.from_json('{"title":"Roxanne","links":[{"rel":"self","href":"http://songs/Roxanne"}]}')
+representer.from_json('{"title":"Roxanne","links":[{"rel":"self","href":"http://songs/Roxanne"}]}')
 
-song.links[:self].href #=> "http://songs/Roxanne"
+representer.links[:self].href #=> "http://songs/Roxanne"
 ```
 
 Reading link attributes works by using `#links[]` on the consuming instance.
@@ -443,7 +431,7 @@ The [HAL](http://stateless.co/hal_specification.html) format is a simple media t
 ```ruby
 require 'roar/json/hal'
 
-module SongRepresenter
+class SongRepresenter < Roar::Decorator
   include Roar::JSON::HAL
 
   property :title
@@ -463,7 +451,7 @@ Make sure you [understand the different contexts](#hypermedia) for links when us
 Including the `Roar::JSON::HAL` module adds some more DSL methods to your module. It still allows using `::link` but treats them slightly different.
 
 ```ruby
-song.to_json
+representer.to_json
 #=> {"title":"Roxanne","_links":{"self":{"href":"http://songs/Roxanne"}}}
 ```
 
@@ -476,7 +464,7 @@ Parsing works like-wise: Roar will use the same setters as before but it knows h
 Nested, or embedded, resources can be defined using the `:embedded` option.
 
 ```ruby
-module AlbumRepresenter
+class AlbumRepresenter < Roar::Decorator
   include Roar::JSON::HAL
 
   property :title
@@ -490,7 +478,7 @@ end
 To embed a resource, you can use an inline representer or use `:extend` to specify the representer name.
 
 ```ruby
-album.to_json
+AlbumRepresenter.new(album).to_json
 
 #=> {"title":"True North","_embedded":{"songs":[{"title":"The Island"},{"title":"Changing Tide"}]}}
 ```
@@ -510,7 +498,7 @@ Being a bi-directional mapper that does rendering _and_ parsing, Roar represente
 Consider the following shared representer.
 
 ```ruby
-module SongRepresenter
+class SongRepresenter < Roar::Decorator
   include Roar::JSON
   include Roar::Hypermedia
 
@@ -623,7 +611,7 @@ rescue Roar::Transport::Error => exception
 Roar also comes with XML support.
 
 ```ruby
-module SongRepresenter
+class SongRepresenter < Roar::Decorator
   include Roar::XML
   include Roar::Hypermedia
 
@@ -640,9 +628,8 @@ Include the `Roar::XML` engine and get bi-directional XML for your objects.
 
 ```ruby
 song = Song.new(title: "Roxanne", id: 42)
-song.extend(XML::SongRepresenter)
 
-song.to_xml
+SongRepresenter.new(song).to_xml
 ```
 
 Note that you now use `#to_xml` and `#from_xml`.
