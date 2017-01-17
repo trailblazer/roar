@@ -61,7 +61,7 @@ If in need for a feature, make sure to check the [representable API docs](https:
 
 ## Installation
 
-The roar gem runs with all Ruby versions >= 1.9.3.
+The roar gem runs with all Ruby versions >= 2.2.
 
 ```ruby
 gem 'roar'
