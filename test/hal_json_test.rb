@@ -112,6 +112,16 @@ class HalJsonTest < MiniTest::Spec
       assert_equal "http://albums/2", subject.links["self"].href
     end
 
+    describe "with a single Resource instead of an Array of Resources" do
+      it "parses links and resources following the mighty HAL" do
+        album.from_json("{\"id\":2,\"_embedded\":{\"songs\":{\"title\":\"Coffee\",\"_links\":{\"self\":{\"href\":\"http://songs/Coffee\"}}}},\"_links\":{\"self\":{\"href\":\"http://albums/2\"}}}")
+        assert_equal 2, album.id
+        assert_equal "Coffee", album.songs.first.title
+        assert_equal "http://songs/Coffee", album.songs.first.links["self"].href
+        assert_equal "http://albums/2", album.links["self"].href
+      end
+    end
+
     it "doesn't require _links and _embedded to be present" do
       subject.from_json("{\"id\":2}")
       assert_equal 2, album.id
