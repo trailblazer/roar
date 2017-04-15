@@ -90,6 +90,23 @@ class HypermediaTest < MiniTest::Spec
             decorator_class.new(Song.new(:entity => Song.new)).to_json(user_options: { id: 1 }).must_equal "{\"entity\":{\"links\":[{\"rel\":\"self\",\"href\":\"//self/1\"}]},\"links\":[{\"rel\":\"self\",\"href\":\"//self/1\"}]}"
           end
         end
+
+        describe "in chained compositions" do
+          representer_for do
+            link(:self) { |opts| "//self" }
+          end
+
+          it "retains links" do
+            canonical = Module.new do
+              include Roar::Representer::JSON
+              include Roar::Representer::Feature::Hypermedia
+
+              link(:canonical) { "//self/canonical" }
+            end
+
+            subject.extend(canonical).to_json.must_equal "{\"links\":[{\"rel\":\"self\",\"href\":\"//self\"},{\"rel\":\"canonical\",\"href\":\"//self/canonical\"}]}"
+          end
+        end
       end
 
       describe "returning option hash from block" do
