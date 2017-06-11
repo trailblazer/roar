@@ -4,8 +4,8 @@ source "http://rubygems.org"
 gemspec
 
 install_if -> { RUBY_VERSION > '2.2.2' } do
-  gem 'sinatra',          '~> 2.0.0.beta2'
-  gem 'sinatra-contrib',  github: 'sinatra/sinatra'
+  gem 'sinatra',          '~> 2.0'
+  gem 'sinatra-contrib',  '~> 2.0'
 end
 
 gem 'nokogiri', '~> 1.6.8'
