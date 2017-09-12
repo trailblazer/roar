@@ -67,6 +67,12 @@ The roar gem runs with all Ruby versions >= 1.9.3.
 gem 'roar'
 ```
 
+To use roar with Ruby versions < 2.2.0, add a version pin to your Gemfile:
+
+```ruby
+gem 'sinatra', '~> 1.4'
+```
+
 ### Dependencies
 
 Roar does not bundle dependencies for JSON and XML.
