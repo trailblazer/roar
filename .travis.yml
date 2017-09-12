@@ -1,17 +1,16 @@
+language: ruby
 sudo: false
-rvm:
-  - 1.9.3
-  - 2.1
-  - 2.2.6
-  - 2.3.1
-  - 2.4.0
-  - jruby-9.1.13.0
-  - ruby-head
-gemfile:
-  - Gemfile
-  # - gemfiles/Gemfile.representable-2.4
 before_install:
   - gem install bundler
 matrix:
   allow_failures:
+    - rvm: ruby-head
+  fast_finish: true
+  include:
+    - rvm: 1.9.3
+    - rvm: 2.1
+    - rvm: 2.2.6
+    - rvm: 2.3.1
+    - rvm: 2.4.0
+    - rvm: jruby-9.1.13.0
     - rvm: ruby-head
