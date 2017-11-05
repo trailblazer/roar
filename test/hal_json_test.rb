@@ -125,9 +125,10 @@ class HalJsonTest < MiniTest::Spec
 end
 
 class JsonHalTest < MiniTest::Spec
-  Album  = Struct.new(:artist, :songs)
+  Album  = Struct.new(:artist, :songs, :tags)
   Artist = Struct.new(:name)
   Song = Struct.new(:title)
+  Tag = Struct.new(:name, :value)
 
   describe "render_nil: false" do
     let(:decorator_class) do
@@ -162,11 +163,16 @@ class JsonHalTest < MiniTest::Spec
         collection :songs, as: :my_songs, class: Song, embedded: true do
           property :title
         end
+
+        collection :tags do
+          property :value, as: proc { name }
+        end
       end
     end
 
     it { decorator_class.new(Album.new(Artist.new("Bare, Jr."), [Song.new("Tobacco Spit")])).to_hash.must_equal({"_embedded"=>{"my_artist"=>{"name"=>"Bare, Jr."}, "my_songs"=>[{"title"=>"Tobacco Spit"}]}}) }
-    it { decorator_class.new(Album.new).from_hash({"_embedded"=>{"my_artist"=>{"name"=>"Bare, Jr."}, "my_songs"=>[{"title"=>"Tobacco Spit"}]}}).inspect.must_equal "#<struct JsonHalTest::Album artist=#<struct JsonHalTest::Artist name=\"Bare, Jr.\">, songs=[#<struct JsonHalTest::Song title=\"Tobacco Spit\">]>" }
+    it { decorator_class.new(Album.new).from_hash({"_embedded"=>{"my_artist"=>{"name"=>"Bare, Jr."}, "my_songs"=>[{"title"=>"Tobacco Spit"}]}}).inspect.must_equal "#<struct JsonHalTest::Album artist=#<struct JsonHalTest::Artist name=\"Bare, Jr.\">, songs=[#<struct JsonHalTest::Song title=\"Tobacco Spit\">], tags=nil>" }
+    it { decorator_class.new(Album.new(nil, nil, [Tag.new("genre", "proto-metal"), Tag.new("year", "1972")])).to_hash.must_equal({"tags" => [{"genre" => "proto-metal"}, {"year" => "1972"}]}) }
   end
 end
 
