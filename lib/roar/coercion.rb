@@ -1,6 +1,8 @@
-gem 'virtus'
-require 'virtus'
+gem 'dry-types'
+require 'dry-types'
 require 'representable/coercion'
+
+Types = Representable::Coercion::Types
 
 module Roar
   # Use the +:type+ option to specify the conversion type.

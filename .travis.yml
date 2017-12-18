@@ -5,6 +5,8 @@ before_install:
 matrix:
   allow_failures:
     - rvm: ruby-head
+    - rvm: 1.9.3
+    - rvm: 2.1
   fast_finish: true
   include:
     - rvm: 1.9.3

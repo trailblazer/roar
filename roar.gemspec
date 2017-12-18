@@ -26,7 +26,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'minitest', '>= 5.10'
   s.add_development_dependency "sinatra"
   s.add_development_dependency "sinatra-contrib"
-  s.add_development_dependency "virtus", ">= 1.0.0"
+  s.add_development_dependency "dry-types", '~> 0.9'
   s.add_development_dependency "faraday"
   s.add_development_dependency "multi_json"
 end
