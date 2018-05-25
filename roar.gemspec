@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
   s.homepage    = "http://trailblazer.to/gems/roar"
   s.summary     = %q{Parse and render REST API documents using representers.}
   s.description = %q{Object-oriented representers help you defining nested REST API documents which can then be rendered and parsed using one and the same concept.}
-  s.license = 'MIT'
+  s.license     = 'LGPL-3.0'
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test}/*`.split("\n")
