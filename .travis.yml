@@ -1,5 +1,4 @@
 language: ruby
-sudo: false
 before_install:
   - gem install bundler
 matrix:
@@ -7,11 +6,10 @@ matrix:
     - rvm: ruby-head
   fast_finish: true
   include:
-    - rvm: 1.9.3
-    - rvm: 2.1
-    - rvm: 2.2.6
-    - rvm: 2.3.1
-    - rvm: 2.4.0
+    - rvm: 2.3.8
+    - rvm: 2.4.6
+    - rvm: 2.5.5
+    - rvm: 2.6.3
     - rvm: jruby-9.1.15.0
       env:
         - JRUBY_OPTS="--client -J-XX:+TieredCompilation -J-XX:TieredStopAtLevel=1 -J-Xss2m -Xcompile.invokedynamic=false -J-Xmx1536m"
