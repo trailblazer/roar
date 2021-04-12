@@ -61,7 +61,7 @@ class FaradayHttpTransportTest < MiniTest::Spec
 
     describe 'server errors (500 Internal Server Error)' do
       it '#get_uri raises a ClientError' do
-        assert_raises(Faraday::ClientError) do
+        assert_raises(Faraday::ServerError) do
           @transport.get_uri(uri: 'http://localhost:4567/deliberate-error', as: as).body
         end
       end
