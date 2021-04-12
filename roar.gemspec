@@ -19,7 +19,7 @@ Gem::Specification.new do |s|
 
   s.required_ruby_version = '>= 1.9.3'
 
-  s.add_runtime_dependency "representable", "~> 3.0.0"
+  s.add_runtime_dependency "representable", ">= 3.0.0"
 
   s.add_development_dependency "rake"
   s.add_development_dependency "test_xml", "0.1.6"

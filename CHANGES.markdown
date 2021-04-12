@@ -1,3 +1,7 @@
+# 1.1.1
+
+* Require [representable](https://github.com/trailblazer/representable/) 3.x.x
+
 # 1.1.0
 
 * Require Representable 3.0.x
