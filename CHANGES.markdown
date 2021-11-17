@@ -1,3 +1,7 @@
+# 1.1.1
+
+* Allow Representable 3.x.
+
 # 1.1.0
 
 * Require Representable 3.0.x
