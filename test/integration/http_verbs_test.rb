@@ -54,7 +54,7 @@ class HttpVerbsTest < MiniTest::Spec
       describe 'a non-existent resource' do
         it 'handles HTTP errors and raises a ResourceNotFound error with FaradayHttpTransport' do
           @band.transport_engine = Roar::Transport::Faraday
-          assert_raises(::Faraday::Error::ResourceNotFound) do
+          assert_raises(::Faraday::ResourceNotFound) do
             @band.get(uri: 'http://localhost:4567/bands/anthrax', as: "application/json")
           end
         end

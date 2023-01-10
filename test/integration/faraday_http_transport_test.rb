@@ -35,25 +35,25 @@ class FaradayHttpTransportTest < MiniTest::Spec
       let(:not_found_url) { 'http://localhost:4567/missing-resource' }
 
       it '#get_uri raises a ResourceNotFound error' do
-        assert_raises(Faraday::Error::ResourceNotFound) do
+        assert_raises(Faraday::ResourceNotFound) do
           @transport.get_uri(uri: not_found_url, as: as).body
         end
       end
 
       it '#post_uri raises a ResourceNotFound error' do
-        assert_raises(Faraday::Error::ResourceNotFound) do
+        assert_raises(Faraday::ResourceNotFound) do
           @transport.post_uri(uri: not_found_url, body: body, as: as).body
         end
       end
 
       it '#post_uri raises a ResourceNotFound error' do
-        assert_raises(Faraday::Error::ResourceNotFound) do
+        assert_raises(Faraday::ResourceNotFound) do
           @transport.post_uri(uri: not_found_url, body: body, as: as).body
         end
       end
 
       it '#delete_uri raises a ResourceNotFound error' do
-        assert_raises(Faraday::Error::ResourceNotFound) do
+        assert_raises(Faraday::ResourceNotFound) do
           @transport.delete_uri(uri: not_found_url, body: body, as: as).body
         end
       end
@@ -61,7 +61,7 @@ class FaradayHttpTransportTest < MiniTest::Spec
 
     describe 'server errors (500 Internal Server Error)' do
       it '#get_uri raises a ClientError' do
-        assert_raises(Faraday::Error::ClientError) do
+        assert_raises(Faraday::ServerError) do
           @transport.get_uri(uri: 'http://localhost:4567/deliberate-error', as: as).body
         end
       end

@@ -19,14 +19,15 @@ Gem::Specification.new do |s|
 
   s.required_ruby_version = '>= 1.9.3'
 
-  s.add_runtime_dependency "representable", "~> 3.0"
+  s.add_runtime_dependency "representable", "~> 3.1"
 
   s.add_development_dependency "rake"
   s.add_development_dependency "test_xml", "0.1.6"
   s.add_development_dependency 'minitest', '>= 5.10'
   s.add_development_dependency "sinatra"
   s.add_development_dependency "sinatra-contrib"
-  s.add_development_dependency "virtus", ">= 1.0.0"
+  s.add_development_dependency "webrick"
   s.add_development_dependency "faraday"
   s.add_development_dependency "multi_json"
+  s.add_development_dependency "dry-types", ">= 1.0.0"
 end

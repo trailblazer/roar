@@ -58,4 +58,4 @@ class SslServer < Sinatra::Base
 end
 server = ::Rack::Handler::WEBrick
 
-server.run(SslServer, webrick_options)
+server.run(SslServer, **webrick_options)

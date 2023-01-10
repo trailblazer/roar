@@ -1,8 +1,10 @@
-gem 'virtus'
-require 'virtus'
-require 'representable/coercion'
+gem "dry-types", ">= 1.0.0"
+require "dry-types"
+require "representable/coercion"
 
 module Roar
+  Types = Representable::Coercion::Types
+
   # Use the +:type+ option to specify the conversion type.
   # class ImmigrantSong
   #   include Roar::JSON
