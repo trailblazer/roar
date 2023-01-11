@@ -4,7 +4,7 @@ _Resource-Oriented Architectures in Ruby._
 
 [![Gitter Chat](https://badges.gitter.im/trailblazer/chat.svg)](https://gitter.im/trailblazer/chat)
 [![TRB Newsletter](https://img.shields.io/badge/TRB-newsletter-lightgrey.svg)](http://trailblazer.to/newsletter/)
-[![Build Status](https://travis-ci.org/trailblazer/roar.svg?branch=master)](https://travis-ci.org/trailblazer/roar)
+[![Build Status](https://github.com/trailblazer/roar/actions/workflows/ci.yml/badge.svg)](https://github.com/trailblazer/roar/actions)
 [![Gem Version](https://badge.fury.io/rb/roar.svg)](http://badge.fury.io/rb/roar)
 
 ## Table of Contents
