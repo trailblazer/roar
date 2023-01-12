@@ -6,7 +6,7 @@ require 'sinatra/multi_route'
 
 name = "/C=US/ST=SomeState/L=SomeCity/O=Organization/OU=Unit/CN=localhost"
 ca   = OpenSSL::X509::Name.parse(name)
-key = OpenSSL::PKey::RSA.new(1024)
+key = OpenSSL::PKey::RSA.new(2048)
 crt = OpenSSL::X509::Certificate.new
 crt.version = 2
 crt.serial  = 1
