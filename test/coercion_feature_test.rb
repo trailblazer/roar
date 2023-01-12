@@ -8,7 +8,7 @@ class CoercionFeatureTest < MiniTest::Spec
       include Roar::JSON
       include Roar::Coercion
 
-      property :composed_at, :type => DateTime, :default => "May 12th, 2012"
+      property :composed_at, type: Types::JSON::DateTime, default: "May 12th, 2012"
     end
 
     class ImmigrantSong

@@ -296,7 +296,7 @@ We're currently [working on](https://github.com/trailblazer/roar/issues/85) bett
 
 ## Coercion
 
-Roar provides coercion with the [virtus](https://github.com/solnic/virtus) gem.
+Roar provides coercion with the [dry-types](https://dry-rb.org/gems/dry-types/) gem.
 
 ```ruby
 require 'roar/coercion'
@@ -307,11 +307,11 @@ class SongRepresenter < Roar::Decorator
   include Roar::Coercion
 
   property :title
-  property :released_at, type: DateTime
+  property :released_at, type: Types::DateTime
 end
 ```
 
-The `:type` option allows to set a virtus-compatible type.
+The `:type` option allows to set a dry-types-compatible type.
 
 ```ruby
 song = Song.new
