@@ -1,5 +1,7 @@
 # Next
 
+# 1.2.0
+
 * Allow Representable `>= 3.1`
 * Replace `Virtus` with `Dry-Types`
 
